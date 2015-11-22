@@ -1,0 +1,388 @@
+==================================================================
+			Bachelorarbeit
+Function to modify for implementation of Generic Crypto Interface
+==================================================================
+//TODO sw new[JJ-MM-AAAA] - modif - gci_xxxx 
+--> when a function of crypto_wrap has been changed with one of gci
+
+//TODO sw new[JJ-MM-AAAA] - add - xxxx/gci_xxxx 
+--> when a function or variable(s) has been added
+
+//TODO sw new[JJ-MM-AAAA] - delete - cr_xxxx 
+--> when a function of crypto_wrap has been deleted
+
+
+------------------------------------------------------------------
+			TYPE OF DATA
+File: ssl.h + crypto_wrap.h + crypto_tomcrypt.h
+------------------------------------------------------------------
+Change all cw_xxx to gci_xxx
+--> DONE - 13/11/2015
+
+
+------------------------------------------------------------------
+			HASH - MD5
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_hash_new_ctx
+-> loc_verySign  --> TEST DONE - 16/11/2015
+----> TEST -> loc_verify_sign is called in loc_protocolHand. The cases to test it is:
+	Handshake
+	-> means I get a packet
+	Server Hello
+	-> means I need to be client to get it
+	Server Key Exchange
+	-> means cipher suites should not be implemented with RSA
+	Case: Not EC
+	-> means cipher suites should not be implemented with Elliptic Curve
+	
+	In TLS 1.2
+	-> possibility to do these TEST with :
+		-> No cipher suites
+
+	In TLS 1.1
+	-> possibility to do these TEST with :
+		-> No cipher suites
+    
+	In TLS 1.0
+	-> possibility to do these TEST with :
+		-> No cipher suites
+
+	In SSL3.0
+	-> possibility to do these TEST with :
+		-> No cipher suites
+
+
+  
+-> loc_sign_hash --> TEST DONE - 16/11/2015
+-> loc_hash 
+-> loc_compHashSSL
+-> loc_compMacSSL
+-> loc_prfSSL
+
+Function: gci_hash_update
+-> loc_verySign
+-> loc_sign_hash
+-> loc_hash  
+-> loc_compHashSSL
+-> loc_compMacSSL
+-> loc_prfSSL
+
+Function: gci_hash_clone
+-> loc_compHashSSL
+
+Function: gci_hash_finish
+-> loc_verySign
+-> loc_sign_hash
+-> loc_compHashSSL
+-> loc_compHashTLS
+-> loc_compMacSSL
+-> loc_prfSSL
+
+
+------------------------------------------------------------------
+			HASH - SHA
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_hash_new_ctx
+-> loc_verySign
+----> TEST -> loc_verify_sign is called in loc_protocolHand. The cases to test it is:
+	Handshake
+	-> means I get a packet
+	Server Hello
+	-> means I need to be client to get it
+	Server Key Exchange
+	-> means cipher suites should not be implemented with RSA
+	Case: Not EC
+	-> means cipher suites should not be implemented with Elliptic Curve
+	
+	In TLS 1.2
+	-> possibility to do these TEST with :
+		-> TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
+		-> TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+		-> TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+		-> TLS_DHE_RSA_WITH_AES_128_CBC_SHA256
+		-> TLS_DHE_RSA_WITH_AES_256_CBC_SHA256
+
+	In TLS 1.1
+	-> possibility to do these TEST with :
+		-> No cipher suites
+    
+	In TLS 1.0
+	-> possibility to do these TEST with :
+		-> No cipher suites
+
+	In SSL3.0
+	-> possibility to do these TEST with :
+		-> No cipher suites
+-> loc_sign_hash
+-> loc_hash 
+-> loc_compHashSSL
+-> loc_compMacSSL
+-> loc_prfSSL
+
+Function: gci_hash_update
+-> loc_verySign
+-> loc_sign_hash
+-> loc_hash 
+-> loc_compHashSSL
+-> loc_compMacSSL
+-> loc_prfSSL
+
+Function: gci_hash_clone
+-> loc_compHashSSL
+
+Function: gci_hash_finish
+-> loc_verySign
+-> loc_sign_hash
+-> loc_compHashSSL
+-> loc_compHashTLS
+-> loc_compMacSSL
+-> loc_prfSSL
+
+
+------------------------------------------------------------------
+			HASH - Depend on function parameter
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_hash_new_ctx
+-> loc_verySign
+-> loc_sign_hash
+-> loc_hash
+-> loc_compHashTLS
+-> loc_compMacTLS 
+-> loc_pHash
+
+Function: gci_hash_update
+-> loc_verySign
+-> loc_sign_hash
+-> loc_hash
+-> loc_compHashTLS
+-> loc_compMacTLS 
+-> loc_pHash
+
+Function: gci_hash_finish
+-> loc_verySign
+-> loc_sign_hash
+-> loc_compHashTLS
+-> loc_compMacTLS 
+-> loc_pHash
+
+
+------------------------------------------------------------------
+			SIGNATURE - RSA
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_sign_new_ctx
+-> loc_verySign
+-> loc_sign_hash
+-> loc_protocolResp
+-> loc_protocolHand
+
+Function: gci_sign_update
+-> loc_verySign
+-> loc_sign_hash
+-> loc_protocolResp
+-> loc_protocolHand
+-> loc_verify_hash
+
+Function: gci_sign_gen_finish
+-> loc_sign_hash
+-> loc_protocolResp
+
+Function: gci_sign_verify_finish
+-> loc_verySign
+-> loc_protocolHand
+-> loc_verify_hash
+
+------------------------------------------------------------------
+			SIGNATURE - ECDSA
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_sign_new_ctx
+
+Function: gci_sign_update
+
+Function: gci_sign_gen_finish
+
+Function: gci_sign_verify_finish
+
+
+------------------------------------------------------------------
+			SIGNATURE - HMAC
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_sign_new_ctx
+-> loc_sign_hash
+
+Function: gci_sign_update
+-> loc_sign_hash
+
+Function: gci_sign_gen_finish
+-> loc_sign_hash
+
+Function: gci_sign_verify_finish
+
+
+File: ssl_certHandler.c
+Function: gci_sign_new_ctx
+-> ssl_verifyCertSign
+
+Function: gci_sign_update
+
+Function: gci_sign_verify_finish
+
+------------------------------------------------------------------
+			CIPHER - RC4
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_cipher_new_ctx
+-> loc_compKey
+
+
+------------------------------------------------------------------
+			CIPHER - 3DES
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_cipher_new_ctx
+-> loc_compKey
+
+
+------------------------------------------------------------------
+			CIPHER - AES
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_cipher_new_ctx
+-> loc_compKey
+
+
+------------------------------------------------------------------
+			CIPHER - ENCRYPT
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_cipher_encrypt
+-> loc_smMacEncrypt
+-> loc_protocolResp
+
+
+------------------------------------------------------------------
+			CIPHER - DECRYPT
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_cipher_decrypt
+-> loc_smDecryptMacCheck
+
+
+File: ssl_conf.c
+Function: gci_cipher_decrypt
+-> sslConf_asymCryptoDisp
+
+
+------------------------------------------------------------------
+			Diffie-Hellman
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_dh_gen_key
+-> loc_protocolResp
+
+Function: gci_dh_shared_secret
+-> loc_protocolResp
+
+
+File: key_management.c
+Function: gci_dh_gen_key
+-> km_dhe_init (DH)
+
+
+File: ssl_conf.c
+Function: gci_dh_shared_secret
+-> -> sslConf_asymCryptoDisp (ECDH + DH)
+
+------------------------------------------------------------------
+			Random Number Generator
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_rng_gen
+-> loc_addPadding
+-> loc_protocolResp
+-> loc_smMacEncrypt
+
+
+File: cert_db.c
+Function: gci_rng_gen
+-> cdb_erase
+
+
+File: ssl_conf.c
+Function: gci_rng_gen
+-> sslConf_rand
+
+Function: gci_rng_seed
+-> sslConf_seedRand
+
+
+File: ssl_sessCache
+Function: gci_rng_gen
+-> sslSesCache_getNewSessId
+
+
+------------------------------------------------------------------
+			KEY pair generate RSA
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_key_pair_gen
+-> ssl_initCtx
+
+
+File: ssl_certHelper.c
+Function: gci_key_pair_gen
+-> sslCert_getSubject
+-> sslCert_verifyChain
+
+
+File: ssl_socket.c
+Function: gci_key_pair_gen
+-> _sslSoc_sett_import_RSAprivKey
+
+
+------------------------------------------------------------------
+			KEY pair generate ECDSA
+------------------------------------------------------------------
+File: ssl_socket.c
+Function: gci_key_pair_gen
+-> _sslSoc_sett_import_ECCprivKey
+
+
+------------------------------------------------------------------
+			KEY management 
+------------------------------------------------------------------
+File: ssl.c
+Function: gci_key_put
+-> loc_protocolResp (ECDH PUB + DH PUB + DH PRIV)
+
+Function: gci_key_get
+-> loc_protocolHand (ECDH PUB + DH PUB)
+
+
+File: key_management.c
+Function: gci_key_delete
+-> km_dhe_init 
+
+
+File: ssl_certHelper.c
+Function: gci_key_delete
+-> sslCert_getSubject
+-> sslCert_verifyChain
+
+
+File: ssl_conf.c
+Function: gci_key_get
+-> sslConf_asymCryptoDisp (ECDH PUB + DH PRIV)
+
+Function: gci_key_delete
+-> sslConf_asymCryptoDisp
+
+
+File: ssl_socket.c
+Function: gci_key_delete
+-> sslSoc_free
