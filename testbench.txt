@@ -161,10 +161,6 @@ Function: gci_hash_new_ctx
 		In TLS 1.2 use
 			-> TLS_RSA_WITH_RC4_128_MD5
 
-	  
-	
-
-
 
 -> loc_compHashSSL
 -> loc_compMacSSL
