@@ -1,6 +1,6 @@
 ==================================================================
 			Bachelorarbeit
-Function to modify for implementation of Generic Crypto Interface
+Testbench for implementation of Generic Crypto Interface
 ==================================================================
 //TODO sw new[JJ-MM-AAAA] - modif - gci_xxxx 
 --> when a function of crypto_wrap has been changed with one of gci
@@ -11,6 +11,10 @@ Function to modify for implementation of Generic Crypto Interface
 //TODO sw new[JJ-MM-AAAA] - delete - cr_xxxx 
 --> when a function of crypto_wrap has been deleted
 
+!!protocolHand -> receive the packet (If case Server Hello Done > I receive a Server Hello Done so I should be client)
+!!protocolResp -> send the packet (If case Server Hello Done > I send a Server Hello Done so I should be server)
+
+!!Server Key Exchange -> no use with RSA key pair -> should be DHE or ECDHE if implemented
 
 ------------------------------------------------------------------
 			TYPE OF DATA
@@ -26,9 +30,9 @@ Change all cw_xxx to gci_xxx
 File: ssl.c
 Function: gci_hash_new_ctx
 -> loc_verySign  --> TEST DONE - 16/11/2015
-----> TEST -> loc_verify_sign is called in loc_protocolHand. The cases to test it is:
+----> TEST -> loc_verify_sign is called in loc_protocolHand. The cases to test it are:
 	Handshake
-	-> means I get a packet
+	-> means there is exchange between client and server
 	Server Hello
 	-> means I need to be client to get it
 	Server Key Exchange
@@ -54,8 +58,114 @@ Function: gci_hash_new_ctx
 
 
   
--> loc_sign_hash --> TEST DONE - 16/11/2015
+-> loc_sign_hash
+----> Test -> loc_sign_hash is called in loc_protocolResp. The case to test it is:
+	Send Server Hello - ASM Step 2 - default case (= Not ECDHE_RSA nor ECDHE_ECDSA)
+   
+
 -> loc_hash 
+----> TEST -> loc_hash is called in loc_protocolHand. The cases to test it are:
+	1-  Server waits a Client Key Exchange
+		In TLS 1.0 use
+			-> TLS_RSA_WITH_RC4_128_MD5	
+		In TLS 1.1 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+		In TLS 1.2 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+
+	2-  Server waits a Client Certificat Verify - Certificate Verify
+		In TLS 1.0 use
+			-> TLS_RSA_WITH_RC4_128_MD5	
+		In TLS 1.1 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+		In TLS 1.2 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+
+	3-  Handshake - Client Hello
+		In TLS 1.0
+			-> No cipher suites	
+		In TLS 1.1
+			-> No cipher suites
+		IN TLS 1.2
+			-> No cipher suites
+
+	4-  Handshake - Server Hello
+		In TLS 1.0 use
+			-> TLS_RSA_WITH_RC4_128_MD5	
+		In TLS 1.1 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+		In TLS 1.2 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+
+	5-  Handshake - Certificate - Server waits Client Certificate
+		In TLS 1.0 use
+			-> TLS_RSA_WITH_RC4_128_MD5	
+		In TLS 1.1 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+		In TLS 1.2 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+
+	6-  Handshake - Certificate - Server waits Certificate
+		In TLS 1.0 use
+			-> TLS_RSA_WITH_RC4_128_MD5 ?	
+		In TLS 1.1 use
+			-> TLS_RSA_WITH_RC4_128_MD5 ?
+		In TLS 1.2 use
+			-> TLS_RSA_WITH_RC4_128_MD5 ?
+
+	7-  Handshake - Server Key Exchange
+		In TLS 1.0
+			-> No cipher suites	
+		In TLS 1.1
+			-> No cipher suites
+		IN TLS 1.2
+			-> No cipher suites
+
+	8-  Handshake - Certificate Request
+		In TLS 1.0 use
+			-> TLS_RSA_WITH_RC4_128_MD5	
+		In TLS 1.1 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+		In TLS 1.2 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+
+	9-  Handshake - Server Hello Done
+		In TLS 1.0 use
+			-> TLS_RSA_WITH_RC4_128_MD5	
+		In TLS 1.1 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+		In TLS 1.2 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+
+	10- Handshake - Client Key Exchange
+		In TLS 1.0
+			-> No cipher suites	
+		In TLS 1.1
+			-> No cipher suites
+		IN TLS 1.2
+			-> No cipher suites
+
+	11- Handshake - Certificate Verify
+		In TLS 1.0 use
+			-> TLS_RSA_WITH_RC4_128_MD5	
+		In TLS 1.1 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+		In TLS 1.2 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+
+	12- Handshake - Finished
+		In TLS 1.0 use
+			-> TLS_RSA_WITH_RC4_128_MD5	
+		In TLS 1.1 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+		In TLS 1.2 use
+			-> TLS_RSA_WITH_RC4_128_MD5
+
+	  
+	
+
+
+
 -> loc_compHashSSL
 -> loc_compMacSSL
 -> loc_prfSSL
