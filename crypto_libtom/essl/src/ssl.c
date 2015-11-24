@@ -40,7 +40,7 @@
 #include "ssl_conf.h"
 #include "ssl_record.h"
 #include "key_management.h"
-#include "crypto_tomcrypt.h"
+#include "crypto_iface.h"
 
 /*** Defines ****************************************************************/
 #define	LOGGER_ENABLE		DBG_SSL_PROTO_MODULE
@@ -295,28 +295,53 @@ static int32_t loc_procExtSignAlg(s_sslCtx_t* ps_sslCtx,
 
 /*** Local Functions ********************************************************/
 
-static uint8_t loc_getHashSize(e_sslHashAlg_t e_hashAlg)
-{
-	uint8_t c_hashSize;
+//OLD-CW:
+//static uint8_t loc_getHashSize(e_sslHashAlg_t e_hashAlg)
+//{
+//	uint8_t c_hashSize;
+//
+//	switch (e_hashAlg)
+//	{
+//	case E_SSL_HASH_MD5:
+//		c_hashSize = GCI_MD5_SIZE;
+//		break;
+//	case E_SSL_HASH_SHA1:
+//		c_hashSize = GCI_SHA1_SIZE;
+//		break;
+//	case E_SSL_HASH_SHA256:
+//		c_hashSize = GCI_SHA256_SIZE;
+//		break;
+//	default:
+//	case E_SSL_HASH_NONE:
+//	case E_SSL_HASH_INVALID:
+//		c_hashSize = 0;
+//		break;
+//	}
+//	return (c_hashSize);
+//}
 
-	switch (e_hashAlg)
+static uint8_t loc_getHashSize(GciHashAlgo_t hashAlg)
+{
+	uint8_t hashSize;
+
+	switch (hashAlg)
 	{
-	case E_SSL_HASH_MD5:
-		c_hashSize = GCI_MD5_SIZE;
+	case HASH_ALGO_MD5:
+		hashSize = GCI_MD5_SIZE;
 		break;
-	case E_SSL_HASH_SHA1:
-		c_hashSize = GCI_SHA1_SIZE;
+	case HASH_ALGO_SHA1:
+		hashSize = GCI_SHA1_SIZE;
 		break;
-	case E_SSL_HASH_SHA256:
-		c_hashSize = GCI_SHA256_SIZE;
+	case HASH_ALGO_SHA256:
+		hashSize = GCI_SHA256_SIZE;
 		break;
 	default:
-	case E_SSL_HASH_NONE:
-	case E_SSL_HASH_INVALID:
-		c_hashSize = 0;
+	case HASH_ALGO_NONE:
+	case HASH_ALGO_INVALID:
+		hashSize = 0;
 		break;
 	}
-	return (c_hashSize);
+	return (hashSize);
 }
 
 
@@ -386,7 +411,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 	s_sslHsElem_t*      ps_hsElem;
 	s_sslSecParams_t*   ps_secPar;
 	uint16_t            i_signLen;
-	uint8_t             c_hashLen;
+	uint8_t             hashLen;
 	int8_t              e_result = E_SSL_NO_ERROR;
 	uint8_t             ac_sign[GCI_MAX_HASHSIZE];
 	/* In case of TLS 1.2 we have prepended hash oid */
@@ -394,7 +419,10 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 	uint8_t             ac_decSign[sz_decSignLen];
 
 	//TODO sw new[13/11/2015] - add - Variables gci
-	GciCtxId_t hashMd5ID;
+
+
+	GciResult_t err;
+
 	size_t ac_sign_len;
 
 	assert(ps_sslCtx != NULL);
@@ -423,70 +451,141 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 	if (ps_sslCtx->s_secParams.s_signAlg.c_hash == E_SSL_HASH_INVALID)
 	{
 		/* message digest contexts will be used to verify DH server parameter */
-		gci_sha1Ctx_t  cwt_sha1Ctx;
-		gci_md5Ctx_t  cwt_md5Ctx;
 
-		//TODO sw gci_hash_new_ctx MD5
-		cr_digestInit(&cwt_md5Ctx, NULL, 0, E_SSL_HASH_MD5);
-		//gci_hash_new_ctx(HASH_ALGO_MD5, &hashMd5ID);
+		//OLD-CW: gci_sha1Ctx_t  cwt_sha1Ctx;
+		GciCtxId_t sha1Ctx;
+		//OLD-CW: gci_md5Ctx_t  cwt_md5Ctx;
+		GciCtxId_t md5Ctx;
 
-		//TODO sw gci_hash_update MD5
-		cr_digestUpdate(&cwt_md5Ctx, ps_hsElem->ac_cliRand,CLI_RANDSIZE,E_SSL_HASH_MD5);
-		//gci_hash_update(hashMd5ID, ps_hsElem->ac_cliRand, CLI_RANDSIZE);
+		//OLD-CW: cr_digestInit(&cwt_md5Ctx, NULL, 0, E_SSL_HASH_MD5);
+		if (gci_hash_new_ctx(HASH_ALGO_MD5, &md5Ctx) != GCI_NO_ERR) {
+			//TODO: return from error state
+		}
 
-		//TODO sw gci_hash_update MD5
-		cr_digestUpdate(&cwt_md5Ctx, ps_hsElem->ac_srvRand, SRV_RANDSIZE, E_SSL_HASH_MD5);
-		//gci_hash_update(hashMd5ID, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
+		//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, ps_hsElem->ac_cliRand,CLI_RANDSIZE,E_SSL_HASH_MD5);
+		err = gci_hash_update(md5Ctx, ps_hsElem->ac_cliRand, CLI_RANDSIZE);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
 
-		//TODO sw gci_hash_update MD5
-		cr_digestUpdate(&cwt_md5Ctx, pc_tbvParams, sz_inLen, E_SSL_HASH_MD5);
-		//gci_hash_update(hashMd5ID, pc_tbvParams, sz_inLen);
+		//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, ps_hsElem->ac_srvRand, SRV_RANDSIZE, E_SSL_HASH_MD5);
+		err = gci_hash_update(md5Ctx, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
 
-		//TODO sw gci_hash_finish MD5
-		cr_digestFinish(&cwt_md5Ctx, ac_sign, NULL, E_SSL_HASH_MD5);
-		//gci_hash_finish(hashMd5ID, ac_sign, &ac_sign_len);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
 
-		//TODO sw gci_hash_new_ctx SHA1
-		cr_digestInit(&cwt_sha1Ctx, NULL, 0, E_SSL_HASH_SHA1);
-		//TODO sw gci_hash_update SHA1
-		cr_digestUpdate(&cwt_sha1Ctx, ps_hsElem->ac_cliRand,
-				CLI_RANDSIZE, E_SSL_HASH_SHA1);
+		//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, pc_tbvParams, sz_inLen, E_SSL_HASH_MD5);
+		err = gci_hash_update(md5Ctx, pc_tbvParams, sz_inLen);
 
-		//TODO sw gci_hash_update SHA1
-		cr_digestUpdate(&cwt_sha1Ctx, ps_hsElem->ac_srvRand,
-				SRV_RANDSIZE, E_SSL_HASH_SHA1);
 
-		//TODO sw gci_hash_update SHA1
-		cr_digestUpdate(&cwt_sha1Ctx, pc_tbvParams, sz_inLen, E_SSL_HASH_SHA1);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
 
-		//TODO sw gci_hash_finish SHA1
-		cr_digestFinish(&cwt_sha1Ctx, &ac_sign[GCI_MD5_SIZE],
-				NULL, E_SSL_HASH_SHA1);
 
-		c_hashLen = GCI_MD5_SHA1_SIZE;
+		//OLD-CW: cr_digestFinish(&cwt_md5Ctx, ac_sign, NULL, E_SSL_HASH_MD5);
+		err = gci_hash_finish(md5Ctx, ac_sign, &ac_sign_len);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
+
+
+		//OLD-CW: cr_digestInit(&cwt_sha1Ctx, NULL, 0, E_SSL_HASH_SHA1);
+		err = gci_hash_new_ctx(HASH_ALGO_SHA1, &sha1Ctx);
+
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
+
+
+		//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, ps_hsElem->ac_cliRand, CLI_RANDSIZE, E_SSL_HASH_SHA1);
+		err = gci_hash_update(sha1Ctx, ps_hsElem->ac_cliRand, CLI_RANDSIZE);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
+
+
+		//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, ps_hsElem->ac_srvRand, SRV_RANDSIZE, E_SSL_HASH_SHA1);
+		err = gci_hash_update(sha1Ctx, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
+
+
+		//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, pc_tbvParams, sz_inLen, E_SSL_HASH_SHA1);
+		err = gci_hash_update(sha1Ctx, pc_tbvParams, sz_inLen);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
+
+
+		//OLD-CW: cr_digestFinish(&cwt_sha1Ctx, &ac_sign[GCI_MD5_SIZE], NULL, E_SSL_HASH_SHA1);
+		err = gci_hash_finish(sha1Ctx, ac_sign, &ac_sign_len);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
+
+		hashLen = GCI_MD5_SHA1_SIZE;
 	}
 
 	else
 	{
 		/* message digest contexts will be used to verify DH server parameter */
-		gci_hashCtx_t  cwt_hashCtx;
-		c_hashLen = loc_getHashSize(ps_sslCtx->s_secParams.s_signAlg.c_hash);
+		//OLD-CW: gci_hashCtx_t  cwt_hashCtx;
+		GciCtxId_t hashCtx;
 
-		//TODO sw gci_hash_new_ctx
-		cr_digestInit(&cwt_hashCtx, NULL, 0,
-				ps_secPar->s_signAlg.c_hash);
-		//TODO sw gci_hash_update
-		cr_digestUpdate(&cwt_hashCtx, ps_hsElem->ac_cliRand,
-				CLI_RANDSIZE, ps_secPar->s_signAlg.c_hash);
-		//TODO sw gci_hash_update
-		cr_digestUpdate(&cwt_hashCtx, ps_hsElem->ac_srvRand,
-				SRV_RANDSIZE, ps_secPar->s_signAlg.c_hash);
-		//TODO sw gci_hash_update
-		cr_digestUpdate(&cwt_hashCtx, pc_tbvParams,
-				sz_inLen, ps_secPar->s_signAlg.c_hash);
-		//TODO sw gci_hash_finish
-		cr_digestFinish(&cwt_hashCtx, ac_sign, NULL,
-				ps_secPar->s_signAlg.c_hash);
+
+		hashLen = loc_getHashSize(ps_sslCtx->s_secParams.s_signAlg.c_hash);
+
+
+		//TODO see how to know the hash algorthm and adapt it with hash from gci
+		//OLD-CW: cr_digestInit(&cwt_hashCtx, NULL, 0, ps_secPar->s_signAlg.c_hash);
+		err = gci_hash_new_ctx(ps_secPar->s_signAlg.c_hash, hashCtx);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
+
+		//OLD-CW: cr_digestUpdate(&cwt_hashCtx, ps_hsElem->ac_cliRand, CLI_RANDSIZE, ps_secPar->s_signAlg.c_hash);
+		err = gci_hash_update(hashCtx, ps_hsElem->ac_cliRand, CLI_RANDSIZE);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
+
+
+		//OLD-CW: cr_digestUpdate(&cwt_hashCtx, ps_hsElem->ac_srvRand, SRV_RANDSIZE, ps_secPar->s_signAlg.c_hash);
+		err = gci_hash_update(hashCtx, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
+
+		//OLD-CW: cr_digestUpdate(&cwt_hashCtx, pc_tbvParams, sz_inLen, ps_secPar->s_signAlg.c_hash);
+		err = gci_hash_update(hashCtx, pc_tbvParams, sz_inLen);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
+
+		//OLD-CW: cr_digestFinish(&cwt_hashCtx, ac_sign, NULL, ps_secPar->s_signAlg.c_hash);
+		err = gci_hash_finish(hashCtx, ac_sign, ac_sign_len);
+		if (err != GCI_NO_ERR)
+		{
+			//TODO: return from error state
+		}
+
+
 	}
 
 	/* length of the signature */
@@ -504,6 +603,8 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 
 	else
 	{
+
+		//TODO BEGIN here
 
 		/* pc_hsBuff now pointing to the signature data */
 		pc_encSign += 2;
@@ -564,8 +665,8 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 		}
 
 		/* Check if calculated hash is equal to calculated one */
-		if ((c_hashLen != sz_decSignLen) ||
-				(CW_MEMCMP(ac_sign, ac_decSign, c_hashLen) != 0))
+		if ((hashLen != sz_decSignLen) ||
+				(CW_MEMCMP(ac_sign, ac_decSign, hashLen) != 0))
 		{
 			LOG_ERR("Failed to verify signature of server DH parameter "
 					"in ServerKeyExchange message");

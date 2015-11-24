@@ -790,7 +790,8 @@ typedef struct ssl_securityParameters
    uint8_t              c_keyLen;
    e_sslPrf_t           e_prf;
    /* type of the MAC algorithm used for message authentication */
-   e_sslHashAlg_t       e_hmacType;
+   //OLD-CW: e_sslHashAlg_t       e_hmacType;
+   GciHashAlgo_t 		e_hmacType;
    /* length of the output produced by the MAC algorithm */
    uint8_t              c_hmacLen;
    /* storage for the MAC secrets. Maximum Possible amount of bytes */

@@ -106,7 +106,42 @@ typedef struct
 /*		      										HASH		 				      							  	  */
 /**********************************************************************************************************************/
 
-//TODO new[16/11/2015]
+//TODO new[24/11/2015]
+/*! Size of the context array */
+#define 	GCI_NB_CTX_MAX				16
+/*! Size of the key array */
+#define 	GCI_NB_KEY_MAX				255
+/*! Size in bits for md5 digest */
+#define     GCI_MD5_SIZE_BITS           128
+/*! Size in bytes for sha1 digest */
+#define     GCI_MD5_SIZE                (GCI_MD5_SIZE_BITS / 8)
+
+/*! Size in bits for sha1 digest */
+#define     GCI_SHA1_SIZE_BITS          160
+/*! Size in bytes for sha1 digest */
+#define     GCI_SHA1_SIZE               (GCI_SHA1_SIZE_BITS / 8)
+
+/*! Size in bits for sha1 digest */
+#define     GCI_SHA224_SIZE_BITS        224
+/*! Size in bytes for sha1 digest */
+#define     GCI_SHA224_SIZE             (GCI_SHA224_SIZE_BITS / 8)
+
+/*! Size in bits for sha1 digest */
+#define     GCI_SHA256_SIZE_BITS        256
+/*! Size in bytes for sha1 digest */
+#define     GCI_SHA256_SIZE             (GCI_SHA256_SIZE_BITS / 8)
+
+/*! Size in bytes for md5+sha1 digest */
+#define     GCI_MD5_SHA1_SIZE           GCI_SHA1_SIZE + GCI_MD5_SIZE
+
+/*! Maximum size in bits for a digest */
+#define     GCI_MAX_HASHSIZE             GCI_SHA256_SIZE
+
+#define     GCI_PKCS1_MAX_KEYSIZE        4096
+#define     SSL_RSA_MAX_KEY_SIZE        GCI_PKCS1_MAX_KEYSIZE
+#define     MAX_MSG_SIZE                (GCI_PKCS1_MAX_KEYSIZE / 8)
+
+
 
 /*!
  * \enum 					GciHashAlgo_t
@@ -114,10 +149,10 @@ typedef struct
  */
 typedef enum
 {
-	/** Invalid Hash */
-	HASH_INVALID,
 	/** No hash algorithm used */
 	HASH_ALGO_NONE,
+	/** MD5 */
+	HASH_ALGO_MD5,
 	/** SHA 1 */
 	HASH_ALGO_SHA1,
 	/** SHA 224 */
@@ -128,8 +163,8 @@ typedef enum
 	HASH_ALGO_SHA384,
 	/** SHA 512 */
 	HASH_ALGO_SHA512,
-	/** MD5 */
-	HASH_ALGO_MD5
+	/** Invalid Hash */
+	HASH_ALGO_INVALID = 0xFF,
 } GciHashAlgo_t;
 
 
