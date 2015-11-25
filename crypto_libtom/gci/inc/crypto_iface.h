@@ -39,7 +39,7 @@ GciResult_t gci_init(const uint8_t* user, size_t userLen, const uint8_t* passwor
  * @return					GCI_NO_ERR on success
  * @return					GCI_ERR on error
  */
-GciResult_t gci_deinit();
+GciResult_t gci_deinit(void);
 
 
 

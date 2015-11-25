@@ -430,10 +430,14 @@ typedef struct
  */
 typedef enum
 {
-	/**Invalid signature*/
-	SIGN_ALGO_INVALID,
 	/**No algorithm*/
 	SIGN_ALGO_NONE,
+	/** RSA */
+	SIGN_ALGO_RSA,
+	/** DSA */
+	SIGN_ALGO_DSA,
+	/** ECDSA */
+	SIGN_ALGO_ECDSA,
 	/** ISO9797 ALG1 */
 	SIGN_ALGO_MAC_ISO9797_ALG1,
 	/** ISO9797 ALG3 */
@@ -442,8 +446,6 @@ typedef enum
 	SIGN_ALGO_CMAC_AES,
 	/** HMAC */
 	SIGN_ALGO_HMAC,
-	/** DSA */
-	SIGN_ALGO_DSA,
 	/** RSA SSA PSS */
 	SIGN_ALGO_RSASSA_PSS,
 	/** RSA SSA PKCS */
@@ -453,7 +455,9 @@ typedef enum
 	/** ECDSA GFP */
 	SIGN_ALGO_ECDSA_GFP,
 	/** ECDSA GF2M */
-	SIGN_ALGO_ECDSA_GF2M
+	SIGN_ALGO_ECDSA_GF2M,
+	/**Invalid signature*/
+	SIGN_ALGO_INVALID = 0xFF
 } GciSignAlgo_t;
 
 
@@ -497,16 +501,17 @@ typedef struct
 typedef struct
 {
 	/**
-	 * HASH_INVALID
 	 * HASH_ALGO_NONE
+	 * HASH_ALGO_MD5
 	 * HASH_ALGO_SHA1
 	 * HASH_ALGO_SHA224
 	 * HASH_ALGO_SHA256
 	 * HASH_ALGO_SHA384
 	 * HASH_ALGO_SHA512
-	 * HASH_ALGO_MD5
+	 * HASH_INVALID
 	 */
 	GciHashAlgo_t hash;
+
 } GciSignHmacConfig_t;
 
 
@@ -518,14 +523,14 @@ typedef struct
 typedef struct
 {
 	/**
-	 * HASH_INVALID
 	 * HASH_ALGO_NONE
+	 * HASH_ALGO_MD5
 	 * HASH_ALGO_SHA1
 	 * HASH_ALGO_SHA224
 	 * HASH_ALGO_SHA256
 	 * HASH_ALGO_SHA384
 	 * HASH_ALGO_SHA512
-	 * HASH_ALGO_MD5
+	 * HASH_INVALID
 	 */
 	GciHashAlgo_t hash;
 } GciSignRsassaConfig_t;
@@ -539,14 +544,14 @@ typedef struct
 typedef struct
 {
 	/**
-	 * HASH_INVALID
 	 * HASH_ALGO_NONE
+	 * HASH_ALGO_MD5
 	 * HASH_ALGO_SHA1
 	 * HASH_ALGO_SHA224
 	 * HASH_ALGO_SHA256
 	 * HASH_ALGO_SHA384
 	 * HASH_ALGO_SHA512
-	 * HASH_ALGO_MD5
+	 * HASH_INVALID
 	 */
 	GciHashAlgo_t hash;
 
@@ -563,14 +568,14 @@ typedef struct
 typedef struct
 {
 	/**
-	 * HASH_INVALID
 	 * HASH_ALGO_NONE
+	 * HASH_ALGO_MD5
 	 * HASH_ALGO_SHA1
 	 * HASH_ALGO_SHA224
 	 * HASH_ALGO_SHA256
 	 * HASH_ALGO_SHA384
 	 * HASH_ALGO_SHA512
-	 * HASH_ALGO_MD5
+	 * HASH_INVALID
 	 */
 	GciHashAlgo_t hash;
 
@@ -617,8 +622,10 @@ typedef struct
 typedef struct
 {
 	/**
-	 * SIGN_ALGO_INVALID
 	 * SIGN_ALGO_NONE
+	 * SIGN_ALGO_RSA
+	 * SIGN_ALGO_DSA
+	 * SIGN_ALGO_ECDSA
 	 * SIGN_ALGO_MAC_ISO9797_ALG1
 	 * SIGN_ALGO_MAC_ISO9797_ALG3
 	 * SIGN_ALGO_CMAC_AES
@@ -629,6 +636,7 @@ typedef struct
 	 * SIGN_ALGO_DSA
 	 * SIGN_ALGO_ECDSA_GFP
 	 * SIGN_ALGO_ECDSA_GF2M
+	 * SIGN_ALGO_INVALID
 	 */
 	GciSignAlgo_t algo;
 
@@ -644,8 +652,8 @@ typedef struct
 		/** HMAC Configuration */
 		GciSignHmacConfig_t hmac;
 
-		/** RSASSA Configuration */
-		GciSignRsassaConfig_t rsassa;
+		/** RSA Configuration */
+		GciSignRsassaConfig_t rsa;
 
 		/** DSA Configuration */
 		GciSignDsaConfig_t dsa;

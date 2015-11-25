@@ -27,7 +27,9 @@
 #ifdef EMBETTER_DMA
 #include "drv_hw.h"
 #endif
-#include "crypto_tomcrypt.h"
+
+#include "crypto_iface.h"
+
 ltc_math_descriptor ltc_mp;
 
 
@@ -145,34 +147,36 @@ typedef     CL_AESCTX         gci_aesCtx_t;
 
 #elif defined(TOMLIB_CRYPTO)
 /* we define an own type for the RC4 context to save memory */
-//typedef struct rc4_prng_state {
-//    int x, y;
-//    unsigned char buf[256];
-//} prng_state_rc4;
+typedef struct rc4_prng_state {
+    int x, y;
+    unsigned char buf[256];
+} prng_state_rc4;
 
-///*============= RETURN =============*/
-//typedef     int               cw_rsaRet_t;
-///*=============  PKI   =============*/
-//typedef     dh_key            cw_dhKey_t;
-//typedef     rsa_key           cw_rsaPrivKey_t;
-//typedef     rsa_key           cw_rsaPubKey_t;
-//typedef const rsa_key*        rpcw_rsaPubKey_t;
-///*=============  MATH  =============*/
-//typedef     mp_int            cw_bigNum_t;
-///*============= HASHES =============*/
-//typedef     hash_state        cw_sha1Ctx_t;
-//typedef     hash_state        cw_md5Ctx_t;
-//typedef     hash_state        cw_hashCtx_t;
-///*=============  HMAC  =============*/
-//typedef     hmac_state        cw_sha1HmacCtx_t;
-//typedef     hmac_state        cw_md5HmacCtx_t;
-//typedef     hmac_state        cw_hmacCtx_t;
-///*============= CRYPTO =============*/
-//typedef     prng_state_rc4    cw_rc4Ctx_t;
-//typedef     symmetric_CBC     cw_aesCtx_t;
-//typedef     symmetric_CBC     cw_3desCtx;
-//typedef     symmetric_CBC     cw_cbcCtx;
-//typedef     symmetric_CBC     cw_symCbcCtx;
+/*============= RETURN =============*/
+typedef     int               gci_rsaRet_t;
+/*=============  PKI   =============*/
+typedef     dh_key            gci_dhKey_t;
+typedef     rsa_key           gci_rsaPrivKey_t;
+typedef     rsa_key           gci_rsaPubKey_t;
+typedef const rsa_key*        rpgci_rsaPubKey_t;
+/*=============  MATH  =============*/
+typedef     mp_int            gci_bigNum_t;
+/*============= HASHES =============*/
+typedef     hash_state        gci_sha1Ctx_t;
+typedef     hash_state        gci_md5Ctx_t;
+typedef     hash_state        gci_hashCtx_t;
+/*=============  HMAC  =============*/
+typedef     hmac_state        gci_sha1HmacCtx_t;
+typedef     hmac_state        gci_md5HmacCtx_t;
+typedef     hmac_state        gci_hmacCtx_t;
+/*============= CRYPTO =============*/
+typedef     prng_state_rc4    gci_rc4Ctx_t;
+typedef     symmetric_CBC     gci_aesCtx_t;
+typedef     symmetric_CBC     gci_3desCtx;
+typedef     symmetric_CBC     gci_cbcCtx;
+typedef     symmetric_CBC     gci_symCbcCtx;
+///*============= ECC =============*/
+typedef		ecc_key			  gci_eccKey_t;
 #endif
 
 typedef struct tagPublicKey
@@ -813,9 +817,6 @@ int cw_rsa_encrypt(uint8_t* p_inData, size_t cwt_inDataLen,
    \return    CW_ERROR          an error occurred while decoding
 
 */
-//TODO sw gci_sign_new_ctx RSA +
-//TODO sw gci_sign_update RSA +
-//TODO sw gci_sign_verify_finish RSA
 /*============================================================================*/
 int cw_rsa_sign_decode(uint8_t* pc_encSign, size_t sz_encSignLen,
                        uint8_t* pc_decSign, size_t* sz_decSignLen,

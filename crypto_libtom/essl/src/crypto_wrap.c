@@ -1864,18 +1864,26 @@ int8_t cr_digestInit( void*     p_ctx, const uint8_t*   pc_key,
 
     c_hashId = loc_getDigestId(e_hashType);
 
-    if (c_hashId == CW_ERROR) {
+    if (c_hashId == CW_ERROR)
+    {
         /* Hash algorithm not known for a crypto wrapper module */
         err = CW_ERROR;
-    } else {
+    }
+
+    else
+    {
         /* No key  presented, so calculate pure hash*/
         if (!pc_key)
         {
-            if (( err = hash_descriptor[c_hashId].init((gci_hashCtx_t * )p_ctx)) != CRYPT_OK) {
+            if (( err = hash_descriptor[c_hashId].init((gci_hashCtx_t * )p_ctx)) != CRYPT_OK)
+            {
                 LOG_ERR("digest init failed. Reason %s", error_to_string(err));
                 err =  CW_ERROR;
             }
-        } else {
+        }
+
+        else
+        {
             gci_hmacCtx_t*   p_hmac = (gci_hmacCtx_t * )p_ctx;
 
             p_hmac->hash    = c_hashId;

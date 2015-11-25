@@ -40,6 +40,8 @@ extern "C" {
 #include "cert_db.h"
 #include "ssl3.h"
 #include "timeout.h"
+#include "crypto_wrap.h"
+#include "crypto_iface.h"
 
 
 
@@ -687,10 +689,16 @@ typedef struct ssl_handshakeElements
     */
    uint8_t              ac_hsBuf[SSL_HANDSHAKE_BUFFER_SIZE];
    /* Sha1 and MD5 context for verification of the handshake messages */
+   //TODO: delete this union after written hashCtx instead of it
    union {
        s_md5Sha1_t      s_md5Sha1;
+	   GciCtxId_t 		md5Ctx;
        gci_hashCtx_t    gci_hashCtx;
+	   GciCtxId_t		sha1Ctx;
+	   GciCtxId_t		hashCtx;
+
    }u_hashCtx;
+
    size_t               gci_hsBufLen;
 
    /* keep a list of hello extension types present in the ClientHello
@@ -730,6 +738,7 @@ typedef struct ssl_peerGlobalSettings
    /* Pointer to \ref cwt_rsaMyPrivKey */
    ecc_key*			        p_ECCMyPrivKey; //vpy
    ltc_ecc_set_type			ltc_ECC_curvesParameters; //vpy
+   GciNamedCurve_t 			gci_curveName;
 
    /* Behaviour of the SSL context pertaining to Client Authentication */
    e_sslAuthLevel_t         e_authLvl;
