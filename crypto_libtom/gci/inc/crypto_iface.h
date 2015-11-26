@@ -334,26 +334,28 @@ GciResult_t gci_dh_calc_sharedSecret(GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciK
 /**********************************************************************************************************************/
 
 /*!
- * \fn						GciResult_t gci_key_put(const GciKey_t* key, GciKeyId_t* keyID)
+ * \fn						GciResult_t gci_key_put(const GciKey_t* key, size_t keyLen, GciKeyId_t* keyID)
  * \brief					Store a key and get an ID of the key
- * \param [in]	key			Structure with the key and its length
+ * \param [in]		key		Structure with the key and its length
+ * \param [in]		keyLen	Length of the key
  * \param [in, out] keyID	Key ID - -1 to generate an automatic key ID or and other (>= 0) that will be the key ID
  * @return 					GCI_NO_ERR on success
  * @return					GCI_ERR on error
  */
-GciResult_t gci_key_put(const GciKey_t* key, GciKeyId_t* keyID);
+GciResult_t gci_key_put(const GciKey_t* key, size_t keyLen, GciKeyId_t* keyID);
 
 
 
 /*!
- * \fn						GciResult_t gci_key_get(GciKeyId_t keyID, GciKey_t* key)
+ * \fn						GciResult_t gci_key_get(GciKeyId_t keyID, GciKey_t* key, size_t* keyLen)
  * \brief					Get a stored key
  * \param [in]  keyID		Key's ID
  * \param [out] key			Buffer of the key and its length
+ * \param [out] keyLen		Length of the key
  * @return 					GCI_NO_ERR on success
  * @return					GCI_ERR on error
  */
-GciResult_t gci_key_get(GciKeyId_t keyID, GciKey_t* key);
+GciResult_t gci_key_get(GciKeyId_t keyID, GciKey_t* key, size_t* keyLen);
 
 
 

@@ -45,7 +45,7 @@ typedef int GciKeyId_t;
 typedef enum
 {
 	/**No error*/
-	GCI_NO_ERR,
+	GCI_OK,
 	/**Overflow of IDs*/
 	GCI_ID_OVERFLOW,
 	/**Error of hash algorithm*/
@@ -56,7 +56,7 @@ typedef enum
 	GCI_ERR
 } GciResult_t;
 
-//TODO new[16/11/2015]
+
 
 /*!
  * \enum 					GciInfo_t
@@ -65,9 +65,9 @@ typedef enum
 typedef enum
 {
 	/**Invalid information*/
-	INFO_INVALID,
+	GCI_INFO_INVALID,
 	/**Information of Elliptic Curve Name*/
-	INFO_ECNAME
+	GCI_INFO_ECNAME
 } GciInfo_t;
 
 
@@ -106,7 +106,6 @@ typedef struct
 /*		      										HASH		 				      							  	  */
 /**********************************************************************************************************************/
 
-//TODO new[24/11/2015]
 /*! Size of the context array */
 #define 	GCI_NB_CTX_MAX				16
 /*! Size of the key array */
@@ -150,21 +149,21 @@ typedef struct
 typedef enum
 {
 	/** No hash algorithm used */
-	HASH_ALGO_NONE,
+	GCI_HASH_NONE,
 	/** MD5 */
-	HASH_ALGO_MD5,
+	GCI_HASH_MD5,
 	/** SHA 1 */
-	HASH_ALGO_SHA1,
+	GCI_HASH_SHA1,
 	/** SHA 224 */
-	HASH_ALGO_SHA224,
+	GCI_HASH_SHA224,
 	/** SHA 256 */
-	HASH_ALGO_SHA256,
+	GCI_HASH_SHA256,
 	/** SHA 384 */
-	HASH_ALGO_SHA384,
+	GCI_HASH_SHA384,
 	/** SHA 512 */
-	HASH_ALGO_SHA512,
+	GCI_HASH_SHA512,
 	/** Invalid Hash */
-	HASH_ALGO_INVALID = 0xFF,
+	GCI_HASH_INVALID = 0xFF,
 } GciHashAlgo_t;
 
 
@@ -173,31 +172,29 @@ typedef enum
 /*		      										SYMMETRIC CIPHER			      							  	  */
 /**********************************************************************************************************************/
 
-//TODO new[16/11/2015]
-
 /*!
  * \enum 					GciBlockMode_t
  * \brief					Enumeration for all block mode
  */
 typedef enum
 {
-	/** Invalid block mode*/
-	BLOCK_MODE_INVALID,
 	/** No block mode used*/
-	BLOCK_MODE_NONE,
-	/** ECB mode*/
-	BLOCK_MODE_ECB,
-	/** CFB mode*/
-	BLOCK_MODE_CFB,
-	/** OFB mode*/
-	BLOCK_MODE_OFB,
+	GCI_BLOCK_MODE_NONE,
 	/** CBC mode */
-	BLOCK_MODE_CBC,
+	GCI_BLOCK_MODE_CBC,
+	/** ECB mode*/
+	GCI_BLOCK_MODE_ECB,
+	/** CFB mode*/
+	GCI_BLOCK_MODE_CFB,
+	/** OFB mode*/
+	GCI_BLOCK_MODE_OFB,
 	/** GCM mode */
-	BLOCK_MODE_GCM
+	GCI_BLOCK_MODE_GCM,
+	/** Invalid block mode*/
+	GCI_BLOCK_MODE_INVALID=0xFF
 } GciBlockMode_t;
 
-//TODO new[16/11/2015]
+
 
 /*!
  * \enum 					GciPadding_t
@@ -205,19 +202,19 @@ typedef enum
  */
 typedef enum
 {
-	/**Invalid padding*/
-	PADDING_INVALID,
 	/** None padding */
-	PADDING_NONE,
+	GCI_PADDING_NONE,
 	/** ISO9797 padding */
-	PADDING_ISO9797_METHOD2,
+	GCI_PADDING_ISO9797_METHOD2,
 	/** PKCS5 padding */
-	PADDING_PKCS5,
+	GCI_PADDING_PKCS5,
 	/** PKCS7 padding */
-	PADDING_PKCS7
+	GCI_PADDING_PKCS7,
+	/**Invalid padding*/
+	GCI_PADDING_INVALID=0xFF
 } GciPadding_t;
 
-//TODO new[16/11/2015]
+
 
 /*!
  * \enum 					GciCipherAlgo_t
@@ -225,18 +222,18 @@ typedef enum
  */
 typedef enum
 {
-	/** Cipher type invalid*/
-	CIPH_TYPE_INVALID,
 	/**No cipher*/
-	CIPH_TYPE_NONE,
+	GCI_CIPH_NONE,
 	/** Stream cipher RC4 */
-	CIPH_TYPE_RC4,
-	/** Block cipher AES */
-	CIPH_TYPE_AES,
-	/** Block cipher DES*/
-	CIPH_TYPE_DES,
+	GCI_CIPH_RC4,
 	/** Block cipher Triple DES */
-	CIPH_TYPE_TDES
+	GCI_CIPH_TDES,
+	/** Block cipher AES */
+	GCI_CIPH_AES,
+	/** Block cipher DES*/
+	GCI_CIPH_DES,
+	/** Cipher type invalid*/
+	GCI_CIPH_INVALID=0xFF
 } GciCipherAlgo_t;
 
 
@@ -248,34 +245,36 @@ typedef enum
 typedef struct
 {
 	/**
-	 * CIPH_TYPE_INVALID
-	 * CIPH_TYPE_NONE
-	 * CIPH_TYPE_RC4
-	 * CIPH_TYPE_AES
-	 * CIPH_TYPE_DES
-	 * CIPH_TYPE_TDES
+	 * GCI_CIPH_NONE
+	 * GCI_CIPH_RC4
+	 * GCI_CIPH_TDES
+	 * GCI_CIPH_AES
+	 * GCI_CIPH_DES
+	 * GCI_CIPH_INVALID=0xFF
 	 */
 	GciCipherAlgo_t algo;
 
 	/**
-	 * BLOCK_MODE_INVALID
-	 * BLOCK_MODE_NONE
- 	 * BLOCK_MODE_ECB
-	 * BLOCK_MODE_CFB
-	 * BLOCK_MODE_OFB
-	 * BLOCK_MODE_CBC
-	 * BLOCK_MODE_GCM
+	 * GCI_BLOCK_MODE_NONE
+	 * GCI_BLOCK_MODE_CBC
+ 	 * GCI_BLOCK_MODE_ECB
+	 * GCI_BLOCK_MODE_CFB
+	 * GCI_BLOCK_MODE_OFB
+	 * GCI_BLOCK_MODE_GCM
+	 * GCI_BLOCK_MODE_INVALID=0xFF
  	 */
 	GciBlockMode_t blockMode;
 
 	/**
-	 * PADDING_INVALID
-	 * PADDING_NONE
-	 * PADDING_ISO9797_METHOD2
-	 * PADDING_PKCS5
-	 * PADDING_PKCS7
+	 * GCI_PADDING_NONE
+	 * GCI_PADDING_ISO9797_METHOD2
+	 * GCI_PADDING_PKCS5
+	 * GCI_PADDING_PKCS7
+	 * GCI_PADDING_INVALID=0xFF
 	 */
 	GciPadding_t padding;
+
+
 
 	/**Initialization vector (IV) */
 	GciBuffer_t iv;
@@ -328,7 +327,7 @@ typedef struct
 	GciBigInt_t y;
 } GciEcPoint_t;
 
-//TODO new[16/11/2015]
+
 
 /*!
  * \enum 					GciNamedCurve_t
@@ -337,61 +336,63 @@ typedef struct
 typedef enum
 {
 	/**Invalid Elliptic Curve*/
-	EC_INVALID,
+	GCI_EC_INVALID,
 	/**SECP112R1 Elliptic Curve*/
-	EC_SECP112R1,
+	GCI_EC_SECP112R1,
 	/**SECP112R2 Elliptic Curve*/
-	EC_SECP112R2,
+	GCI_EC_SECP112R2,
 	/**SECP128R1 Elliptic Curve*/
-	EC_SECP128R1,
+	GCI_EC_SECP128R1,
 	/**SECP128R2 Elliptic Curve*/
-	EC_SECP128R2,
+	GCI_EC_SECP128R2,
 	/**SECP160R1 Elliptic Curve*/
-	EC_SECP160R1,
+	GCI_EC_SECP160R1,
 	/**SECP160R2 Elliptic Curve*/
-	EC_SECP160R2,
+	GCI_EC_SECP160R2,
 	/**SECP160K1 Elliptic Curve*/
-	EC_SECP160K1,
+	GCI_EC_SECP160K1,
 	/**BRAINPOOLP160R1 Elliptic Curve*/
-	EC_BRAINPOOLP160R1,
+	GCI_EC_BRAINPOOLP160R1,
 	/**SECP192R1 Elliptic Curve*/
-	EC_SECP192R1,
+	GCI_EC_SECP192R1,
 	/**PRIME192V2 Elliptic Curve*/
-	EC_PRIME192V2,
+	GCI_EC_PRIME192V2,
 	/**PRIME192V3 Elliptic Curve*/
-	EC_PRIME192V3,
+	GCI_EC_PRIME192V3,
 	/**SECP192K1 Elliptic Curve*/
-	EC_SECP192K1,
+	GCI_EC_SECP192K1,
 	/**BRAINPOOLP192R1 Elliptic Curve*/
-	EC_BRAINPOOLP192R1,
+	GCI_EC_BRAINPOOLP192R1,
 	/**SECP224R1 Elliptic Curve*/
-	EC_SECP224R1,
+	GCI_EC_SECP224R1,
 	/**SECP224K1 Elliptic Curve*/
-	EC_SECP224K1,
+	GCI_EC_SECP224K1,
 	/**BRAINPOOLP224R1 Elliptic Curve*/
-	EC_BRAINPOOLP224R1,
+	GCI_EC_BRAINPOOLP224R1,
 	/**PRIME239V1 Elliptic Curve*/
-	EC_PRIME239V1,
+	GCI_EC_PRIME239V1,
 	/**PRIME239V2 Elliptic Curve*/
-	EC_PRIME239V2,
+	GCI_EC_PRIME239V2,
 	/**PRIME239V3 Elliptic Curve*/
-	EC_PRIME239V3,
+	GCI_EC_PRIME239V3,
 	/**SECP256R1 Elliptic Curve*/
-	EC_SECP256R1,
+	GCI_EC_SECP256R1,
 	/**SECP256K1 Elliptic Curve*/
-	EC_SECP256K1,
+	GCI_EC_SECP256K1,
 	/**BRAINPOOLP256R1 Elliptic Curve*/
-	EC_BRAINPOOLP256R1,
+	GCI_EC_BRAINPOOLP256R1,
 	/**BRAINPOOLP320R1 Elliptic Curve*/
-	EC_BRAINPOOLP320R1,
+	GCI_EC_BRAINPOOLP320R1,
 	/**SECP384R1 Elliptic Curve*/
-	EC_SECP384R1,
+	GCI_EC_SECP384R1,
 	/**BRAINPOOLP384R1 Elliptic Curve*/
-	EC_BRAINPOOLP384R1,
+	GCI_EC_BRAINPOOLP384R1,
 	/**BRAINPOOLP512R1 Elliptic Curve*/
-	EC_BRAINPOOLP512R1,
+	GCI_EC_BRAINPOOLP512R1,
 	/**SECP521R1 Elliptic Curve*/
-	EC_SECP521R1
+	GCI_EC_SECP521R1,
+	/**EC_PRIME256V1 Elliptic Curve*/
+	GCI_EC_PRIME256V1
 } GciNamedCurve_t;
 
 
@@ -422,8 +423,6 @@ typedef struct
 /*		      										SIGNATURE	 				      							  	  */
 /**********************************************************************************************************************/
 
-//TODO new[16/11/2015]
-
 /*!
  * \enum 					GciSignAlgo_t
  * \brief					Enumeration for Signature algorithms
@@ -431,33 +430,33 @@ typedef struct
 typedef enum
 {
 	/**No algorithm*/
-	SIGN_ALGO_NONE,
+	GCI_SIGN_NONE,
 	/** RSA */
-	SIGN_ALGO_RSA,
+	GCI_SIGN_RSA,
 	/** DSA */
-	SIGN_ALGO_DSA,
+	GCI_SIGN_DSA,
 	/** ECDSA */
-	SIGN_ALGO_ECDSA,
+	GCI_SIGN_ECDSA,
 	/** ISO9797 ALG1 */
-	SIGN_ALGO_MAC_ISO9797_ALG1,
+	GCI_SIGN_MAC_ISO9797_ALG1,
 	/** ISO9797 ALG3 */
-	SIGN_ALGO_MAC_ISO9797_ALG3,
+	GCI_SIGN_MAC_ISO9797_ALG3,
 	/** CMAC AES */
-	SIGN_ALGO_CMAC_AES,
+	GCI_SIGN_CMAC_AES,
 	/** HMAC */
-	SIGN_ALGO_HMAC,
+	GCI_SIGN_HMAC,
 	/** RSA SSA PSS */
-	SIGN_ALGO_RSASSA_PSS,
+	GCI_SIGN_RSASSA_PSS,
 	/** RSA SSA PKCS */
-	SIGN_ALGO_RSASSA_PKCS,
+	GCI_SIGN_RSASSA_PKCS,
 	/** RSA SSA X509 */
-	SIGN_ALGO_RSASSA_X509,
+	GCI_SIGN_RSASSA_X509,
 	/** ECDSA GFP */
-	SIGN_ALGO_ECDSA_GFP,
+	GCI_SIGN_ECDSA_GFP,
 	/** ECDSA GF2M */
-	SIGN_ALGO_ECDSA_GF2M,
+	GCI_SIGN_ECDSA_GF2M,
 	/**Invalid signature*/
-	SIGN_ALGO_INVALID = 0xFF
+	GCI_SIGN_INVALID = 0xFF
 } GciSignAlgo_t;
 
 
@@ -470,70 +469,28 @@ typedef struct
 {
 
 	/**
-	 * BLOCK_MODE_INVALID
-	 * BLOCK_MODE_NONE
-	 * BLOCK_MODE_ECB
-	 * BLOCK_MODE_CFB
-	 * BLOCK_MODE_OFB
-	 * BLOCK_MODE_CBC
-	 * BLOCK_MODE_GCM
+	 * GCI_BLOCK_MODE_NONE
+	 * GCI_BLOCK_MODE_CBC
+	 * GCI_BLOCK_MODE_ECB
+	 * GCI_BLOCK_MODE_CFB
+	 * GCI_BLOCK_MODE_OFB
+	 * GCI_BLOCK_MODE_GCM
+	 * GCI_BLOCK_MODE_INVALID=0xFF
 	 */
 	GciBlockMode_t block;
 
 	/**
-	 * PADDING_INVALID
-	 * PADDING_NONE
-	 * PADDING_ISO9797_METHOD2
-	 * PADDING_PKCS5
-	 * PADDING_PKCS7
+	 * GCI_PADDING_NONE
+	 * GCI_PADDING_ISO9797_METHOD2
+	 * GCI_PADDING_PKCS5
+	 * GCI_PADDING_PKCS7
+	 * GCI_PADDING_INVALID=0xFF
 	 */
 	GciPadding_t padding;
 
 	/**Initialization vector (IV) */
 	GciBuffer_t iv;
 } GciSignCmacConfig_t;
-
-
-/*!
- * \struct 					GciSignHmacConfig_t
- * \brief					Structure for the configuration of a HMAC signature
- */
-typedef struct
-{
-	/**
-	 * HASH_ALGO_NONE
-	 * HASH_ALGO_MD5
-	 * HASH_ALGO_SHA1
-	 * HASH_ALGO_SHA224
-	 * HASH_ALGO_SHA256
-	 * HASH_ALGO_SHA384
-	 * HASH_ALGO_SHA512
-	 * HASH_INVALID
-	 */
-	GciHashAlgo_t hash;
-
-} GciSignHmacConfig_t;
-
-
-
-/*!
- * \struct 					GciSignRsassaConfig_t
- * \brief					Structure for the configuration of a RSASSA signature
- */
-typedef struct
-{
-	/**
-	 * HASH_ALGO_NONE
-	 * HASH_ALGO_MD5
-	 * HASH_ALGO_SHA1
-	 * HASH_ALGO_SHA224
-	 * HASH_ALGO_SHA256
-	 * HASH_ALGO_SHA384
-	 * HASH_ALGO_SHA512
-	 * HASH_INVALID
-	 */
-	GciHashAlgo_t hash;
-} GciSignRsassaConfig_t;
 
 
 
@@ -543,18 +500,6 @@ typedef struct
  */
 typedef struct
 {
-	/**
-	 * HASH_ALGO_NONE
-	 * HASH_ALGO_MD5
-	 * HASH_ALGO_SHA1
-	 * HASH_ALGO_SHA224
-	 * HASH_ALGO_SHA256
-	 * HASH_ALGO_SHA384
-	 * HASH_ALGO_SHA512
-	 * HASH_INVALID
-	 */
-	GciHashAlgo_t hash;
-
 	/**ECDSA domain parameters*/
 	GciDsaDomainParam_t param;
 } GciSignDsaConfig_t;
@@ -567,48 +512,36 @@ typedef struct
  */
 typedef struct
 {
-	/**
-	 * HASH_ALGO_NONE
-	 * HASH_ALGO_MD5
-	 * HASH_ALGO_SHA1
-	 * HASH_ALGO_SHA224
-	 * HASH_ALGO_SHA256
-	 * HASH_ALGO_SHA384
-	 * HASH_ALGO_SHA512
-	 * HASH_INVALID
-	 */
-	GciHashAlgo_t hash;
-
-
 	/*!
-	 * EC_INVALID
-	 * EC_SECP112R1
-	 * EC_SECP112R2
-	 * EC_SECP128R1
-	 * EC_SECP128R2
-	 * EC_SECP160R1
-	 * EC_SECP160R2
-	 * EC_SECP160K1
-	 * EC_BRAINPOOLP160R1
-	 * EC_SECP192R1
-	 * EC_PRIME192V2
-	 * EC_PRIME192V3
-	 * EC_SECP192K1
-	 * EC_BRAINPOOLP192R1
-	 * EC_SECP224R1
-	 * EC_SECP224K1
-	 * EC_BRAINPOOLP224R1
-	 * EC_PRIME239V1
-	 * EC_PRIME239V2
-	 * EC_PRIME239V3
-	 * EC_SECP256R1
-	 * EC_SECP256K1
-	 * EC_BRAINPOOLP256R1
-	 * EC_BRAINPOOLP320R1
-	 * EC_SECP384R1
-	 * EC_BRAINPOOLP384R1
-	 * EC_BRAINPOOLP512R1
-	 * EC_SECP521R1
+	 * GCI_EC_INVALID
+	 * GCI_EC_SECP112R1
+	 * GCI_EC_SECP112R2
+	 * GCI_EC_SECP128R1
+	 * GCI_EC_SECP128R2
+	 * GCI_EC_SECP160R1
+	 * GCI_EC_SECP160R2
+	 * GCI_EC_SECP160K1
+	 * GCI_EC_BRAINPOOLP160R1
+	 * GCI_EC_SECP192R1
+	 * GCI_EC_PRIME192V2
+	 * GCI_EC_PRIME192V3
+	 * GCI_EC_SECP192K1
+	 * GCI_EC_BRAINPOOLP192R1
+	 * GCI_EC_SECP224R1
+	 * GCI_EC_SECP224K1
+	 * GCI_EC_BRAINPOOLP224R1
+	 * GCI_EC_PRIME239V1
+	 * GCI_EC_PRIME239V2
+	 * GCI_EC_PRIME239V3
+	 * GCI_EC_SECP256R1
+	 * GCI_EC_SECP256K1
+	 * GCI_EC_BRAINPOOLP256R1
+	 * GCI_EC_BRAINPOOLP320R1
+	 * GCI_EC_SECP384R1
+	 * GCI_EC_BRAINPOOLP384R1
+	 * GCI_EC_BRAINPOOLP512R1
+	 * GCI_EC_SECP521R1
+	 * GCI_EC_PRIME256V1
 	 */
 	GciNamedCurve_t name;
 } GciSignEcdsaConfig_t;
@@ -622,23 +555,37 @@ typedef struct
 typedef struct
 {
 	/**
-	 * SIGN_ALGO_NONE
-	 * SIGN_ALGO_RSA
-	 * SIGN_ALGO_DSA
-	 * SIGN_ALGO_ECDSA
-	 * SIGN_ALGO_MAC_ISO9797_ALG1
-	 * SIGN_ALGO_MAC_ISO9797_ALG3
-	 * SIGN_ALGO_CMAC_AES
-	 * SIGN_ALGO_HMAC
-	 * SIGN_ALGO_RSASSA_PKCS
-	 * SIGN_ALGO_RSASSA_PSS
-	 * SIGN_ALGO_RSASSA_X509
-	 * SIGN_ALGO_DSA
-	 * SIGN_ALGO_ECDSA_GFP
-	 * SIGN_ALGO_ECDSA_GF2M
-	 * SIGN_ALGO_INVALID
+	 * GCI_SIGN_NONE
+	 * GCI_SIGN_RSA
+	 * GCI_SIGN_DSA
+	 * GCI_SIGN_ECDSA
+	 * GCI_SIGN_MAC_ISO9797_ALG1
+	 * GCI_SIGN_MAC_ISO9797_ALG3
+	 * GCI_SIGN_CMAC_AES
+	 * GCI_SIGN_HMAC
+	 * GCI_SIGN_RSASSA_PKCS
+	 * GCI_SIGN_RSASSA_PSS
+	 * GCI_SIGN_RSASSA_X509
+	 * GCI_SIGN_DSA
+	 * GCI_SIGN_ECDSA_GFP
+	 * GCI_SIGN_ECDSA_GF2M
+	 * GCI_SIGN_INVALID
 	 */
 	GciSignAlgo_t algo;
+
+
+	/**
+	 * GCI_HASH_NONE
+	 * GCI_HASH_MD5
+	 * GCI_HASH_SHA1
+	 * GCI_HASH_SHA224
+	 * GCI_HASH_SHA256
+	 * GCI_HASH_SHA384
+	 * GCI_HASH_SHA512
+	 * GCI_HASH_INVALID = 0xFF,
+	 */
+
+	GciHashAlgo_t hash;
 
 	/**
 	 * \union 				signConfig
@@ -649,18 +596,11 @@ typedef struct
 		/** CMAC Configuration */
 		GciSignCmacConfig_t cmac;
 
-		/** HMAC Configuration */
-		GciSignHmacConfig_t hmac;
-
-		/** RSA Configuration */
-		GciSignRsassaConfig_t rsa;
-
 		/** DSA Configuration */
 		GciSignDsaConfig_t dsa;
 
 		/** EC DSA Configuration */
 		GciSignEcdsaConfig_t ecdsa;
-
 	} config;
 } GciSignConfig_t;
 
@@ -676,14 +616,24 @@ typedef struct
  */
 typedef enum
 {
-	/**Invalid key pair*/
-	KEY_PAIR_INVALID,
+	/**No key pair */
+	GCI_KEY_PAIR_NONE,
 	/**RSA key pair*/
-	KEY_PAIR_RSA,
+	GCI_KEY_PAIR_RSA,
+	/**DHE RSA key pair */
+	GCI_KEY_PAIR_DHE_RSA,
+	/**DHE DSS key pair */
+	GCI_KEY_PAIR_DHE_DSS,
+	/**ECDHE RSA */
+	GCI_KEY_PAIR_ECDHE_RSA,
+	/**ECDHE ECDSA */
+	GCI_KEY_PAIR_ECDHE_ECDSA,
 	/**DSA key pair*/
-	KEY_PAIR_DSA,
+	GCI_KEY_PAIR_DSA,
 	/**EC DSA key pair*/
-	KEY_PAIR_ECDSA
+	GCI_KEY_PAIR_ECDSA,
+	/**Invalid key pair*/
+	GCI_KEY_PAIR_INVALID=0xFF
 } GciKeyPairType_t;
 
 
@@ -700,7 +650,6 @@ typedef struct
 
 
 
-//TODO new[11/11/2015] - Change of the configuration of each key
 /*!
  * \struct 					GciKeyGenConfig_t
  * \brief					Structure for the configuration to generate the key pair
@@ -708,11 +657,15 @@ typedef struct
 typedef struct
 {
 	/**
-	 * KEY_INVALID
-	 * KEY_RSA
-	 * KEY_DSA
-	 * KEY_ECDSA
-	 * KEY_ECDSA
+	 * GCI_KEY_PAIR_NONE
+	 * GCI_KEY_RSA
+	 * GCI_KEY_PAIR_DHE_RSA
+	 * GCI_KEY_PAIR_DHE_DSS
+	 * GCI_KEY_PAIR_ECDHE_RSA
+	 * GCI_KEY_PAIR_ECDHE_ECDSA
+	 * GCI_KEY_DSA
+	 * GCI_KEY_ECDSA
+	 * GCI_KEY_INVALID=0xFF
 	 */
 	GciKeyPairType_t algo;
 
@@ -729,34 +682,35 @@ typedef struct
 		GciDsaDomainParam_t dsa;
 
 		/*!
-		 * EC_INVALID
-		 * EC_SECP112R1
-		 * EC_SECP112R2
-		 * EC_SECP128R1
-		 * EC_SECP128R2
-		 * EC_SECP160R1
-		 * EC_SECP160R2
-		 * EC_SECP160K1
-		 * EC_BRAINPOOLP160R1
-		 * EC_SECP192R1
-		 * EC_PRIME192V2
-		 * EC_PRIME192V3
-		 * EC_SECP192K1
-		 * EC_BRAINPOOLP192R1
-		 * EC_SECP224R1
-		 * EC_SECP224K1
-		 * EC_BRAINPOOLP224R1
-		 * EC_PRIME239V1
-		 * EC_PRIME239V2
-		 * EC_PRIME239V3
-		 * EC_SECP256R1
-		 * EC_SECP256K1
-		 * EC_BRAINPOOLP256R1
-		 * EC_BRAINPOOLP320R1
-		 * EC_SECP384R1
-		 * EC_BRAINPOOLP384R1
-		 * EC_BRAINPOOLP512R1
-		 * EC_SECP521R1
+		 * GCI_EC_INVALID
+		 * GCI_EC_SECP112R1
+		 * GCI_EC_SECP112R2
+		 * GCI_EC_SECP128R1
+		 * GCI_EC_SECP128R2
+		 * GCI_EC_SECP160R1
+		 * GCI_EC_SECP160R2
+		 * GCI_EC_SECP160K1
+		 * GCI_EC_BRAINPOOLP160R1
+		 * GCI_EC_SECP192R1
+		 * GCI_EC_PRIME192V2
+		 * GCI_EC_PRIME192V3
+		 * GCI_EC_SECP192K1
+		 * GCI_EC_BRAINPOOLP192R1
+		 * GCI_EC_SECP224R1
+		 * GCI_EC_SECP224K1
+		 * GCI_EC_BRAINPOOLP224R1
+		 * GCI_EC_PRIME239V1
+		 * GCI_EC_PRIME239V2
+		 * GCI_EC_PRIME239V3
+		 * GCI_EC_SECP256R1
+		 * GCI_EC_SECP256K1
+		 * GCI_EC_BRAINPOOLP256R1
+		 * GCI_EC_BRAINPOOLP320R1
+		 * GCI_EC_SECP384R1
+		 * GCI_EC_BRAINPOOLP384R1
+		 * GCI_EC_BRAINPOOLP512R1
+		 * GCI_EC_SECP521R1
+		 * GCI_EC_PRIME256V1
 		 */
 		GciNamedCurve_t ecdsaCurveName;
 
@@ -776,16 +730,14 @@ typedef struct
 typedef enum
 {
 	/**Invalid Diffie-Hellman*/
-	DIFFIE_HELLMAN_INVALID,
+	GCI_DH_INVALID,
 	/**Diffie Hellman*/
-	DIFFIE_HELLMAN,
+	GCI_DH,
 	/**Elliptic curve Diffie-Helmann*/
-	DIFFIE_HELLMAN_ELLIPTIC_CURVE
+	GCI_ECDH
 } GciDhType_t;
 
 
-
-//TODO new[11/11/2015] - Update of the configuration
 
 /*!
  * \struct 					GciDhConfig_t
@@ -794,9 +746,9 @@ typedef enum
 typedef struct
 {
 	/**
-	 * DIFFIE_HELLMAN_INVALID
-	 * DIFFIE_HELLMAN
-	 * DIFFIE_HELLMAN_ELLIPTIC_CURVE
+	 * GCI_DH_INVALID
+	 * GCI_DH
+	 * GCI_ECDH
 	 */
 	GciDhType_t type;
 
@@ -810,34 +762,35 @@ typedef struct
 		GciGFpDhDomainParam_t dhDomain;
 
 		/*!
-		 * EC_INVALID
-		 * EC_SECP112R1
-		 * EC_SECP112R2
-		 * EC_SECP128R1
-		 * EC_SECP128R2
-		 * EC_SECP160R1
-		 * EC_SECP160R2
-		 * EC_SECP160K1
-		 * EC_BRAINPOOLP160R1
-		 * EC_SECP192R1
-		 * EC_PRIME192V2
-		 * EC_PRIME192V3
-		 * EC_SECP192K1
-		 * EC_BRAINPOOLP192R1
-		 * EC_SECP224R1
-		 * EC_SECP224K1
-		 * EC_BRAINPOOLP224R1
-		 * EC_PRIME239V1
-		 * EC_PRIME239V2
-		 * EC_PRIME239V3
-		 * EC_SECP256R1
-		 * EC_SECP256K1
-		 * EC_BRAINPOOLP256R1
-		 * EC_BRAINPOOLP320R1
-		 * EC_SECP384R1
-		 * EC_BRAINPOOLP384R1
-		 * EC_BRAINPOOLP512R1
-		 * EC_SECP521R1
+		 * GCI_EC_INVALID
+		 * GCI_EC_SECP112R1
+		 * GCI_EC_SECP112R2
+		 * GCI_EC_SECP128R1
+		 * GCI_EC_SECP128R2
+		 * GCI_EC_SECP160R1
+		 * GCI_EC_SECP160R2
+		 * GCI_EC_SECP160K1
+		 * GCI_EC_BRAINPOOLP160R1
+		 * GCI_EC_SECP192R1
+		 * GCI_EC_PRIME192V2
+		 * GCI_EC_PRIME192V3
+		 * GCI_EC_SECP192K1
+		 * GCI_EC_BRAINPOOLP192R1
+		 * GCI_EC_SECP224R1
+		 * GCI_EC_SECP224K1
+		 * GCI_EC_BRAINPOOLP224R1
+		 * GCI_EC_PRIME239V1
+		 * GCI_EC_PRIME239V2
+		 * GCI_EC_PRIME239V3
+		 * GCI_EC_SECP256R1
+		 * GCI_EC_SECP256K1
+		 * GCI_EC_BRAINPOOLP256R1
+		 * GCI_EC_BRAINPOOLP320R1
+		 * GCI_EC_SECP384R1
+		 * GCI_EC_BRAINPOOLP384R1
+		 * GCI_EC_BRAINPOOLP512R1
+		 * GCI_EC_SECP521R1
+		 * GCI_EC_PRIME256V1
 		 */
 		GciNamedCurve_t ecdhCurveName;
 	} config;
@@ -875,7 +828,7 @@ typedef struct
 	GciBigInt_t d;
 } GciRsaPrivKey_t;
 
-//TODO new[16/11/2015]
+
 
 /*!
  * \enum 					GciKeyType_t
@@ -883,40 +836,39 @@ typedef struct
  */
 typedef enum
 {
-	/**Invalid key*/
-	KEY_INVALID,
 	/**No key*/
-	KEY_NONE,
+	GCI_KEY_NONE,
 	/**Symmetric key*/
-	KEY_SYM,
+	GCI_KEY_SYM,
 	/**Diffie-Hellman public key*/
-	KEY_DH_PUB,
+	GCI_KEY_DH_PUB,
 	/**Diffie-Hellman private key*/
-	KEY_DH_PRIV,
+	GCI_KEY_DH_PRIV,
 	/**Diffie-Hellman shared secret key*/
-	KEY_DH_SECRET,
+	GCI_KEY_DH_SECRET,
 	/**Elliptic Curve Diffie-Hellman public key*/
-	KEY_ECDH_PUB,
+	GCI_KEY_ECDH_PUB,
 	/**Elliptic Curve Diffie-Hellman private key*/
-	KEY_ECDH_PRIV,
+	GCI_KEY_ECDH_PRIV,
 	/**Elliptic Curve Diffie-Hellman shared secret key*/
-	KEY_ECDH_SECRET,
+	GCI_KEY_ECDH_SECRET,
 	/**DSA public key*/
-	KEY_DSA_PUB,
+	GCI_KEY_DSA_PUB,
 	/**DSA private key*/
-	KEY_DSA_PRIV,
+	GCI_KEY_DSA_PRIV,
 	/**ECDSA public key*/
-	KEY_ECDSA_PUB,
+	GCI_KEY_ECDSA_PUB,
 	/**ECDSA private key*/
-	KEY_ECDSA_PRIV,
+	GCI_KEY_ECDSA_PRIV,
 	/**RSA public key*/
-	KEY_RSA_PUB,
+	GCI_KEY_RSA_PUB,
 	/**RSA private key*/
-	KEY_RSA_PRIV
+	GCI_KEY_RSA_PRIV,
+	/**Invalid key*/
+	GCI_KEY_INVALID=0xFF
 } GciKeyType_t;
 
 
-//TODO new[16/11/2015]
 
 /*!
  * \struct 					GciKey_t
@@ -925,21 +877,21 @@ typedef enum
 typedef struct
 {
 	/**
-	 * KEY_INVALID
-	 * KEY_NONE
-	 * KEY_SYM
-	 * KEY_DH_PUB
-	 * KEY_DH_PRIV
-	 * KEY_DH_SECRET
-	 * KEY_ECDH_PUB
-	 * KEY_ECDH_PRIV
-	 * KEY_ECDH_SECRET
-	 * KEY_DSA_PUB
-	 * KEY_DSA_PRIV
-	 * KEY_ECDSA_PUB
-	 * KEY_ECDSA_PRIV
-	 * KEY_RSA_PUB
-	 * KEY_RSA_PRIV
+	 * GCI_KEY_NONE
+	 * GCI_KEY_SYM
+	 * GCI_KEY_DH_PUB
+	 * GCI_KEY_DH_PRIV
+	 * GCI_KEY_DH_SECRET
+	 * GCI_KEY_ECDH_PUB
+	 * GCI_KEY_ECDH_PRIV
+	 * GCI_KEY_ECDH_SECRET
+	 * GCI_KEY_DSA_PUB
+	 * GCI_KEY_DSA_PRIV
+	 * GCI_KEY_ECDSA_PUB
+	 * GCI_KEY_ECDSA_PRIV
+	 * GCI_KEY_RSA_PUB
+	 * GCI_KEY_RSA_PRIV
+	 * GCI_KEY_INVALID=0xFF
 	 */
 	GciKeyType_t type;
 

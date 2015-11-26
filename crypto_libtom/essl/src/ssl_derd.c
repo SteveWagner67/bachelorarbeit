@@ -60,7 +60,8 @@
  *
  */
 
-#include "crypto_wrap.h"
+//#include "crypto_wrap.h"
+#include "netGlobal.h"
 #include "ssl_der.h"
 #include "ssl_derd.h"
 #include "ssl_certHandler.h"

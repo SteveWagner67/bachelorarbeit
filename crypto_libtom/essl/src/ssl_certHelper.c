@@ -15,7 +15,7 @@
  INCLUDE FILES
  ==============================================================================*/
 #include <limits.h>
-#include "crypto_wrap.h"
+//#include "crypto_wrap.h"
 #include "ssl.h"
 #include "ssl_certHelper.h"
 #include "ssl_diag.h"

@@ -40,7 +40,6 @@ extern "C" {
 #include "cert_db.h"
 #include "ssl3.h"
 #include "timeout.h"
-#include "crypto_wrap.h"
 #include "crypto_iface.h"
 
 
@@ -530,8 +529,10 @@ typedef enum {
 } e_sslSignAlg_t;
 
 typedef struct ssl_signatureAndHashAlgorithms {
-    uint8_t     c_sign;
-    uint8_t     c_hash;
+    //OLD-CW: uint8_t     c_sign;
+	GciSignAlgo_t	c_sign;
+    //OLD-CW: uint8_t     c_hash;
+	GciHashAlgo_t	c_hash;
 }s_sslSignHashAlg_t;
 
 typedef enum ssl_psudoRandomFunctionType {
@@ -763,7 +764,8 @@ typedef struct ssl_peerGlobalSettings
 typedef struct ssl_securityParameters
 {
    /* algorithm used to perform handshake */
-   E_SSL_KST            e_kst;
+   //OLD-CW: E_SSL_KST            e_kst;
+	GciKeyPairType_t	e_kst;
    /* Supported sognature and hash algorithm. For TLS version prior 1.2 md5+sha1 used */
    s_sslSignHashAlg_t   s_signAlg;
    /* the key if diffie hellman is used as handshake algorithm and we act as server */
@@ -772,12 +774,16 @@ typedef struct ssl_securityParameters
 
    //vpy: the ECC key used when ECDHE is used
    //TODO vpy: change and use a pointer for eccKey;
-   uint16_t				eccChoosenCurve;
-   ecc_key				eccKey;
-   uint8_t				c_useEccKey;
+
+   //OLD-CW: uint16_t				eccChoosenCurve;
+   GciNamedCurve_t		eccChoosenCurve;
+   //OLD-CW: ecc_key				eccKey;
+   GciKeyId_t			eccKey;
+   //uint8_t				c_useEccKey;
 
    /* the symmetric cipher algorithm used to encrypt application data */
-   SYM_CIPHER       	e_cipType;
+   //OLD-CW: SYM_CIPHER       	e_cipType;
+   GciCipherAlgo_t		e_cipType;
    /* Indicates whether this key's for a Stream(FALSE) or Blockcipher(TRUE) */
    uint8_t             	b_isBlkCip;
    /* the Blocklen of the used BlockCipher */
@@ -785,15 +791,23 @@ typedef struct ssl_securityParameters
    /* de- and encryption key union */
    union
    {
-	   gci_rc4Ctx_t      gci_cliRc4Ctx;
-	   gci_aesCtx_t      gci_cliAesCtx;
-	   gci_3desCtx       gci_cli3DesCtx;
+	   //OLD-CW: gci_rc4Ctx_t      gci_cliRc4Ctx;
+	   GciCtxId_t 		cliRc4Ctx;
+	   //OLD-CW: gci_aesCtx_t      gci_cliAesCtx;
+	   GciCtxId_t		cliAesCtx;
+	   //OLD-CW: gci_3desCtx       gci_cli3DesCtx;
+	   GciCtxId_t		cli3DesCtx;
+
    } u_cliKey;
    union
    {
-	   gci_rc4Ctx_t      gci_srvRc4Ctx;
-	   gci_aesCtx_t      gci_srvAesCtx;
-	   gci_3desCtx       gci_srv3DesCtx;
+	   //OLD-CW: gci_rc4Ctx_t      gci_srvRc4Ctx;
+	   GciCtxId_t 		srvRc4Ctx;
+	   //OLD-CW: gci_aesCtx_t      gci_srvAesCtx;
+	   GciCtxId_t		srvAesCtx;
+	   //OLD-CW: gci_3desCtx       gci_srv3DesCtx;
+	   GciCtxId_t		srv3DesCtx;
+
    } u_srvKey;
    /* Length of a used key material*/
    uint8_t              c_keyLen;

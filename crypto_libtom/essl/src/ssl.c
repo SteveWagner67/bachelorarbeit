@@ -39,7 +39,6 @@
 #include "ssl_conf.h"
 #include "ssl_record.h"
 #include "key_management.h"
-#include "crypto_iface.h"
 
 /*** Defines ****************************************************************/
 #define	LOGGER_ENABLE		DBG_SSL_PROTO_MODULE
@@ -86,9 +85,9 @@ static const uint8_t rac_TLSlabelKeyExp[]   = "key expansion";
 
 /*! Supported Signature/Hash Algorithms */
 static const uint16_t rai_tlsSHAlgs[]       = {
-		((E_SSL_HASH_SHA256 << 8) + (E_SSL_SIGN_RSA & 0xFF)),
-		((E_SSL_HASH_MD5 << 8) + (E_SSL_SIGN_RSA & 0xFF)),
-		((E_SSL_HASH_SHA1 << 8) + (E_SSL_SIGN_RSA & 0xFF)),
+		((GCI_HASH_SHA256 << 8) + (GCI_SIGN_RSA & 0xFF)),
+		((GCI_HASH_MD5 << 8) + (GCI_SIGN_RSA & 0xFF)),
+		((GCI_HASH_SHA1 << 8) + (GCI_SIGN_RSA & 0xFF)),
 };
 
 /* Handles the generation of the server responses:
@@ -348,18 +347,18 @@ static uint8_t loc_getHashSize(GciHashAlgo_t hashAlg)
 
 	switch (hashAlg)
 	{
-	case HASH_ALGO_MD5:
+	case GCI_HASH_MD5:
 		hashSize = GCI_MD5_SIZE;
 		break;
-	case HASH_ALGO_SHA1:
+	case GCI_HASH_SHA1:
 		hashSize = GCI_SHA1_SIZE;
 		break;
-	case HASH_ALGO_SHA256:
+	case GCI_HASH_SHA256:
 		hashSize = GCI_SHA256_SIZE;
 		break;
 	default:
-	case HASH_ALGO_NONE:
-	case HASH_ALGO_INVALID:
+	case GCI_HASH_NONE:
+	case GCI_HASH_INVALID:
 		hashSize = 0;
 		break;
 	}
@@ -398,16 +397,16 @@ static GciHashAlgo_t loc_getHashTypeByPrf(e_sslPrf_t e_prfAlg)
 	{
 	case E_SSL_PRF_MD5_SHA1:
 		//OLD-CW: c_hashType = E_SSL_HASH_INVALID;
-		hashAlgo = HASH_ALGO_INVALID;
+		hashAlgo = GCI_HASH_INVALID;
 		break;
 	case E_SSL_PRF_SHA256:
 		//OLD-CW: c_hashType = E_SSL_HASH_SHA256;
-		hashAlgo = HASH_ALGO_SHA256;
+		hashAlgo = GCI_HASH_SHA256;
 		break;
 	default:
 	case E_SSL_PRF_UNDEF:
 		//OLD-CW: c_hashType = E_SSL_HASH_NONE;
-		hashAlgo = HASH_ALGO_NONE;
+		hashAlgo = GCI_HASH_NONE;
 		break;
 	}
 
@@ -473,7 +472,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 	 * means that we are using TLS version prior TLS 1.2
 	 * and signature should be composed using a
 	 * concatenation of md5 and sha1*/
-	if (ps_sslCtx->s_secParams.s_signAlg.c_hash == E_SSL_HASH_INVALID)
+	if (ps_sslCtx->s_secParams.s_signAlg.c_hash == GCI_HASH_INVALID)
 	{
 		/* message digest contexts will be used to verify DH server parameter */
 
@@ -483,13 +482,13 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 		GciCtxId_t md5Ctx;
 
 		//OLD-CW: cr_digestInit(&cwt_md5Ctx, NULL, 0, E_SSL_HASH_MD5);
-		if (gci_hash_new_ctx(HASH_ALGO_MD5, &md5Ctx) != GCI_NO_ERR) {
+		if (gci_hash_new_ctx(GCI_HASH_MD5, &md5Ctx) != GCI_OK) {
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, ps_hsElem->ac_cliRand,CLI_RANDSIZE,E_SSL_HASH_MD5);
 		err = gci_hash_update(md5Ctx, ps_hsElem->ac_cliRand, CLI_RANDSIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -497,7 +496,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 		//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, ps_hsElem->ac_srvRand, SRV_RANDSIZE, E_SSL_HASH_MD5);
 		err = gci_hash_update(md5Ctx, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
 
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -506,7 +505,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 		err = gci_hash_update(md5Ctx, pc_tbvParams, sz_inLen);
 
 
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -514,16 +513,16 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 
 		//OLD-CW: cr_digestFinish(&cwt_md5Ctx, ac_sign, NULL, E_SSL_HASH_MD5);
 		err = gci_hash_finish(md5Ctx, ac_sign, &ac_sign_len);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 
 		//OLD-CW: cr_digestInit(&cwt_sha1Ctx, NULL, 0, E_SSL_HASH_SHA1);
-		err = gci_hash_new_ctx(HASH_ALGO_SHA1, &sha1Ctx);
+		err = gci_hash_new_ctx(GCI_HASH_SHA1, &sha1Ctx);
 
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -531,7 +530,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 
 		//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, ps_hsElem->ac_cliRand, CLI_RANDSIZE, E_SSL_HASH_SHA1);
 		err = gci_hash_update(sha1Ctx, ps_hsElem->ac_cliRand, CLI_RANDSIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -539,7 +538,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 
 		//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, ps_hsElem->ac_srvRand, SRV_RANDSIZE, E_SSL_HASH_SHA1);
 		err = gci_hash_update(sha1Ctx, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -547,7 +546,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 
 		//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, pc_tbvParams, sz_inLen, E_SSL_HASH_SHA1);
 		err = gci_hash_update(sha1Ctx, pc_tbvParams, sz_inLen);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -555,7 +554,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 
 		//OLD-CW: cr_digestFinish(&cwt_sha1Ctx, &ac_sign[GCI_MD5_SIZE], NULL, E_SSL_HASH_SHA1);
 		err = gci_hash_finish(sha1Ctx, ac_sign, &ac_sign_len);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -576,14 +575,14 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 		//TODO see how to know the hash algorthm and adapt it with hash from gci
 		//OLD-CW: cr_digestInit(&cwt_hashCtx, NULL, 0, ps_secPar->s_signAlg.c_hash);
 		err = gci_hash_new_ctx(ps_secPar->s_signAlg.c_hash, hashCtx);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cwt_hashCtx, ps_hsElem->ac_cliRand, CLI_RANDSIZE, ps_secPar->s_signAlg.c_hash);
 		err = gci_hash_update(hashCtx, ps_hsElem->ac_cliRand, CLI_RANDSIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -591,21 +590,21 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 
 		//OLD-CW: cr_digestUpdate(&cwt_hashCtx, ps_hsElem->ac_srvRand, SRV_RANDSIZE, ps_secPar->s_signAlg.c_hash);
 		err = gci_hash_update(hashCtx, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cwt_hashCtx, pc_tbvParams, sz_inLen, ps_secPar->s_signAlg.c_hash);
 		err = gci_hash_update(hashCtx, pc_tbvParams, sz_inLen);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestFinish(&cwt_hashCtx, ac_sign, NULL, ps_secPar->s_signAlg.c_hash);
 		err = gci_hash_finish(hashCtx, ac_sign, ac_sign_len);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -640,7 +639,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 		GciSignConfig_t rsaConf;
 
 		switch (ps_sslCtx->s_secParams.s_signAlg.c_sign){
-		case E_SSL_SIGN_RSA:
+		case GCI_SIGN_RSA:
 
 			/* Decode signature using peers public key*/
 
@@ -654,26 +653,26 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 
 
 
-			err = gci_key_put(&ps_hsElem->gci_peerPubKey, &rsaPub);
+			err = gci_key_put(&ps_hsElem->gci_peerPubKey, sizeof(ps_hsElem->gci_peerPubKey), &rsaPub);
 
-			if (err != GCI_NO_ERR)
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 			}
 
 
-			rsaConf.algo = SIGN_ALGO_RSA,
-			rsaConf.config.rsa.hash = HASH_ALGO_NONE,
+			rsaConf.algo = GCI_SIGN_RSA,
+			rsaConf.hash = GCI_HASH_NONE,
 
 
 			err = gci_sign_new_ctx(&rsaConf, rsaPub, &rsaCtx);
-			if (err != GCI_NO_ERR)
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 			}
 
 			err = gci_sign_update(rsaCtx, ac_sign, ac_sign_len);
-			if (err != GCI_NO_ERR)
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 			}
@@ -681,7 +680,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 
 
 			err = gci_sign_verify_finish(rsaCtx, pc_encSign, i_signLen);
-			if (err != GCI_NO_ERR)
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 			}
@@ -720,15 +719,15 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 			}
 
 			break;
-		case E_SSL_SIGN_DSA:
-		case E_SSL_SIGN_ANONY:
+		case GCI_SIGN_DSA:
+		case GCI_SIGN_NONE:
 		default:
 			e_result = E_SSL_ERROR_GENERAL;
 			break;
 		}
 
 		/* Check if calculated hash is equal to calculated one */
-		//OlD-CW: if ((hashLen != sz_decSignLen) || (CW_MEMCMP(ac_sign, ac_decSign, hashLen) != 0))
+		//OlD-CW: if ((hashLen != sz_decSignLen) || (memcmp(ac_sign, ac_decSign, hashLen) != 0))
 		if ((hashLen != sz_decSignLen) || (memcpy(ac_sign, ac_decSign, hashLen) != 0))
 		{
 			LOG_ERR("Failed to verify signature of server DH parameter "
@@ -789,7 +788,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 		c_signOff = 2;
 	}
 
-	if (c_hashType == E_SSL_HASH_INVALID)
+	if (c_hashType == GCI_HASH_INVALID)
 	{
 
 		gci_md5Ctx_t    cwt_md5Ctx;
@@ -803,8 +802,8 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 		/*! MD5(ClientRandom, ServerRandom, DiffieHellmanParamaeters) */
 
 		//OLD-CW: cr_digestInit(&cwt_md5Ctx, NULL, 0, E_SSL_HASH_MD5);
-		err = gci_hash_new_ctx(HASH_ALGO_MD5, &md5Ctx);
-		if (err != GCI_NO_ERR)
+		err = gci_hash_new_ctx(GCI_HASH_MD5, &md5Ctx);
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -812,28 +811,28 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, ps_hsElem->ac_cliRand, CLI_RANDSIZE, E_SSL_HASH_MD5);
 		err = gci_hash_update(md5Ctx, ps_hsElem->ac_cliRand, CLI_RANDSIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, ps_hsElem->ac_srvRand, SRV_RANDSIZE, E_SSL_HASH_MD5);
 		err = gci_hash_update(md5Ctx, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, pc_in, sz_inLen, E_SSL_HASH_MD5);
 		err = gci_hash_update(md5Ctx, pc_in, sz_inLen);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestFinish(&cwt_md5Ctx, ac_hash, NULL, E_SSL_HASH_MD5);
 		err = gci_hash_finish(md5Ctx, ac_hash, &ac_hash_len);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -844,8 +843,8 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 		GciCtxId_t shaCtx;
 
 		//OLD-CW: cr_digestInit(&cwt_sha1Ctx, NULL, 0, E_SSL_HASH_SHA1);
-		err = gci_hash_new_ctx(HASH_ALGO_SHA1, &shaCtx);
-		if (err != GCI_NO_ERR)
+		err = gci_hash_new_ctx(GCI_HASH_SHA1, &shaCtx);
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -853,7 +852,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, ps_hsElem->ac_cliRand, CLI_RANDSIZE, E_SSL_HASH_SHA1);
 		err = gci_hash_update(shaCtx, ps_hsElem->ac_cliRand, CLI_RANDSIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -861,7 +860,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, ps_hsElem->ac_srvRand, SRV_RANDSIZE, E_SSL_HASH_SHA1);
 		err = gci_hash_update(shaCtx, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -869,7 +868,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, pc_in, sz_inLen, E_SSL_HASH_SHA1);
 		err = gci_hash_update(shaCtx, pc_in, sz_inLen);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -877,7 +876,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		//cr_digestFinish(&cwt_sha1Ctx, &ac_hash[GCI_MD5_SIZE], NULL, E_SSL_HASH_SHA1);
 		err = gci_hash_finish(shaCtx, ac_hash, ac_hash_len);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -897,7 +896,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		//OLD-CW: err|=cr_digestInit(&cwt_hashCtx, NULL, 0, c_hashType);
 		err = gci_hash_new_ctx(c_hashType, &hashCtx);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -906,21 +905,21 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		//OLD-CW: err|=cr_digestUpdate(&cwt_hashCtx, ps_hsElem->ac_cliRand, CLI_RANDSIZE, c_hashType);
 		err = gci_hash_update(hashCtx, ps_hsElem->ac_cliRand, CLI_RANDSIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: err|=cr_digestUpdate(&cwt_hashCtx, ps_hsElem->ac_srvRand, SRV_RANDSIZE, c_hashType);
 		err = gci_hash_update(hashCtx, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW:err|=cr_digestUpdate(&cwt_hashCtx, c, c_hashType);
 		err = gci_hash_update(hashCtx, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -928,7 +927,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		//OLD-CW: err|=cr_digestFinish(&cwt_hashCtx, ac_hash, NULL, c_hashType);
 		err = gci_hash_finish(hashCtx, ac_hash, ac_hash_len);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -959,8 +958,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 	GciKeyId_t privKey;
 
 	switch (c_signType) {
-	case E_SSL_SIGN_RSA:
-		//case E_SSL_SIGN_
+	case GCI_SIGN_RSA:
 	{
 		if (ps_sslCtx->e_ver >= E_TLS_1_2) {
 			s_derdCtx_t     	s_derdCtx;
@@ -995,36 +993,36 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 
 
-		err = gci_key_put(ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &privKey);
-		if (err != GCI_NO_ERR)
+		err = gci_key_put(ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, sizeof(ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey), &privKey);
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
-		signConf.algo = SIGN_ALGO_RSA;
-		signConf.config.rsa.hash = HASH_ALGO_NONE;
+		signConf.algo = GCI_SIGN_RSA;
+		signConf.hash = GCI_HASH_NONE;
 
 		err = gci_sign_new_ctx(&signConf, privKey, &signCtx);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		err = gci_cipher_encrypt(signCtx, ac_hash, c_hashLen, pc_out + c_signOff + 2, &sz_signLen);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 
 		err = gci_sign_update(signCtx, pc_out + c_signOff + 2, sz_signLen);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		err = gci_sign_gen_finish(signCtx, pc_out + c_signOff + 2, &sz_signLen);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -1033,7 +1031,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 	}
 	break;
 
-	case E_SSL_SIGN_ECDSA:
+	case GCI_SIGN_ECDSA:
 		//begin vpy
 		LOG_INFO("hash before signature");
 		LOG_HEX(ac_hash,c_hashLen);
@@ -1045,37 +1043,37 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		//OLD-CW: e_result = cw_ecc_sign_encode(ac_hash, c_hashLen, pc_out + c_signOff + 2, &sz_signLen, ps_sslCtx->ps_sslSett->p_ECCMyPrivKey);
 
-		err = gci_key_put(ps_sslCtx->ps_sslSett->p_ECCMyPrivKey, &privKey);
-		if (err != GCI_NO_ERR)
+		err = gci_key_put(ps_sslCtx->ps_sslSett->p_ECCMyPrivKey, sizeof(ps_sslCtx->ps_sslSett->p_ECCMyPrivKey), &privKey);
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 
-		signConf.algo = SIGN_ALGO_ECDSA;
-		signConf.config.ecdsa.hash = HASH_ALGO_NONE;
+		signConf.algo = GCI_SIGN_ECDSA;
+		signConf.hash = GCI_HASH_NONE;
 		signConf.config.ecdsa.name = ps_sslCtx->ps_sslSett->gci_curveName;
 
 		err = gci_sign_new_ctx(&signConf, privKey, &signCtx);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		err = gci_cipher_encrypt(signCtx, ac_hash, c_hashLen, pc_out + c_signOff + 2, &sz_signLen);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		err = gci_sign_update(signCtx, pc_out + c_signOff + 2, sz_signLen);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		err = gci_sign_gen_finish(signCtx, pc_out + c_signOff + 2, sz_signLen);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -1092,8 +1090,8 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		break;
 
-	case E_SSL_SIGN_DSA:
-	case E_SSL_SIGN_ANONY:
+	case GCI_SIGN_DSA:
+	case GCI_SIGN_NONE:
 	default:
 		e_result = CW_ERROR;
 		break;
@@ -1187,15 +1185,15 @@ static void loc_hash(e_hashOp_t e_hashOp, s_sslCtx_t* ps_sslCtx, uint8_t* pc_in,
 			TIME_STAMP(TS_HASH_INIT_BEGIN);
 
 			//OLD-CW: cr_digestInit(&ps_sslCtx->ps_hsElem->u_hashCtx.s_md5Sha1.gci_md5Ctx, NULL, 0, E_SSL_HASH_MD5);
-			err = gci_hash_new_ctx(HASH_ALGO_MD5, &ps_sslCtx->ps_hsElem->u_hashCtx.md5Ctx);
-			if (err != GCI_NO_ERR)
+			err = gci_hash_new_ctx(GCI_HASH_MD5, &ps_sslCtx->ps_hsElem->u_hashCtx.md5Ctx);
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 			}
 
 			//OLD-CW: cr_digestInit(&ps_sslCtx->ps_hsElem->u_hashCtx.s_md5Sha1.gci_sha1Ctx, NULL, 0, E_SSL_HASH_SHA1);
-			err = gci_hash_new_ctx(HASH_ALGO_SHA1, &ps_sslCtx->ps_hsElem->u_hashCtx.sha1Ctx);
-			if (err != GCI_NO_ERR)
+			err = gci_hash_new_ctx(GCI_HASH_SHA1, &ps_sslCtx->ps_hsElem->u_hashCtx.sha1Ctx);
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 			}
@@ -1210,14 +1208,14 @@ static void loc_hash(e_hashOp_t e_hashOp, s_sslCtx_t* ps_sslCtx, uint8_t* pc_in,
 
 			//OLD-CW: cr_digestUpdate(&ps_sslCtx->ps_hsElem->u_hashCtx.s_md5Sha1.gci_md5Ctx, pc_in, sz_inLen, E_SSL_HASH_MD5);
 			err = gci_hash_update(ps_sslCtx->ps_hsElem->u_hashCtx.md5Ctx, pc_in, sz_inLen);
-			if (err != GCI_NO_ERR)
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 			}
 
 			//OLD-CW: cr_digestUpdate(&ps_sslCtx->ps_hsElem->u_hashCtx.s_md5Sha1.gci_sha1Ctx, pc_in, sz_inLen, E_SSL_HASH_SHA1);
 			err = gci_hash_update(ps_sslCtx->ps_hsElem->u_hashCtx.sha1Ctx, pc_in, sz_inLen);
-			if (err != GCI_NO_ERR)
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 			}
@@ -1249,7 +1247,7 @@ static void loc_hash(e_hashOp_t e_hashOp, s_sslCtx_t* ps_sslCtx, uint8_t* pc_in,
 
 			//OLD-CW: cr_digestInit(&ps_sslCtx->ps_hsElem->u_hashCtx.gci_hashCtx, NULL, 0, c_hashType);
 			err = gci_hash_new_ctx(hashAlgo, &ps_sslCtx->ps_hsElem->u_hashCtx.hashCtx);
-			if (err != GCI_NO_ERR)
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 			}
@@ -1263,7 +1261,7 @@ static void loc_hash(e_hashOp_t e_hashOp, s_sslCtx_t* ps_sslCtx, uint8_t* pc_in,
 
 			//OLD-CW: cr_digestUpdate(&ps_sslCtx->ps_hsElem->u_hashCtx.gci_hashCtx, pc_in, sz_inLen, c_hashType);
 			err = gci_hash_update(ps_sslCtx->ps_hsElem->u_hashCtx.hashCtx, pc_in, sz_inLen);
-			if (err != GCI_NO_ERR)
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 			}
@@ -1339,10 +1337,10 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 	/* of the handshake hashes which are held in ctx->pcwt_sha1Ctx and            */
 	/* ctx->pcwt_md5Ctx */
 
-	//OLD-CW: CW_MEMCOPY(&cwt_sha1Ctx, &ps_handshElem->u_hashCtx.s_md5Sha1.gci_sha1Ctx, sizeof(gci_sha1Ctx_t));
+	//OLD-CW: memcpy(&cwt_sha1Ctx, &ps_handshElem->u_hashCtx.s_md5Sha1.gci_sha1Ctx, sizeof(gci_sha1Ctx_t));
 
 	err = gci_hash_ctx_clone(ps_handshElem->u_hashCtx.sha1Ctx, &sha1Ctx);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
@@ -1353,7 +1351,7 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 	{
 		//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, pc_snd, 4, E_SSL_HASH_SHA1);
 		err = gci_hash_update(sha1Ctx, pc_snd, 4);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -1361,7 +1359,7 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 
 	//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, (uint8_t*) ps_handshElem->s_sessElem.ac_msSec, MSSEC_SIZE, E_SSL_HASH_SHA1);
 	err = gci_hash_update(sha1Ctx, ps_handshElem->s_sessElem.ac_msSec, MSSEC_SIZE);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
@@ -1369,14 +1367,14 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 
 	//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, (uint8_t*) rac_macPad1, 40, E_SSL_HASH_SHA1);
 	err = gci_hash_update(sha1Ctx, rac_macPad1, 40);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
 
 	//OLD-CW: cr_digestFinish(&cwt_sha1Ctx, ac_tmpSha1Hash, NULL, E_SSL_HASH_SHA1);
 	err = gci_hash_finish(sha1Ctx, ac_tmpSha1Hash, ac_tmpSha1Hash_len);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
@@ -1386,8 +1384,8 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 
 
 	//OLD-CW: cr_digestInit(&cwt_sha1Ctx, NULL, 0, E_SSL_HASH_SHA1);
-	err = gci_hash_new_ctx(HASH_ALGO_SHA1, &sha1Ctx);
-	if (err != GCI_NO_ERR)
+	err = gci_hash_new_ctx(GCI_HASH_SHA1, &sha1Ctx);
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
@@ -1395,14 +1393,14 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 
 	//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, (uint8_t*) ps_handshElem->s_sessElem.ac_msSec, MSSEC_SIZE, E_SSL_HASH_SHA1);
 	err = gci_hash_update(sha1Ctx, ps_handshElem->s_sessElem.ac_msSec, MSSEC_SIZE);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
 
 	//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, (uint8_t*) rac_macPad2, 40, E_SSL_HASH_SHA1);
 	err = gci_hash_update(sha1Ctx, rac_macPad2, 40);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
@@ -1410,7 +1408,7 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 
 	//OLD-CW: cr_digestUpdate(&cwt_sha1Ctx, ac_tmpSha1Hash, 20, E_SSL_HASH_SHA1);
 	err = gci_hash_update(sha1Ctx, ac_tmpSha1Hash, 20);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
@@ -1418,7 +1416,7 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 
 	//OLD-CW: cr_digestFinish(&cwt_sha1Ctx, pc_res + 16, NULL, E_SSL_HASH_SHA1);
 	err = gci_hash_finish(sha1Ctx, pc_res + 16, NULL);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
@@ -1427,7 +1425,7 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 	/* The same procedure applies for MD5 */
 	/* Copy of the context */
 
-	//OLD-CW: CW_MEMCOPY(&cwt_md5Ctx, &ps_handshElem->u_hashCtx.s_md5Sha1.gci_md5Ctx, sizeof(gci_md5Ctx_t));
+	//OLD-CW: memcpy(&cwt_md5Ctx, &ps_handshElem->u_hashCtx.s_md5Sha1.gci_md5Ctx, sizeof(gci_md5Ctx_t));
 	err = gci_hash_ctx_clone(ps_handshElem->u_hashCtx.md5Ctx, &md5Ctx);
 
 
@@ -1440,14 +1438,14 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 
 	//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, (uint8_t*) ps_handshElem->s_sessElem.ac_msSec, MSSEC_SIZE, E_SSL_HASH_MD5);
 	err = gci_hash_update(md5Ctx, ps_handshElem->s_sessElem.ac_msSec, MSSEC_SIZE);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
 
 	//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, (uint8_t*) rac_macPad1, MSSEC_SIZE, E_SSL_HASH_MD5);
 	err = gci_hash_update(md5Ctx, rac_macPad1, MSSEC_SIZE);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
@@ -1455,15 +1453,15 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 
 	//OLD-CW: cr_digestFinish(&cwt_md5Ctx, ac_tmpMd5Hash, NULL, E_SSL_HASH_MD5);
 	err = gci_hash_finish(md5Ctx, ac_tmpMd5Hash, ac_tmpMd5Hash_len);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
 
 	/* Calculation of the outer hash */
 	//OLD-CW: cr_digestInit(&cwt_md5Ctx, NULL, 0, E_SSL_HASH_MD5);
-	err = gci_hash_new_ctx(HASH_ALGO_MD5, &md5Ctx);
-	if (err != GCI_NO_ERR)
+	err = gci_hash_new_ctx(GCI_HASH_MD5, &md5Ctx);
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
@@ -1471,21 +1469,21 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 
 	//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, (uint8_t*) ps_handshElem->s_sessElem.ac_msSec, MSSEC_SIZE, E_SSL_HASH_MD5);
 	err = gci_hash_update(md5Ctx,  ps_handshElem->s_sessElem.ac_msSec, MSSEC_SIZE);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
 
 	//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, (uint8_t*) rac_macPad2, 48, E_SSL_HASH_MD5);
 	err = gci_hash_update(md5Ctx, rac_macPad2, 48);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
 
 	//OLD-CW: cr_digestUpdate(&cwt_md5Ctx, ac_tmpMd5Hash, 16, E_SSL_HASH_MD5);
 	err = gci_hash_update(md5Ctx, ac_tmpMd5Hash, 16);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
@@ -1493,7 +1491,7 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 
 	//OLD-CW: cr_digestFinish(&cwt_md5Ctx, pc_res, NULL, E_SSL_HASH_MD5);
 	err = gci_hash_finish(md5Ctx, pc_res, NULL);
-	if (err != GCI_NO_ERR)
+	if (err != GCI_OK)
 	{
 		//TODO: return from error state
 	}
@@ -1535,30 +1533,30 @@ static void loc_compHashTLS( s_sslCtx_t* ps_sslCtx, const uint8_t *pc_label,
 		 * simply the prf applied with mastersecret as key, the expansion string
 		 * and the hashresults of the handshake messages as payload
 		 */
-		//OLD-CW: CW_MEMCOPY(&cwt_md5Ctx, &ps_sslCtx->ps_hsElem->u_hashCtx.s_md5Sha1.gci_md5Ctx, sizeof(gci_md5Ctx_t));
+		//OLD-CW: memcpy(&cwt_md5Ctx, &ps_sslCtx->ps_hsElem->u_hashCtx.s_md5Sha1.gci_md5Ctx, sizeof(gci_md5Ctx_t));
 		err = gci_hash_ctx_clone(ps_sslCtx->ps_hsElem->u_hashCtx.md5Ctx, &md5Ctx);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
-		//OLD-CW: CW_MEMCOPY(&cwt_sha1Ctx, &ps_sslCtx->ps_hsElem->u_hashCtx.s_md5Sha1.gci_sha1Ctx, sizeof(gci_sha1Ctx_t));
+		//OLD-CW: memcpy(&cwt_sha1Ctx, &ps_sslCtx->ps_hsElem->u_hashCtx.s_md5Sha1.gci_sha1Ctx, sizeof(gci_sha1Ctx_t));
 		err = gci_hash_ctx_clone(ps_sslCtx->ps_hsElem->u_hashCtx.sha1Ctx, &sha1Ctx);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestFinish(&cwt_md5Ctx, ac_md5hash, NULL, E_SSL_HASH_MD5);
 		err = gci_hash_finish(md5Ctx, ac_md5hash, NULL);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestFinish(&cwt_sha1Ctx, ac_sha1hash, NULL,E_SSL_HASH_SHA1);
 		err = gci_hash_finish(sha1Ctx, ac_sha1hash, NULL);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -1574,9 +1572,9 @@ static void loc_compHashTLS( s_sslCtx_t* ps_sslCtx, const uint8_t *pc_label,
 		}
 		else
 		{
-			//OLD-CW: CW_MEMCOPY(pc_result, ac_md5hash, GCI_MD5_SIZE);
+			//OLD-CW: memcpy(pc_result, ac_md5hash, GCI_MD5_SIZE);
 			memcpy(pc_result, ac_md5hash, GCI_MD5_SIZE);
-			//OLD-CW: CW_MEMCOPY(pc_result + GCI_MD5_SIZE, ac_sha1hash, GCI_SHA1_SIZE);
+			//OLD-CW: memcpy(pc_result + GCI_MD5_SIZE, ac_sha1hash, GCI_SHA1_SIZE);
 			memcpy(pc_result + GCI_MD5_SIZE, ac_sha1hash, GCI_SHA1_SIZE);
 		}
 	}
@@ -1592,17 +1590,17 @@ static void loc_compHashTLS( s_sslCtx_t* ps_sslCtx, const uint8_t *pc_label,
 		//OLD-CW: c_hashType = loc_getHashTypeByPrf( ps_sslCtx->s_secParams.e_prf);
 		hashAlgo = loc_getHashTypeByPrf( ps_sslCtx->s_secParams.e_prf);
 
-		//OLD-CW: CW_MEMCOPY(&cwt_hashCtx, &ps_sslCtx->ps_hsElem->u_hashCtx.gci_hashCtx, sizeof(gci_hashCtx_t));
+		//OLD-CW: memcpy(&cwt_hashCtx, &ps_sslCtx->ps_hsElem->u_hashCtx.gci_hashCtx, sizeof(gci_hashCtx_t));
 		err = gci_hash_ctx_clone(ps_sslCtx->ps_hsElem->u_hashCtx.hashCtx, &hashCtx);
 
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestFinish(&cwt_hashCtx, ac_hash, NULL, c_hashType);
 		err = gci_hash_finish(hashCtx, ac_hash, NULL);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -1623,7 +1621,7 @@ static void loc_compHashTLS( s_sslCtx_t* ps_sslCtx, const uint8_t *pc_label,
 
 		else
 		{
-			//OLD-CW: CW_MEMCOPY(pc_result, ac_hash, c_hashLen);
+			//OLD-CW: memcpy(pc_result, ac_hash, c_hashLen);
 			memcpy(pc_result, ac_hash, c_hashLen);
 		}
 	}
@@ -1703,7 +1701,7 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 
 	loc_selectSeqNum(ps_sslCtx, c_ioDir, &pc_seqNum, &pc_sec);
 
-	CW_MEMCOPY(as_temp, pc_seqNum, 8);
+	memcpy(as_temp, pc_seqNum, 8);
 	as_temp[8] = c_msgType;
 
 	(void) ssl_writeInteger(&as_temp[9], i_inDataLen, 2);
@@ -1720,42 +1718,42 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 	{
 		//OLD-CW: cr_digestInit(&cw_hashCtx,NULL, 0, hashAlgo);
 		err = gci_hash_new_ctx(hashAlgo, &hashCtx);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, pc_sec, GCI_SHA1_SIZE, hashAlgo);
 		err = gci_hash_update(hashCtx, pc_sec, GCI_SHA1_SIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, (uint8_t*) rac_macPad1, 40, hashAlgo);
 		err = gci_hash_update(hashCtx, rac_macPad1, 40);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, as_temp,   11, hashAlgo);
 		err = gci_hash_update(hashCtx, as_temp, 11);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, pc_inData, i_inDataLen, hashAlgo);
 		err = gci_hash_update(hashCtx, pc_inData, i_inDataLen);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestFinish(&cw_hashCtx, ac_hashBuf, NULL, hashAlgo);
 		err = gci_hash_finish(hashCtx, ac_hashBuf, NULL);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -1763,82 +1761,82 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 
 		//OLD-CW: cr_digestInit(&cw_hashCtx, NULL, 0, hashAlgo);
 		err = gci_hash_new_ctx(hashAlgo, &hashCtx);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, pc_sec, GCI_SHA1_SIZE, hashAlgo);
 		err = gci_hash_update(hashCtx, pc_sec, GCI_SHA1_SIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, (uint8_t*) rac_macPad2, 40, hashAlgo);
 		err = gci_hash_update(hashCtx, rac_macPad2, 40);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, ac_hashBuf, GCI_SHA1_SIZE, hashAlgo);
 		err = gci_hash_update(hashCtx, ac_hashBuf, GCI_SHA1_SIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestFinish(&cw_hashCtx, result, NULL, hashAlgo);
 		err = gci_hash_finish(hashCtx, result, NULL);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		cwt_retLen = GCI_SHA1_SIZE;
 	}
-	else if (hashAlgo == E_SSL_HASH_MD5)
+	else if (hashAlgo == GCI_HASH_MD5)
 	{
 
 		//OLD-CW: cr_digestInit(&cw_hashCtx, NULL, 0, hashAlgo);
 		err = gci_hash_new_ctx(hashAlgo, &hashCtx);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, pc_sec, GCI_MD5_SIZE, hashAlgo);
 		err = gci_hash_update(hashCtx, pc_sec, GCI_MD5_SIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, (uint8_t*) rac_macPad1, 48, hashAlgo);
 		err = gci_hash_update(hashCtx, rac_macPad1, 48);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, as_temp, 11, hashAlgo);
 		err = gci_hash_update(hashCtx, as_temp, 11);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, pc_inData, i_inDataLen, hashAlgo);
 		err = gci_hash_update(hashCtx, pc_inData, i_inDataLen);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestFinish(&cw_hashCtx, ac_hashBuf, NULL, hashAlgo);
 		err = gci_hash_finish(hashCtx, ac_hashBuf, NULL);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -1846,28 +1844,28 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 
 		//OLD-CW: cr_digestInit(&cw_hashCtx, NULL, 0, hashAlgo);
 		err = gci_hash_new_ctx(hashAlgo, &hashCtx);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, pc_sec, GCI_MD5_SIZE, hashAlgo);
 		err = gci_hash_update(hashCtx, pc_sec, GCI_MD5_SIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, (uint8_t*) rac_macPad2, 48, hashAlgo);
 		err = gci_hash_update(hashCtx, rac_macPad2, 48);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, ac_hashBuf, GCI_MD5_SIZE, hashAlgo);
 		err = gci_hash_update(hashCtx, ac_hashBuf, GCI_MD5_SIZE);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -1875,7 +1873,7 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 
 		//OLD-CW: cr_digestFinish(&cw_hashCtx, result, NULL, hashAlgo);
 		err = gci_hash_finish(hashCtx, result, NULL);
-		if (err != GCI_NO_ERR)
+		if (err != GCI_OK)
 		{
 			//TODO: return from error state
 		}
@@ -1928,7 +1926,7 @@ static size_t loc_compMacTLS(s_sslCtx_t  *ps_sslCtx,
 	/* build startsequence of hmac'ed data */
 	/* seq_num */
 
-	//OLD-CW: CW_MEMCOPY(ac_secret, pc_seqNum, 8);
+	//OLD-CW: memcpy(ac_secret, pc_seqNum, 8);
 	memcpy(ac_secret, pc_seqNum, 8);
 	/* TLSCompressed.type */
 	ac_secret[8] = c_msgType;
@@ -1953,7 +1951,7 @@ static size_t loc_compMacTLS(s_sslCtx_t  *ps_sslCtx,
 
 			//OLD-CW: i_retCheck += cr_digestInit(&cwt_hmacCtx, pc_macSecret, ps_sslCtx->s_secParams.c_hmacLen ,hashAlgo);
 			err = gci_hash_new_ctx(hashAlgo, hmacCtx);
-			if (err != GCI_NO_ERR)
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 				i_retCheck+=1;
@@ -1964,7 +1962,7 @@ static size_t loc_compMacTLS(s_sslCtx_t  *ps_sslCtx,
 
 			//OLD-CW: i_retCheck += cr_digestUpdate(&cwt_hmacCtx, ac_secret, 13,hashAlgo);
 			err = gci_hash_update(hmacCtx, ac_secret, 13);
-			if (err != GCI_NO_ERR)
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 				i_retCheck+=1;
@@ -1974,7 +1972,7 @@ static size_t loc_compMacTLS(s_sslCtx_t  *ps_sslCtx,
 
 			//OLD-CW: i_retCheck += cr_digestUpdate(&cwt_hmacCtx,pc_in, i_inLen,hashAlgo);
 			err = gci_hash_update(hmacCtx, pc_in, i_inLen);
-			if (err != GCI_NO_ERR)
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 				i_retCheck+=1;
@@ -1982,7 +1980,7 @@ static size_t loc_compMacTLS(s_sslCtx_t  *ps_sslCtx,
 
 			//OLD-CW: i_retCheck += cr_digestFinish(&cwt_hmacCtx,pc_out, &l_outLen,hashAlgo);
 			err = gci_hash_finish(hmacCtx, pc_out, &l_outLen);
-			if (err != GCI_NO_ERR)
+			if (err != GCI_OK)
 			{
 				//TODO: return from error state
 				i_retCheck+=1;
@@ -2040,7 +2038,7 @@ static size_t loc_compMacTLS(s_sslCtx_t  *ps_sslCtx,
 //		uint8_t*      pc_out,    size_t  sz_outLen)
 //{
 
-//TODO BEGIN HERE
+
 static void loc_pHash(GciHashAlgo_t hashAlgo,
 		uint8_t*      pc_secret, size_t  sz_secLen,
 		const  uint8_t*      pc_label,  uint8_t c_labelLen,
@@ -2052,13 +2050,19 @@ static void loc_pHash(GciHashAlgo_t hashAlgo,
 	size_t          sz_hmacLen  = 0;
 	//OLD-CW: gci_hmacCtx_t    cwt_hmacCtx;
 	GciCtxId_t hmacCtx;
+
+	GciSignConfig_t hmacConf;
+
+	GciKeyId_t	secretKey;
+
 	int32_t         i_retCheck  = 0;
 	sz_hmacLen =    loc_getHashSize(hashAlgo);
 	uint8_t         ac_hmac[sz_hmacLen];
 
+	GciResult_t err;
 
-
-	i_retCheck += cr_digestInit(&cwt_hmacCtx, pc_secret, sz_secLen, hashAlgo);
+	//OLD-CW:
+	/*i_retCheck += cr_digestInit(&cwt_hmacCtx, pc_secret, sz_secLen, hashAlgo);
 
 
 	i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_label, c_labelLen, hashAlgo);
@@ -2068,28 +2072,21 @@ static void loc_pHash(GciHashAlgo_t hashAlgo,
 
 	if (c_xSeedLen != 0)
 	{
-		//TODO sw gci_hash_update
 		i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_xSeed, c_xSeedLen, hashAlgo);
 	}
-	//TODO sw gci_hash_finish
 	i_retCheck += cr_digestFinish(&cwt_hmacCtx, ac_hmac, &sz_hmacLen, hashAlgo);
 
 	while (i_retCheck == 0)
 	{
-		//TODO sw gci_hash_new_ctx
 		i_retCheck += cr_digestInit(&cwt_hmacCtx, pc_secret, sz_secLen, hashAlgo);
-		//TODO sw gci_hash_update
 		i_retCheck += cr_digestUpdate(&cwt_hmacCtx, ac_hmac, sz_hmacLen, hashAlgo);
-		//TODO sw gci_hash_update
 		i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_label, c_labelLen, hashAlgo);
-		//TODO sw gci_hash_update
 		i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_seed,c_seedLen, hashAlgo);
 		if (c_xSeedLen != 0)
 		{
-			//TODO sw gci_hash_update
 			i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_xSeed,c_xSeedLen, hashAlgo);
 		}
-		//TODO sw gci_hash_finish
+
 		i_retCheck += cr_digestFinish(&cwt_hmacCtx, &pc_out[sz_realLen],&sz_hmacLen, hashAlgo);
 
 		sz_realLen += sz_hmacLen;
@@ -2099,11 +2096,51 @@ static void loc_pHash(GciHashAlgo_t hashAlgo,
 			break;
 		}
 
-		//TODO sw gci_sign_new_ctx HMAC
 		i_retCheck += cw_hmac(hashAlgo, pc_secret, sz_secLen,
 				ac_hmac, sz_hmacLen,
 				ac_hmac, &sz_hmacLen);
 	}
+	*/
+
+
+	//See page 138 "SSL and TLS - Theory and practice" from Rolf Oppliger
+
+
+	hmacConf.algo = GCI_SIGN_HMAC;
+	hmacConf.hash = hashAlgo;
+
+	err = gci_key_put(pc_secret, sz_secLen, &secretKey);
+
+
+	//HMAC is defined as a signature in gci
+	err = gci_sign_new_ctx(&hmacConf, secretKey, &hmacCtx);
+
+	err = gci_sign_update(hmacCtx, pc_label, c_labelLen);
+
+	err = gci_sign_update(hmacCtx, pc_seed, c_seedLen);
+
+	err = gci_sign_gen_finish(hmacCtx, ac_hmac, &sz_hmacLen);
+
+	//TODO what for error to stop the loop ?
+
+	while(err==GCI_OK)
+	{
+
+		err = gci_sign_new_ctx(&hmacConf, secretKey, &hmacCtx);
+
+		err = gci_sign_update(hmacCtx, ac_hmac, sz_hmacLen);
+
+		err = gci_sign_update(hmacCtx, pc_label, c_labelLen);
+
+		err = gci_sign_update(hmacCtx, pc_seed, c_seedLen);
+
+		err = gci_sign_gen_finish(hmacCtx, ac_hmac, &sz_hmacLen);
+
+	}
+
+	memcpy(pc_out, ac_hmac, sz_hmacLen);
+	sz_outLen = sz_hmacLen;
+
 }
 
 
@@ -2191,8 +2228,12 @@ static void loc_prfSSL( uint8_t* pc_sec, size_t cwt_secLen,
 	uint8_t sha1_hash[GCI_SHA1_SIZE];
 
 	/* Two local copies of Hash-Contexts are needed */
-	gci_sha1Ctx_t cwt_sha1KbCtx;
-	gci_md5Ctx_t cwt_md5KbCtx;
+	//OLD-CW: gci_sha1Ctx_t cwt_sha1KbCtx;
+	//OLD-CW: gci_md5Ctx_t cwt_md5KbCtx;
+	GciCtxId_t sha1Ctx;
+	GciCtxId_t md5Ctx;
+
+	GciResult_t err;
 
 	assert(pc_sec != NULL);
 	assert(pc_par1 != NULL);
@@ -2204,7 +2245,8 @@ static void loc_prfSSL( uint8_t* pc_sec, size_t cwt_secLen,
 
 	if ((pc_out == pc_sec) && (cwt_secLen <= 48))
 	{
-		CW_MEMCOPY(secBuf, pc_sec, cwt_secLen);
+		//OLD-CW: memcpy(secBuf, pc_sec, cwt_secLen);
+		memcpy(secBuf, pc_sec, cwt_secLen);
 		pc_sec = secBuf;
 	}
 	else if ((pc_out == pc_sec) && (cwt_secLen > 48))
@@ -2235,28 +2277,77 @@ static void loc_prfSSL( uint8_t* pc_sec, size_t cwt_secLen,
 		}
 
 		/* The inner hash */
-		//TODO sw gci_hash_new_ctx SHA1
-		cr_digestInit(&cwt_sha1KbCtx, NULL, 0, E_SSL_HASH_SHA1);
-		//TODO sw gci_hash_update SHA1
-		cr_digestUpdate(&cwt_sha1KbCtx, ac_mix, c_mixCount, E_SSL_HASH_SHA1);
-		//TODO sw gci_hash_update SHA1
-		cr_digestUpdate(&cwt_sha1KbCtx, pc_sec, cwt_secLen, E_SSL_HASH_SHA1);
-		//TODO sw gci_hash_update SHA1
-		cr_digestUpdate(&cwt_sha1KbCtx, pc_par1, cwt_par1Len, E_SSL_HASH_SHA1);
-		//TODO sw gci_hash_update SHA1
-		cr_digestUpdate(&cwt_sha1KbCtx, pc_par2, cwt_par2Len, E_SSL_HASH_SHA1);
-		//TODO sw gci_hash_finish SHA1
-		cr_digestFinish(&cwt_sha1KbCtx, sha1_hash, NULL, E_SSL_HASH_SHA1);
+		//OLD-CW: cr_digestInit(&cwt_sha1KbCtx, NULL, 0, E_SSL_HASH_SHA1);
+		err = gci_hash_new_ctx(GCI_HASH_SHA1, &sha1Ctx);
+		if (err != GCI_OK)
+		{
+			//TODO: return from error state
+		}
+
+		//OLD-CW: cr_digestUpdate(&cwt_sha1KbCtx, ac_mix, c_mixCount, E_SSL_HASH_SHA1);
+		err = gci_hash_update(sha1Ctx, ac_mix, c_mixCount);
+		if (err != GCI_OK)
+		{
+			//TODO: return from error state
+		}
+
+		//OLD-CW: cr_digestUpdate(&cwt_sha1KbCtx, pc_sec, cwt_secLen, E_SSL_HASH_SHA1);
+		err = gci_hash_update(sha1Ctx, pc_sec, cwt_secLen);
+		if (err != GCI_OK)
+		{
+			//TODO: return from error state
+		}
+
+		//OLD-CW: cr_digestUpdate(&cwt_sha1KbCtx, pc_par1, cwt_par1Len, E_SSL_HASH_SHA1);
+		err = gci_hash_update(sha1Ctx, pc_par1, cwt_par1Len);
+		if (err != GCI_OK)
+		{
+			//TODO: return from error state
+		}
+
+		//OLD-CW: cr_digestUpdate(&cwt_sha1KbCtx, pc_par2, cwt_par2Len, E_SSL_HASH_SHA1);
+		err = gci_hash_update(sha1Ctx, pc_par2, cwt_par2Len);
+		if (err != GCI_OK)
+		{
+			//TODO: return from error state
+		}
+
+		//OLD-CW: cr_digestFinish(&cwt_sha1KbCtx, sha1_hash, NULL, E_SSL_HASH_SHA1);
+		err = gci_hash_finish(sha1Ctx, sha1_hash, NULL);
+		if (err != GCI_OK)
+		{
+			//TODO: return from error state
+		}
 
 		/* The outer hash */
-		//TODO sw gci_hash_new_ctx MD5
-		cr_digestInit(&cwt_md5KbCtx, NULL, 0, E_SSL_HASH_MD5);
-		//TODO sw gci_hash_update MD5
-		cr_digestUpdate(&cwt_md5KbCtx, pc_sec, cwt_secLen, E_SSL_HASH_MD5);
-		//TODO sw gci_hash_update MD5
-		cr_digestUpdate(&cwt_md5KbCtx, sha1_hash, GCI_SHA1_SIZE, E_SSL_HASH_MD5);
-		//TODO sw gci_hash_finish MD5
-		cr_digestFinish(&cwt_md5KbCtx, pc_out, NULL, E_SSL_HASH_MD5);
+
+		//OLD-CW: cr_digestInit(&cwt_md5KbCtx, NULL, 0, E_SSL_HASH_MD5);
+		err = gci_hash_new_ctx(GCI_HASH_MD5, &md5Ctx);
+		if (err != GCI_OK)
+		{
+			//TODO: return from error state
+		}
+
+		//OLD-CW: cr_digestUpdate(&cwt_md5KbCtx, pc_sec, cwt_secLen, E_SSL_HASH_MD5);
+		err = gci_hash_update(md5Ctx, pc_sec, cwt_secLen);
+		if (err != GCI_OK)
+		{
+			//TODO: return from error state
+		}
+
+		//OLD-CW: cr_digestUpdate(&cwt_md5KbCtx, sha1_hash, GCI_SHA1_SIZE, E_SSL_HASH_MD5);
+		err = gci_hash_update(md5Ctx, sha1_hash, GCI_SHA1_SIZE);
+		if (err != GCI_OK)
+		{
+			//TODO: return from error state
+		}
+
+		//OLD-CW: cr_digestFinish(&cwt_md5KbCtx, pc_out, NULL, E_SSL_HASH_MD5);
+		err = gci_hash_finish(md5Ctx, pc_out, NULL);
+		if (err != GCI_OK)
+		{
+			//TODO: return from error state
+		}
 
 		pc_out += GCI_MD5_SIZE;
 	}
@@ -2287,8 +2378,10 @@ static void loc_prfTLS(e_sslPrf_t  e_prf,
 		uint8_t*    pc_sec1;
 		uint8_t*    pc_sec2;
 
-		CW_MEMSET(c_prf1Res, 0, c_prfResSize);
-		CW_MEMSET(c_prf2Res, 0, c_prfResSize);
+		//OLD-CW: CW_MEMSET(c_prf1Res, 0, c_prfResSize);
+		memset(c_prf1Res, 0, c_prfResSize);
+		//OLD-CW: CW_MEMSET(c_prf2Res, 0, c_prfResSize);
+		memset(c_prf2Res, 0, c_prfResSize);
 
 		sz_len     =   sz_secretLen / 2;
 		pc_sec1    =   pc_secret;
@@ -2337,6 +2430,8 @@ static uint32_t loc_addPadding(s_sslCtx_t* ps_sslCtx, uint8_t *pc_data,
 	uint8_t         c_padLen    = 0;
 	e_sslVer_t  e_ver       = ps_sslCtx->e_ver;
 
+	GciResult_t err;
+
 	switch (e_ver) {
 	case E_SSL_3_0:
 		/* define the padlen */
@@ -2346,8 +2441,14 @@ static uint32_t loc_addPadding(s_sslCtx_t* ps_sslCtx, uint8_t *pc_data,
 	case E_TLS_1_1:
 	case E_TLS_1_2:
 		/* We read a 32bit random.. */
-		//TODO sw gci_rng_gen
-		cw_prng_read((uint8_t*) &l_rand, 4);
+		//OLD-CW: cw_prng_read((uint8_t*) &l_rand, 4);
+		err = gci_rng_gen(4, l_rand);
+
+		if (err != GCI_OK)
+		{
+			//TODO: return from error state
+		}
+
 		/* ..and break it down to a small value */
 		c_padLen = l_rand % SSL_TLS_MAX_PADLEN;
 		/* We make some padding adding (nice rhyme *g*) if its too small */
@@ -2445,8 +2546,9 @@ static size_t loc_cpCompositeHs(s_sslCtx_t* ps_sslCtx,
 		 * key exch msg there are MIGHT BE implementations which are not
 		 * include length field, because ssl3 specs doesn't say anything
 		 * about this   */
-		if ((ps_sslCtx->s_secParams.e_kst != E_SSL_KST_DHE_RSA) &&
-				(ps_sslCtx->s_secParams.e_kst != E_SSL_KST_DHE_DSS)) {
+		if ((ps_sslCtx->s_secParams.e_kst != GCI_KEY_PAIR_DHE_RSA) &&
+				(ps_sslCtx->s_secParams.e_kst != GCI_KEY_PAIR_DHE_DSS))
+		{
 			cwt_resLen = cwt_len - HS_HEADERLEN;
 			cwt_offset = HS_HEADERLEN;
 			break;
@@ -2456,8 +2558,8 @@ static size_t loc_cpCompositeHs(s_sslCtx_t* ps_sslCtx,
 	case E_TLS_1_2:
 		switch(ps_sslCtx->s_secParams.e_kst)
 		{
-		case E_SSL_KST_ECDHE_ECDSA:
-		case E_SSL_KST_ECDHE_RSA:
+		case GCI_KEY_PAIR_ECDHE_ECDSA:
+		case GCI_KEY_PAIR_ECDHE_RSA:
 			//vpy: in case of ECDHE key exchange, rsLen++, ofset--, because length is coded with only 1 byte (instead of 2 bytes for DH)
 			cwt_resLen = cwt_len - HS_HEADERLEN - 1;
 			cwt_offset = HS_HEADERLEN + 1;
@@ -2469,8 +2571,8 @@ static size_t loc_cpCompositeHs(s_sslCtx_t* ps_sslCtx,
 		}
 		break;
 		default:
-			if ((ps_sslCtx->s_secParams.e_kst != E_SSL_KST_DHE_RSA) &&
-					(ps_sslCtx->s_secParams.e_kst != E_SSL_KST_DHE_DSS)) {
+			if ((ps_sslCtx->s_secParams.e_kst != GCI_KEY_PAIR_DHE_RSA) &&
+					(ps_sslCtx->s_secParams.e_kst != GCI_KEY_PAIR_DHE_DSS)) {
 				cwt_resLen = cwt_len - HS_HEADERLEN;
 				cwt_offset = HS_HEADERLEN;
 			} else {
@@ -2480,7 +2582,8 @@ static size_t loc_cpCompositeHs(s_sslCtx_t* ps_sslCtx,
 	}
 
 	if ((cwt_resLen) && (cwt_offset)) {
-		CW_MEMMOVE(pc_to, pc_from + cwt_offset, cwt_resLen);
+		//OLD-CW: CW_MEMMOVE(pc_to, pc_from + cwt_offset, cwt_resLen);
+		memmove(pc_to, pc_from + cwt_offset, cwt_resLen);
 	}
 
 	return cwt_resLen;
@@ -2563,18 +2666,25 @@ static void loc_selectSeqNum(s_sslCtx_t *ps_sslCtx,    uint8_t c_iodir,
 static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 {
 	uint8_t             c_keyBlkLen = 2*ps_sslCtx->s_secParams.c_hmacLen +
-			2*ps_sslCtx->s_secParams.c_keyLen +
-			2*ps_sslCtx->s_secParams.c_blockLen;
+									  2*ps_sslCtx->s_secParams.c_keyLen +
+									  2*ps_sslCtx->s_secParams.c_blockLen;
 
 	uint8_t             ac_keyBlk[c_keyBlkLen];
 	s_sslHsElem_t*      ps_hsElem;
 	s_sslSecParams_t*   ps_secPar;
-	gci_rc4Ctx_t*        cwt_rc4Ctx;
-	gci_aesCtx_t*        cwt_aesCtx;
-	gci_3desCtx*         cwt_tdesCtx;
+	//gci_rc4Ctx_t*        cwt_rc4Ctx;
+	GciCtxId_t	rc4Ctx;
+	//gci_aesCtx_t*        cwt_aesCtx;
+	GciCtxId_t	aesCtx;
+	//gci_3desCtx*         cwt_tdesCtx;
+	GciCtxId_t	tdesCtx;
 	uint8_t             c_macOff;
 	uint8_t             c_keyOff;
 	uint8_t             c_ivOff;
+
+	GciResult_t err;
+	GciCipherConfig_t ciphConf;
+	GciKeyId_t key;
 
 	assert(ps_sslCtx != NULL);
 
@@ -2605,28 +2715,45 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 	 */
 	if (b_srvKey == TRUE)
 	{
-		cwt_rc4Ctx = &(ps_secPar->u_srvKey.gci_srvRc4Ctx);
-		cwt_tdesCtx = &(ps_secPar->u_srvKey.gci_srv3DesCtx);
-		cwt_aesCtx = &(ps_secPar->u_srvKey.gci_srvAesCtx);
+		//OLD-CW: cwt_rc4Ctx = &(ps_secPar->u_srvKey.gci_srvRc4Ctx);
+		rc4Ctx = &(ps_secPar->u_srvKey.srvRc4Ctx);
+		//OLD-CW: cwt_tdesCtx = &(ps_secPar->u_srvKey.gci_srv3DesCtx);
+		tdesCtx = &(ps_secPar->u_srvKey.srv3DesCtx);
+		//OLD-CW: cwt_aesCtx = &(ps_secPar->u_srvKey.gci_srvAesCtx);
+		aesCtx = &(ps_secPar->u_srvKey.srvAesCtx);
+
 		c_macOff = ps_secPar->c_hmacLen;
 		c_keyOff = 2*c_macOff + ps_secPar->c_keyLen;
 		c_ivOff = 2*c_macOff + 2*ps_secPar->c_keyLen + ps_secPar->c_blockLen;
-		CW_MEMSET(ps_sslCtx->s_sslGut.ac_srvrSeqNum, 0, 8);
-		CW_MEMCOPY(ps_secPar->ac_srvSecret,&(ac_keyBlk[c_macOff]), ps_secPar->c_hmacLen);
+
+		//OLD-CW: CW_MEMSET(ps_sslCtx->s_sslGut.ac_srvrSeqNum, 0, 8);
+		memset(ps_sslCtx->s_sslGut.ac_srvrSeqNum, 0, 8);
+		//OLD-CW: memcpy(ps_secPar->ac_srvSecret,&(ac_keyBlk[c_macOff]), ps_secPar->c_hmacLen);
+		memcpy(ps_secPar->ac_srvSecret,&(ac_keyBlk[c_macOff]), ps_secPar->c_hmacLen);
 	} /* if */
 	else
 	{
-		cwt_rc4Ctx = &(ps_secPar->u_cliKey.gci_cliRc4Ctx);
-		cwt_tdesCtx = &(ps_secPar->u_cliKey.gci_cli3DesCtx);
-		cwt_aesCtx = &(ps_secPar->u_cliKey.gci_cliAesCtx);
+		//OLD-CW: cwt_rc4Ctx = &(ps_secPar->u_cliKey.gci_cliRc4Ctx);
+		rc4Ctx = &(ps_secPar->u_cliKey.cliRc4Ctx);
+		//OLD-CW: cwt_tdesCtx = &(ps_secPar->u_cliKey.gci_cli3DesCtx);
+		tdesCtx = &(ps_secPar->u_cliKey.cli3DesCtx);
+		//OLD-CW: cwt_aesCtx = &(ps_secPar->u_cliKey.gci_cliAesCtx);
+		aesCtx = &(ps_secPar->u_cliKey.cliAesCtx);
+
 		c_macOff = 0;
 		c_keyOff = 2*ps_secPar->c_hmacLen;
 		c_ivOff = 2*ps_secPar->c_hmacLen + 2*ps_secPar->c_keyLen;
-		CW_MEMSET(ps_sslCtx->s_sslGut.ac_cliSeqNum, 0, 8);
-		CW_MEMCOPY(ps_secPar->ac_cliSecret,&(ac_keyBlk[c_macOff]), ps_secPar->c_hmacLen);
+
+		//OLD-CW: CW_MEMSET(ps_sslCtx->s_sslGut.ac_cliSeqNum, 0, 8);
+		memset(ps_sslCtx->s_sslGut.ac_cliSeqNum, 0, 8);
+		//OLD-CW: memcpy(ps_secPar->ac_cliSecret,&(ac_keyBlk[c_macOff]), ps_secPar->c_hmacLen);
+		memcpy(ps_secPar->ac_cliSecret,&(ac_keyBlk[c_macOff]), ps_secPar->c_hmacLen);
+
 		LOG2_INFO("MAC Key");
 		LOG2_HEX(&(ac_keyBlk[c_macOff]), ps_secPar->c_hmacLen);
 	} /* else */
+
+	err = gci_key_put(ac_keyBlk, ps_secPar->c_keyLen, &key);
 
 	//add new ciphers here
 	switch (ps_sslCtx->s_sslGut.e_pendCipSpec)
@@ -2634,8 +2761,19 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 	case TLS_RSA_WITH_RC4_128_MD5:
 	case TLS_RSA_WITH_RC4_128_SHA:
 	{
-		//TODO sw  gci_cipher_sym_new_ctx RC4
-		cw_rc4_init(cwt_rc4Ctx, &(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen);
+		//OLD-CW: cw_rc4_init(cwt_rc4Ctx, &(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen);
+
+		ciphConf.algo = GCI_CIPH_RC4;
+		ciphConf.blockMode = GCI_BLOCK_MODE_NONE;
+		ciphConf.padding = GCI_PADDING_NONE;
+		//TODO See later the use of the IV: ciphConf.iv.len = c_ivOff;
+
+		//TODO See later the use of the IV:
+		//memset(ciphConf.iv.data, 0, ciphConf.iv.len);
+
+		err = gci_cipher_new_ctx(&ciphConf, key, rc4Ctx);
+
+
 		LOG2_INFO("Key");
 		LOG2_HEX(&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen);
 		break;
@@ -2646,10 +2784,17 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 	case TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA: //vpy
 	case TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA: //vpy
 	{
-		//TODO sw  gci_cipher_sym_new_ctx 3DES
-		cw_3des_init(cwt_tdesCtx, /*<--*/
-				&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen,
-				&(ac_keyBlk[c_ivOff]), ps_secPar->c_blockLen, 0);
+		//OLD-CW: cw_3des_init(cwt_tdesCtx,&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen, &(ac_keyBlk[c_ivOff]), ps_secPar->c_blockLen, 0);
+		ciphConf.algo = GCI_CIPH_TDES;
+		ciphConf.blockMode = GCI_BLOCK_MODE_CBC;
+		ciphConf.padding = GCI_PADDING_NONE;
+
+		//TODO See later the use of the IV: ciphConf.iv.len = c_ivOff;
+
+		//TODO See later the use of the IV:
+		//memset(ciphConf.iv.data, 0, ciphConf.iv.len);
+
+		err = gci_cipher_new_ctx(&ciphConf, key, tdesCtx);
 
 		LOG2_INFO("Key");
 		LOG2_HEX(&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen);
@@ -2670,10 +2815,18 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 	case TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA: //vpy
 	case TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA: //vpy
 	{
-		//TODO sw  gci_cipher_sym_new_ctx AES
-		cw_aes_init(cwt_aesCtx, /*<--*/
-				&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen,
-				&(ac_keyBlk[c_ivOff]), ps_secPar->c_blockLen, 0);
+		//OLD-CW: cw_aes_init(cwt_aesCtx, &(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen, &(ac_keyBlk[c_ivOff]), ps_secPar->c_blockLen, 0);
+		ciphConf.algo = GCI_CIPH_AES;
+		ciphConf.blockMode = GCI_BLOCK_MODE_CBC;
+		ciphConf.padding = GCI_PADDING_NONE;
+
+		//TODO See later the use of the IV: ciphConf.iv.len = c_ivOff;
+
+		//TODO See later the use of the IV:
+		//memset(ciphConf.iv.data, 0, ciphConf.iv.len);
+
+		err = gci_cipher_new_ctx(&ciphConf, key, aesCtx);
+
 
 		LOG2_INFO("Key");
 		LOG2_HEX(&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen);
@@ -2689,6 +2842,7 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 	TIME_STAMP(TS_COMP_KEY_END);
 
 }
+
 
 static e_sslPendAct_t loc_selVer(s_sslCtx_t* ps_sslCtx, e_sslVer_t e_ver)
 {
@@ -2794,182 +2948,182 @@ static void loc_setSecParams(s_sslCtx_t*        ps_sslCtx,
 	switch (e_cipSpec)
 	{
 	case TLS_RSA_WITH_RC4_128_MD5:
-		ps_secPar->e_kst            = E_SSL_KST_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = RC4_STREAM;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_RC4;
 		ps_secPar->b_isBlkCip       = FALSE;
-		ps_secPar->e_hmacType       = E_SSL_HASH_MD5;
+		ps_secPar->e_hmacType       = GCI_HASH_MD5;
 		ps_secPar->c_keyLen         = 16;
 		break;
 	case TLS_RSA_WITH_RC4_128_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = RC4_STREAM;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_RC4;
 		ps_secPar->b_isBlkCip       = FALSE;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 16;
 		break;
 #ifdef AES_AND_3DES_ENABLED
 	case TLS_RSA_WITH_3DES_EDE_CBC_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = TDES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_TDES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 8;
 		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
 		ps_secPar->c_keyLen         = 24;
 		break;
 	case TLS_RSA_WITH_AES_128_CBC_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = AES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_AES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 16;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 16;
 		break;
 	case TLS_RSA_WITH_AES_128_CBC_SHA256:
-		ps_secPar->e_kst            = E_SSL_KST_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = AES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_AES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 16;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA256;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA256;
 		ps_secPar->c_keyLen         = 16;
 		break;
 	case TLS_RSA_WITH_AES_256_CBC_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = AES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_AES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 16;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 32;
 		break;
 	case TLS_RSA_WITH_AES_256_CBC_SHA256:
-		ps_secPar->e_kst            = E_SSL_KST_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = AES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_AES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 16;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA256;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA256;
 		ps_secPar->c_keyLen         = 32;
 		break;
 	case TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_DHE_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = TDES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_DHE_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_TDES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 8;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 24;
 		break;
 	case TLS_DHE_RSA_WITH_AES_128_CBC_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_DHE_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = AES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_DHE_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_AES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 16;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 16;
 		break;
 	case TLS_DHE_RSA_WITH_AES_256_CBC_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_DHE_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = AES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_DHE_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_AES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 16;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 32;
 		break;
 	case TLS_DHE_RSA_WITH_AES_128_CBC_SHA256:
-		ps_secPar->e_kst            = E_SSL_KST_DHE_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = AES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_DHE_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_AES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 16;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA256;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA256;
 		ps_secPar->c_keyLen         = 16;
 		break;
 	case TLS_DHE_RSA_WITH_AES_256_CBC_SHA256:
-		ps_secPar->e_kst            = E_SSL_KST_DHE_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = AES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_DHE_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_AES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 16;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA256;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA256;
 		ps_secPar->c_keyLen         = 32;
 		break;
 
 		//begin vpy
 	case TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_ECDHE_ECDSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_ECDSA;
-		ps_secPar->e_cipType        = TDES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_ECDHE_ECDSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_ECDSA;
+		ps_secPar->e_cipType        = GCI_CIPH_TDES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 8;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 24;
 		break;
 
 	case TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_ECDHE_ECDSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_ECDSA;
-		ps_secPar->e_cipType        = AES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_ECDHE_ECDSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_ECDSA;
+		ps_secPar->e_cipType        = GCI_CIPH_AES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 16;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 16;
 		break;
 
 	case TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_ECDHE_ECDSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_ECDSA;
-		ps_secPar->e_cipType        = AES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_ECDHE_ECDSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_ECDSA;
+		ps_secPar->e_cipType        = GCI_CIPH_AES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 16;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 32;
 		break;
 
 	case TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_ECDHE_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = TDES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_ECDHE_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_TDES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 8;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 24;
 		break;
 
 	case TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_ECDHE_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = AES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_ECDHE_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_AES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 16;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 16;
 		break;
 
 	case TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA:
-		ps_secPar->e_kst            = E_SSL_KST_ECDHE_RSA;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-		ps_secPar->e_cipType        = AES_BLOCK;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_ECDHE_RSA;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+		ps_secPar->e_cipType        = GCI_CIPH_AES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 16;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 32;
 		break;
 		//end vpy
 #endif
 	default:
-		ps_secPar->e_kst            = E_SSL_KST_INVALID;
-		ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_INVALID;
-		ps_secPar->e_cipType        = INVALID_SYM;
+		ps_secPar->e_kst            = GCI_KEY_PAIR_INVALID;
+		ps_secPar->s_signAlg.c_sign = GCI_SIGN_INVALID;
+		ps_secPar->e_cipType        = GCI_CIPH_INVALID;
 		ps_secPar->b_isBlkCip       = FALSE;
 		ps_secPar->c_blockLen       = 0;
-		ps_secPar->e_hmacType       = E_SSL_HASH_NONE;
+		ps_secPar->e_hmacType       = GCI_HASH_NONE;
 		ps_secPar->c_keyLen         = 0;
 		break;
 	}
@@ -2993,33 +3147,33 @@ static void loc_setSecParams(s_sslCtx_t*        ps_sslCtx,
 			/* By default TLS 1.2 specify to use SHA1 as a hash for all
 			 * supported signatures */
 			switch (ps_secPar->e_kst) {
-			case E_SSL_KST_DHE_RSA:
-			case E_SSL_KST_RSA:
-			case E_SSL_KST_ECDHE_RSA: //vpy
-				ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_RSA;
-				ps_secPar->s_signAlg.c_hash = E_SSL_HASH_SHA1;
+			case GCI_KEY_PAIR_DHE_RSA:
+			case GCI_KEY_PAIR_RSA:
+			case GCI_KEY_PAIR_ECDHE_RSA: //vpy
+				ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
+				ps_secPar->s_signAlg.c_hash = GCI_HASH_SHA1;
 				break;
-			case E_SSL_KST_DHE_DSS:
-				ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_DSA;
-				ps_secPar->s_signAlg.c_hash = E_SSL_HASH_SHA1;
+			case GCI_KEY_PAIR_DHE_DSS:
+				ps_secPar->s_signAlg.c_sign = GCI_SIGN_DSA;
+				ps_secPar->s_signAlg.c_hash = GCI_HASH_SHA1;
 				break;
 			//begin vpy
-			case E_SSL_KST_ECDHE_ECDSA:
-				ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_ECDSA;
-				ps_secPar->s_signAlg.c_hash = E_SSL_HASH_SHA1;
+			case GCI_KEY_PAIR_ECDHE_ECDSA:
+				ps_secPar->s_signAlg.c_sign = GCI_SIGN_ECDSA;
+				ps_secPar->s_signAlg.c_hash = GCI_HASH_SHA1;
 				break;
 			//end vpy
 
 			default:
-				ps_secPar->s_signAlg.c_sign = E_SSL_SIGN_INVALID;
-				ps_secPar->s_signAlg.c_hash = E_SSL_HASH_INVALID;
+				ps_secPar->s_signAlg.c_sign = GCI_SIGN_INVALID;
+				ps_secPar->s_signAlg.c_hash = GCI_HASH_INVALID;
 			}
 		}
 		switch (ps_secPar->e_hmacType) {
-		case E_SSL_HASH_NONE:
-		case E_SSL_HASH_MD5:
-		case E_SSL_HASH_SHA1:
-		case E_SSL_HASH_SHA256:
+		case GCI_HASH_NONE:
+		case GCI_HASH_MD5:
+		case GCI_HASH_SHA1:
+		case GCI_HASH_SHA256:
 			ps_secPar->e_prf = E_SSL_PRF_SHA256;
 			break;
 		default:
@@ -3177,11 +3331,11 @@ static uint8_t* loc_matchCipherSpec(s_sslCtx_t* ps_sslCtx, uint8_t *pc_cipSpecLi
 		ps_sslCtx->c_secReneg = c_secureReneg;
 		loc_setSecParams(ps_sslCtx, *pe_selCip);
 		if (ps_sslCtx->e_ver == E_TLS_1_2) {
-			ps_sslCtx->s_secParams.s_signAlg.c_hash = E_SSL_HASH_SHA1;
+			ps_sslCtx->s_secParams.s_signAlg.c_hash = GCI_HASH_SHA1;
 		} else {
 			/* For all other versions it's assumed that sha1 + md5 are
 			 * supported */
-			ps_sslCtx->s_secParams.s_signAlg.c_hash = E_SSL_HASH_INVALID;
+			ps_sslCtx->s_secParams.s_signAlg.c_hash = GCI_HASH_INVALID;
 		}
 	}
 	/*
@@ -3215,6 +3369,8 @@ static int32_t loc_processExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_extsStart,
 	ps_g            = &ps_sslCtx->s_sslGut;
 	b_isCli         = ps_sslCtx->b_isCli;
 	pc_curExt       = pc_extsStart;
+
+	GciResult_t err;
 	/*
 	 * Read length field indicating total extension length
 	 */
@@ -3294,7 +3450,7 @@ static int32_t loc_processExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_extsStart,
 					 * Check if the first part of the
 					 * "renegotiated_connection"part is OK
 					 */
-					if (CW_MEMCMP(pc_curExt + 1, ps_g->ac_cliVerifyData, l_lvdLen) != 0)
+					if (memcmp(pc_curExt + 1, ps_g->ac_cliVerifyData, l_lvdLen) != 0)
 					{
 						/*
 						 * First part was not OK
@@ -3310,7 +3466,7 @@ static int32_t loc_processExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_extsStart,
 						/*
 						 * Check if the second part of the "renegotiated_connection" part is OK
 						 */
-						if (CW_MEMCMP(pc_curExt + 1 + l_lvdLen,
+						if (memcmp(pc_curExt + 1 + l_lvdLen,
 								ps_g->ac_srvVerifyData,
 								l_lvdLen) != 0)
 						{
@@ -3381,8 +3537,13 @@ static int32_t loc_processExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_extsStart,
 				//get locally supported curves
 				uint8_t numberOfCurves;
 				uint16_t supportedCurves[25]; //RFC 4492 5.1.1: Officially 25 curves are supported
-				//TODO sw gci_get info ECNAME
-				numberOfCurves = cw_ecc_getSupportedCurves(supportedCurves);
+
+				//OLD-CW: numberOfCurves = cw_ecc_getSupportedCurves(supportedCurves);
+				err = gci_get_info(GCI_INFO_ECNAME, supportedCurves, &numberOfCurves);
+				if(err != GCI_OK)
+				{
+					//TODO return an error
+				}
 
 				//get number of proposed curves
 				i_tmpLen = ssl_readInteger(pc_curExt,2)/2; //one curve is 2 bytes, so number of curves is the half of the length
@@ -3564,7 +3725,7 @@ static int32_t loc_procExtSignAlg(s_sslCtx_t* ps_sslCtx,
 			/* TODO TLS 1.2 Should we ignore ANON signature or send an alert? */
 			if ((ps_sslCtx->ps_sslSett->s_certSignHashAlg.c_sign == c_curSign) &&
 					(ps_sslCtx->ps_sslSett->s_certSignHashAlg.c_hash == c_curHash) &&
-					(c_curSign != E_SSL_SIGN_ANONY)) {
+					(c_curSign != GCI_SIGN_NONE)) {
 				ps_sslCtx->s_secParams.s_signAlg.c_hash = c_curHash;
 				ps_sslCtx->s_secParams.s_signAlg.c_sign = c_curSign;
 
@@ -3596,6 +3757,8 @@ static uint8_t* loc_appendExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_in)
 	uint8_t*        pc_outStamp = NULL;
 	int32_t         l_outLen = 0;
 	uint16_t        i_extType = 0;
+
+	GciResult_t err;
 
 	assert(ps_sslCtx != NULL);
 	assert(pc_in != NULL);
@@ -3645,7 +3808,7 @@ static uint8_t* loc_appendExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_in)
 				/*
 				 * At first copy the client verify data and increment the write pointer
 				 */
-				CW_MEMCOPY(pc_out, &ps_sslCtx->s_sslGut.ac_cliVerifyData[0],l_outLen);
+				memcpy(pc_out, &ps_sslCtx->s_sslGut.ac_cliVerifyData[0],l_outLen);
 				pc_out += l_outLen;
 				/*
 				 * Check if we're a server
@@ -3656,7 +3819,7 @@ static uint8_t* loc_appendExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_in)
 					 * We're a server so append the server verify data as well and
 					 * increment the write pointer
 					 */
-					CW_MEMCOPY(pc_out, &ps_sslCtx->s_sslGut.ac_srvVerifyData[0], l_outLen);
+					memcpy(pc_out, &ps_sslCtx->s_sslGut.ac_srvVerifyData[0], l_outLen);
 					pc_out += l_outLen;
 					/*
 					 * Double the effective length
@@ -3677,13 +3840,13 @@ static uint8_t* loc_appendExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_in)
 		} /* if */
 
 		if ((ps_sslCtx->e_ver == E_TLS_1_2) &&
-				(ps_sslCtx->ps_sslSett->s_certSignHashAlg.c_sign != E_SSL_SIGN_INVALID) &&
-				(ps_sslCtx->ps_sslSett->s_certSignHashAlg.c_hash != E_SSL_HASH_INVALID))
+				(ps_sslCtx->ps_sslSett->s_certSignHashAlg.c_sign != GCI_SIGN_INVALID) &&
+				(ps_sslCtx->ps_sslSett->s_certSignHashAlg.c_hash != GCI_HASH_INVALID))
 		{
 			uint16_t    i_signHashAlg;
 			uint8_t     i;
-			uint8_t     c_hash = E_SSL_HASH_INVALID;
-			uint8_t     c_sign = E_SSL_SIGN_INVALID;
+			uint8_t     c_hash = GCI_HASH_INVALID;
+			uint8_t     c_sign = GCI_SIGN_INVALID;
 			/*
 			 * Add the extension type
 			 */
@@ -3756,8 +3919,9 @@ static uint8_t* loc_appendExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_in)
 				l_outLen = 0;
 
 				uint16_t supportedCurves[25]; //RFC 4492, 5.1.1: Officially supported: 25 curves
-				//TODO sw gci_get info ECNAME
-				uint8_t numberOfCurves = cw_ecc_getSupportedCurves(supportedCurves);
+				//OLD-CW: uint8_t numberOfCurves = cw_ecc_getSupportedCurves(supportedCurves);
+				uint8_t numberOfCurves;
+				err = gci_get_info(GCI_INFO_ECNAME, supportedCurves, &numberOfCurves);
 				uint8_t i;
 				for(i=0; i<numberOfCurves; i++)
 				{
@@ -3848,13 +4012,13 @@ static uint8_t* loc_appendExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_in)
 		//		vpy: Commented because it was implemented before, but the function doesn't look like to be called when generation a Server Hello.
 		//		//TLS_EXTENSION_SIGNATURE_ALGORITHMS
 		//		if ((ps_sslCtx->e_ver == E_TLS_1_2) &&
-		//				(ps_sslCtx->ps_sslSett->s_certSignHashAlg.c_sign != E_SSL_SIGN_INVALID) &&
+		//				(ps_sslCtx->ps_sslSett->s_certSignHashAlg.c_sign != GCI_SIGN_INVALID) &&
 		//				(ps_sslCtx->ps_sslSett->s_certSignHashAlg.c_hash != E_SSL_HASH_INVALID))
 		//		{
 		//			uint16_t    i_signHashAlg;
 		//			uint8_t     i;
 		//			uint8_t     c_hash = E_SSL_HASH_INVALID;
-		//			uint8_t     c_sign = E_SSL_SIGN_INVALID;
+		//			uint8_t     c_sign = GCI_SIGN_INVALID;
 		//			/*
 		//			 * Add the extension type
 		//			 */
@@ -4022,6 +4186,10 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 	size_t                  cwt_exportLen;
 	e_sslResult_t           e_ret = E_SSL_OK;
 
+	GciResult_t				err;
+	GciCtxId_t				eccCtx;
+	GciDhConfig_t			eccConf;
+
 	/* used as temporary storage for various
 	 * labels (e.g. client finished, ...) */
 	const uint8_t*          lbl;
@@ -4109,7 +4277,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 			case E_SSL_ASM_STEP1:
 				LOG1_INFO("%p| SEND_CLIENT_HELLO ASM_STEP1 (ClientHello)",
 						ps_sslCtx);
-				CW_MEMCOPY(pc_rec, (void*)rac_cliHello,
+				memcpy(pc_rec, (void*)rac_cliHello,
 						sizeof(rac_cliHello));
 				pc_write = pc_rec + sizeof(rac_cliHello);
 
@@ -4131,7 +4299,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 
 				loc_hash(E_HASHOP_INIT, ps_sslCtx, NULL, 0);
 
-				CW_MEMCOPY(pc_write,ps_hsElem->ac_cliRand,CLI_RANDSIZE);
+				memcpy(pc_write,ps_hsElem->ac_cliRand,CLI_RANDSIZE);
 				pc_write += CLI_RANDSIZE;
 
 				/* The ID of a session the client wishes to use for this connection.
@@ -4142,7 +4310,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 					/* write length (size) of Session ID */
 					*pc_write++ = SESSID_SIZE;
 					/* write Session ID */
-					CW_MEMCOPY(pc_write, ps_hsElem->s_sessElem.ac_id,
+					memcpy(pc_write, ps_hsElem->s_sessElem.ac_id,
 							SESSID_SIZE);
 					pc_write += SESSID_SIZE;
 				} else {
@@ -4200,7 +4368,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 					LOG1_INFO("%p| SEND_SERVER_HELLO ASM_START (ServerHello)",
 							ps_sslCtx);
 
-					CW_MEMCOPY(pc_rec, (void*)rac_srvHello,
+					memcpy(pc_rec, (void*)rac_srvHello,
 							sizeof(rac_srvHello));
 					pc_write = pc_rec + sizeof(rac_srvHello);
 					if (ps_sslCtx->e_ver == E_VER_DCARE)
@@ -4228,12 +4396,12 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
                     memset(ps_hsElem->ac_srvRand, 0x12, SRV_RANDSIZE);
                     ================================================== */
 
-					CW_MEMCOPY(pc_write, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
+					memcpy(pc_write, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
 					pc_write += SRV_RANDSIZE;
 
 					/* Insert length of the s_desc */
 					*pc_write++ = SESSID_SIZE;
-					CW_MEMCOPY(pc_write, ps_hsElem->s_sessElem.ac_id, SESSID_SIZE);
+					memcpy(pc_write, ps_hsElem->s_sessElem.ac_id, SESSID_SIZE);
 
 					pc_write += SESSID_SIZE;
 
@@ -4261,7 +4429,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 					int iRet;
 					LOG1_INFO("%p| SEND_SERVER_HELLO ASM_STEP1 (Certificate)",
 							ps_sslCtx);
-					CW_MEMCOPY(pc_rec, (void*)rac_cert,
+					memcpy(pc_rec, (void*)rac_cert,
 							sizeof(rac_cert));
 					pc_write = pc_rec + sizeof(rac_cert);
 
@@ -4294,7 +4462,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 					cwt_hashLen = *pcwt_recLen = pc_write - pc_rec;
 
 					switch (ps_secPar->e_kst) {
-					case E_SSL_KST_RSA:
+					case GCI_KEY_PAIR_RSA:
 						/* Check if we need to authenticate the client */
 						if ((ps_sslCtx->e_authLvl & ~E_SSL_MUST_VERF_SRVCERT) != E_SSL_NO_AUTH) {
 							ps_sslGut->e_asmCtrl = E_SSL_ASM_STEP3;
@@ -4303,10 +4471,10 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							ps_sslGut->e_asmCtrl = E_SSL_ASM_STEP4;
 						}
 						break;
-					case E_SSL_KST_DHE_RSA:
-					case E_SSL_KST_DHE_DSS:
-					case E_SSL_KST_ECDHE_RSA: //vpy
-					case E_SSL_KST_ECDHE_ECDSA: //vpy
+					case GCI_KEY_PAIR_DHE_RSA:
+					case GCI_KEY_PAIR_DHE_DSS:
+					case GCI_KEY_PAIR_ECDHE_RSA: //vpy
+					case GCI_KEY_PAIR_ECDHE_ECDSA: //vpy
 						ps_sslGut->e_asmCtrl = E_SSL_ASM_STEP2;
 						break;
 					default:
@@ -4327,22 +4495,37 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 				{
 					LOG1_INFO("%p| SEND_SERVER_HELLO (SrvKeyExch)",  ps_sslCtx);
 					/* copy record header */
-					CW_MEMCOPY(pc_rec, rac_srvKeyExch, sizeof(rac_srvKeyExch));
+					memcpy(pc_rec, rac_srvKeyExch, sizeof(rac_srvKeyExch));
 					/*! adjust write pointer */
 					pc_write = pc_rec + sizeof(rac_srvKeyExch);
 
 					switch(ps_secPar->e_kst)
 					{
-					case E_SSL_KST_ECDHE_RSA:
-					case E_SSL_KST_ECDHE_ECDSA:
+					case GCI_KEY_PAIR_ECDHE_RSA:
+					case GCI_KEY_PAIR_ECDHE_ECDSA:
 
 						//TODO sw gci_dh_gen_key ECDH
-						if(cw_ecc_makeKey(&(ps_secPar->eccKey), ps_secPar->eccChoosenCurve)!=CRYPT_OK)
+						eccConf.type = GCI_ECDH;
+						eccConf.config.ecdhCurveName = ps_secPar->eccChoosenCurve;
+
+						err = gci_dh_new_ctx(&eccConf, &eccCtx);
+						if(err != GCI_OK)
+						{
+							//TODO return an error
+						}
+
+
+						err = gci_dh_gen_key(eccCtx, ps_secPar->eccKey);
+
+
+						//OLD-CW: if(cw_ecc_makeKey(&(ps_secPar->eccKey), ps_secPar->eccChoosenCurve)!=CRYPT_OK)
+						if(err != GCI_OK)
 						{
 							LOG_INFO("%p| Couldn't create new ECHE key", ps_sslCtx);
 							return (E_PENDACT_COM_CIPHER_CLOSE);
 						}
-						ps_secPar->c_useEccKey = TRUE; //store the fact we used a ECC key, to be able to free it at the end!
+
+						//ps_secPar->c_useEccKey = TRUE; //store the fact we used a ECC key, to be able to free it at the end!
 
 						/*! calc bytes left in socketbuffer */
 						cwt_exportLen = (sizeof(ps_sslCtx->ac_socBuf)
@@ -4350,12 +4533,11 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 										-  (size_t) ps_sslCtx->ac_socBuf));
 
 						/* export the formerly generated public ECDHE values */
-						//TODO sw gci_key_put ECDH PUB
-						if(cw_ecc_export_public((pc_write+4), &cwt_exportLen, &(ps_secPar->eccKey))!=CRYPT_OK)
+						/*OLD-CW: if(cw_ecc_export_public((pc_write+4), &cwt_exportLen, &(ps_secPar->eccKey))!=CRYPT_OK)
 						{
 							LOG_INFO("%p| Couldn't export the ECHE key", ps_sslCtx);
 							return (E_PENDACT_COM_CIPHER_CLOSE);
-						}
+						}*/
 
 						*(pc_write) = 0x03; //Named curve
 
@@ -4367,6 +4549,8 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 						break;
 
 					default:
+
+						//TODO BEGIN HERE
 
 						/* Try to get a Diffie Hellman Ephemeral Key
 						 * forward secrecy */
@@ -4463,7 +4647,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 					{
 						/* Global settings */
 						s_sslSett_t* ps_gSett = ps_sslCtx->ps_sslSett;
-						CW_MEMCOPY(pc_rec, (void*)rac_certReq,sizeof(rac_certReq));
+						memcpy(pc_rec, (void*)rac_certReq,sizeof(rac_certReq));
 						pc_write = pc_rec + sizeof(rac_certReq);
 
 						if (ps_sslCtx->e_ver == E_TLS_1_2) {
@@ -4507,7 +4691,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 				case E_SSL_ASM_STEP4:
 					LOG1_INFO("%p| SEND_SERVER_HELLO ASM_STEP4 (SrvHelloDone)",
 							ps_sslCtx);
-					CW_MEMCOPY(pc_rec, (void*)rac_srvHelloDone,
+					memcpy(pc_rec, (void*)rac_srvHelloDone,
 							sizeof(rac_srvHelloDone));
 					*pcwt_recLen = sizeof(rac_srvHelloDone);
 					cwt_hashLen = sizeof(rac_srvHelloDone);
@@ -4546,7 +4730,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 						{
 							LOG1_INFO("%p| SEND_CLIENT_FINISH ASM_START (Cert)",
 									ps_sslCtx);
-							CW_MEMCOPY(pc_rec, (void*)rac_cert, sizeof(rac_cert));
+							memcpy(pc_rec, (void*)rac_cert, sizeof(rac_cert));
 							pc_write = pc_rec + sizeof(rac_cert);
 							if (ps_sslCtx->ps_lastCliAuthCertChain != NULL)
 							{
@@ -4593,11 +4777,11 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 						}
 					case E_SSL_ASM_STEP1:
 						LOG1_INFO("%p| SEND_CLIENT_FINISH ASM_STEP1 (CliKeyExchange)",ps_sslCtx);
-						CW_MEMCOPY(pc_rec, (void*)rac_cliKeyExch, sizeof(rac_cliKeyExch));
+						memcpy(pc_rec, (void*)rac_cliKeyExch, sizeof(rac_cliKeyExch));
 						pc_write = pc_rec + sizeof(rac_cliKeyExch);
 						switch(ps_sslCtx->s_secParams.e_kst)
 						{
-						case E_SSL_KST_RSA:
+						case GCI_KEY_PAIR_RSA:
 							/* Client generates the premaster secret as 2 bytes containing
 							 * the SSL Version (0x03, 0xXX), followed by 46 random bytes  */
 							if (ps_sslCtx->e_ver == E_VER_DCARE)
@@ -4612,7 +4796,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							ssl_writeInteger(pc_write, ps_hsElem->e_offerVer, 2);
 							//TODO sw gci_rng_gen
 							cw_prng_read(&pc_write[2], 46);
-							CW_MEMCOPY(ps_hsElem->s_sessElem.ac_msSec, pc_write, PREMSSEC_SIZE);
+							memcpy(ps_hsElem->s_sessElem.ac_msSec, pc_write, PREMSSEC_SIZE);
 							LOG2_INFO("%p| Decrypted PreMasterSecret", ps_sslCtx);
 							LOG2_HEX(ps_hsElem->s_sessElem.ac_msSec, PREMSSEC_SIZE);
 							/*
@@ -4651,7 +4835,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							e_pendAct = E_PENDACT_PKCS1_ENCRYPT;
 							break;
 
-						case E_SSL_KST_DHE_RSA:
+						case GCI_KEY_PAIR_DHE_RSA:
 
 							cwt_hashLen = (size_t) (sizeof(ps_sslCtx->ac_socBuf)
 									- ((size_t) pc_write
@@ -4710,7 +4894,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							TIME_STAMP(TS_SENT_HS_CLI_KEY_EX);
 							break;
 
-						case E_SSL_KST_ECDHE_RSA:
+						case GCI_KEY_PAIR_ECDHE_RSA:
 
 							//begin vpy
 							cwt_hashLen = (size_t) (sizeof(ps_sslCtx->ac_socBuf)
@@ -4780,7 +4964,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							//end vpy
 							break;
 
-						case E_SSL_KST_ECDHE_ECDSA:
+						case GCI_KEY_PAIR_ECDHE_ECDSA:
 
 							//TODO vpy ECDSA: implement
 							LOG_ERR("%p| ECDSA not implemented", ps_sslCtx);
@@ -4800,7 +4984,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							{
 
 								LOG1_INFO("%p| SEND_CLIENT_FINISH ASM_STEP2 (CertVerify)", ps_sslCtx);
-								CW_MEMCOPY(pc_rec, (void*)rac_certVerify, sizeof(rac_certVerify));
+								memcpy(pc_rec, (void*)rac_certVerify, sizeof(rac_certVerify));
 								pc_write = pc_rec + sizeof(rac_certVerify);
 
 								uint8_t c_hashLen = GCI_MAX_HASHSIZE;
@@ -4913,7 +5097,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							ps_sslGut->e_txCipSpec = ps_sslGut->e_pendCipSpec;
 							pc_write = pc_rec;
 
-							CW_MEMCOPY(pc_write, (void*)rac_srvFinish, sizeof(rac_srvFinish));
+							memcpy(pc_write, (void*)rac_srvFinish, sizeof(rac_srvFinish));
 							pc_write += sizeof(rac_srvFinish);
 							*pc_write++ = ps_sslGut->c_verifyDataLen;
 
@@ -4923,7 +5107,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							/* calculate verification hash for client finished message */
 							loc_compHash(ps_sslCtx, lbl, pc_write);
 
-							CW_MEMCOPY(ps_sslGut->ac_cliVerifyData, pc_write, ps_sslGut->c_verifyDataLen);
+							memcpy(ps_sslGut->ac_cliVerifyData, pc_write, ps_sslGut->c_verifyDataLen);
 							pc_write += ps_sslGut->c_verifyDataLen;
 							cwt_hashLen = *pcwt_recLen = pc_write - pc_rec;
 							LOG_INFO("recLen = %d",cwt_hashLen);
@@ -4985,7 +5169,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							ps_sslGut->e_txCipSpec = ps_sslGut->e_pendCipSpec;
 							pc_write = pc_rec;
 
-							CW_MEMCOPY(pc_write, (void*)rac_srvFinish, sizeof(rac_srvFinish));
+							memcpy(pc_write, (void*)rac_srvFinish, sizeof(rac_srvFinish));
 							pc_write += sizeof(rac_srvFinish);
 
 							/* Calculate the content of the finished section */
@@ -4997,7 +5181,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							/* calculate verification hash for server finished message */
 							loc_compHash(ps_sslCtx, lbl, pc_write);
 
-							CW_MEMCOPY(ps_sslCtx->s_sslGut.ac_srvVerifyData, pc_write, ps_sslCtx->s_sslGut.c_verifyDataLen);
+							memcpy(ps_sslCtx->s_sslGut.ac_srvVerifyData, pc_write, ps_sslCtx->s_sslGut.c_verifyDataLen);
 							pc_write += ps_sslCtx->s_sslGut.c_verifyDataLen;
 							cwt_hashLen = *pcwt_recLen = pc_write - pc_rec;
 							LOG_INFO("pcwt_recLen = %d",pc_write - pc_rec);
@@ -5026,7 +5210,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							{
 							case E_SSL_ASM_START: /* Prepare Server Hello */
 								LOG1_INFO("%p| SEND_SERVER_HELLO_FINISH ASM_START", ps_sslCtx);
-								CW_MEMCOPY(pc_rec, (void*)rac_srvHello, sizeof(rac_srvHello));
+								memcpy(pc_rec, (void*)rac_srvHello, sizeof(rac_srvHello));
 								pc_write = pc_rec + sizeof(rac_srvHello);
 								/* sj check behaviour - should be fine, session resumption works well */
 								if (ps_sslCtx->e_ver == E_VER_DCARE)
@@ -5039,12 +5223,12 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 								*pc_write++ = SSL_VERSION_GET_MIN(ps_sslCtx->e_ver);
 
 								/* */
-								CW_MEMCOPY(pc_write, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
+								memcpy(pc_write, ps_hsElem->ac_srvRand, SRV_RANDSIZE);
 								pc_write += SRV_RANDSIZE;
 
 								/* Insert length of the s_desc */
 								*pc_write++ = SESSID_SIZE;
-								CW_MEMCOPY(pc_write, ps_hsElem->s_sessElem.ac_id, SESSID_SIZE);
+								memcpy(pc_write, ps_hsElem->s_sessElem.ac_id, SESSID_SIZE);
 
 								pc_write += SESSID_SIZE;
 
@@ -5091,7 +5275,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 								ps_sslGut->e_txCipSpec = ps_sslGut->e_pendCipSpec;
 								pc_write = pc_rec;
 
-								CW_MEMCOPY(pc_write, (void*)rac_srvFinish, sizeof(rac_srvFinish));
+								memcpy(pc_write, (void*)rac_srvFinish, sizeof(rac_srvFinish));
 								pc_write += sizeof(rac_srvFinish);
 
 								/* Calculate the content of the finished section */
@@ -5103,7 +5287,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 								/* calculate verification hash for server finished message */
 								loc_compHash(ps_sslCtx, lbl, pc_write);
 
-								CW_MEMCOPY(ps_sslGut->ac_srvVerifyData, pc_write, ps_sslGut->c_verifyDataLen);
+								memcpy(ps_sslGut->ac_srvVerifyData, pc_write, ps_sslGut->c_verifyDataLen);
 								pc_write += ps_sslGut->c_verifyDataLen;
 								cwt_hashLen = *pcwt_recLen = pc_write - pc_rec;
 
@@ -5204,7 +5388,7 @@ static e_sslPendAct_t loc_v2UpwardHandler(s_sslCtx_t * ps_sslCtx, uint8_t *pc_re
 
 	/* OPTIMIZE Save client challenge / random */
 	CW_MEMSET(ps_hsElem->ac_cliRand, 0x00, 32);
-	CW_MEMCOPY(ps_hsElem->ac_cliRand + 32 - cwt_cliChallengeLen,
+	memcpy(ps_hsElem->ac_cliRand + 32 - cwt_cliChallengeLen,
 			pc_rec + 11 + i_cipSpecLen + cwt_sessIdLen, cwt_cliChallengeLen);
 
 	/* Initialize the handshake hashes */
@@ -5403,9 +5587,9 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 
 				switch (ps_secPar->e_kst)
 				{
-				case E_SSL_KST_RSA:
+				case GCI_KEY_PAIR_RSA:
 					return E_PENDACT_ASYM_PKCS1_DECRYPT;
-				case E_SSL_KST_DHE_RSA:
+				case GCI_KEY_PAIR_DHE_RSA:
 					return E_PENDACT_ASYM_DHECALCSHARED;
 				default:
 					return E_PENDACT_GEN_WAIT_EVENT;
@@ -5450,7 +5634,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 
 				cwt_len = (pc_hsBuff[4] << 8) + pc_hsBuff[5];
 
-				CW_MEMCOPY(pc_wData+VERIF_HASHSIZE, pc_hsBuff+6, cwt_len);
+				memcpy(pc_wData+VERIF_HASHSIZE, pc_hsBuff+6, cwt_len);
 				*cwt_wDataLen = cwt_len + VERIF_HASHSIZE;
 
 				ps_sslGut->b_isComposite = FALSE;
@@ -5688,7 +5872,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 				/*
 				 * Save the Client random.
 				 */
-				CW_MEMCOPY(ps_hsElem->ac_cliRand, pc_hsBuff + 6, CLI_RANDSIZE);
+				memcpy(ps_hsElem->ac_cliRand, pc_hsBuff + 6, CLI_RANDSIZE);
 
 				/*
 				 * Remember length of the Session ID
@@ -5867,7 +6051,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 				 */
 				if (cwt_len > 0)
 				{
-					CW_MEMCOPY(ps_hsElem->s_sessElem.ac_id, pc_hsBuff+39, cwt_len);
+					memcpy(ps_hsElem->s_sessElem.ac_id, pc_hsBuff+39, cwt_len);
 					action = E_PENDACT_SCACHE_GET;
 				}
 				/*
@@ -5995,7 +6179,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 
 				pc_hsBuff += 2;
 
-				CW_MEMCOPY(ps_hsElem->ac_srvRand, pc_hsBuff, SRV_RANDSIZE);
+				memcpy(ps_hsElem->ac_srvRand, pc_hsBuff, SRV_RANDSIZE);
 				pc_hsBuff += SRV_RANDSIZE; /* We jump over ServerRandom(32B) */
 				cwt_len = *pc_hsBuff++; /* We read ID len */
 				if (cwt_len == 0)
@@ -6031,7 +6215,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 					}
 					if (ps_sslCtx->c_isResumed == TRUE)
 					{
-						if (CW_MEMCMP(ps_hsElem->s_sessElem.ac_id,
+						if (memcmp(ps_hsElem->s_sessElem.ac_id,
 								pc_hsBuff, cwt_len) != 0)
 						{
 							LOG1_INFO("%p| Session ID received but not "
@@ -6041,7 +6225,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 							LOG2_RAW("is:");
 							LOG2_HEX(pc_hsBuff, cwt_len);
 							ps_sslCtx->c_isResumed = FALSE;
-							CW_MEMCOPY(ps_hsElem->s_sessElem.ac_id, pc_hsBuff, cwt_len);
+							memcpy(ps_hsElem->s_sessElem.ac_id, pc_hsBuff, cwt_len);
 							ps_hsElem->s_sessElem.s_desc = sslSesCache_getNewSessId(ps_sslCtx->ps_sslSett->ps_sessCache);
 						} /* if */
 						else
@@ -6052,7 +6236,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 					} /* if */
 					else
 					{
-						CW_MEMCOPY(ps_hsElem->s_sessElem.ac_id, pc_hsBuff, cwt_len);
+						memcpy(ps_hsElem->s_sessElem.ac_id, pc_hsBuff, cwt_len);
 					} /* else */
 					pc_hsBuff += cwt_len;
 				}
@@ -6192,7 +6376,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 							/* Save the 2 other handshakes for later use */
 							if (cwt_recLen - cwt_hsBuffLen < ps_hsElem->gci_hsBufLen)
 							{
-								CW_MEMCOPY(ps_hsElem->ac_hsBuf,
+								memcpy(ps_hsElem->ac_hsBuf,
 										pc_hsBuff + cwt_hsBuffLen,
 										cwt_recLen - cwt_hsBuffLen);
 								ps_hsElem->gci_hsBufLen = cwt_recLen - cwt_hsBuffLen;
@@ -6278,7 +6462,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						CW_MEMMOVE(pc_wData,pc_hsBuff + HS_HEADERLEN, cwt_len);
 						*cwt_wDataLen = cwt_len;
 
-						if (ps_sslCtx->s_secParams.e_kst == E_SSL_KST_RSA)
+						if (ps_sslCtx->s_secParams.e_kst == GCI_KEY_PAIR_RSA)
 						{
 							if ((ps_sslCtx->e_authLvl & E_SSL_MUST_AUTH) == E_SSL_MUST_AUTH)
 								ps_sslGut->e_smState = E_SSL_SM_WAIT_CERT_REQUEST;
@@ -6336,8 +6520,8 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 					switch(ps_secPar->e_kst)
 					{
 					//ECC
-					case E_SSL_KST_ECDHE_ECDSA: //vpy
-					case E_SSL_KST_ECDHE_RSA:  //vpy
+					case GCI_KEY_PAIR_ECDHE_ECDSA: //vpy
+					case GCI_KEY_PAIR_ECDHE_RSA:  //vpy
 
 						//store beginning of ECC parameter for signature verification (WTF?)
 						pc_ecc = pc_hsBuff;
@@ -6651,15 +6835,15 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 
 					switch (ps_sslCtx->s_secParams.e_kst)
 					{
-					case E_SSL_KST_RSA:
+					case GCI_KEY_PAIR_RSA:
 						action = E_PENDACT_ASYM_PKCS1_DECRYPT;
 						break;
-					case E_SSL_KST_DHE_RSA:
+					case GCI_KEY_PAIR_DHE_RSA:
 						action = E_PENDACT_ASYM_DHECALCSHARED;
 						break;
 
-					case E_SSL_KST_ECDHE_RSA: //vpy
-					case E_SSL_KST_ECDHE_ECDSA: //vpy
+					case GCI_KEY_PAIR_ECDHE_RSA: //vpy
+					case GCI_KEY_PAIR_ECDHE_ECDSA: //vpy
 						action = E_PENDACT_ASYM_ECDHECALCSHARED;
 						break;
 					default:
@@ -6717,7 +6901,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						uint8_t             ac_decSign[sz_decSignLen];
 
 						switch (pc_hsBuff[5]) {
-						case E_SSL_SIGN_RSA:
+						case GCI_SIGN_RSA:
 
 							/* Decode signature using peers public key*/
 							//TODO sw gci_sign_new_ctx RSA +
@@ -6780,8 +6964,8 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 							}
 
 							break;
-						case E_SSL_SIGN_DSA:
-						case E_SSL_SIGN_ANONY:
+						case GCI_SIGN_DSA:
+						case GCI_SIGN_NONE:
 						default:
 							ps_sslCtx->e_lastError = E_SSL_ERROR_PROTO;
 							ps_sslGut->e_alertType  = E_SSL_ALERT_DECODE_ERR;
@@ -6794,9 +6978,9 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 					} else {
 
 						cwt_len = pc_hsBuff[4] * 256 + pc_hsBuff[5];
-						CW_MEMCOPY(ps_hsElem->ac_hsBuf+VERIF_HASHSIZE, pc_hsBuff+6, cwt_len);
+						memcpy(ps_hsElem->ac_hsBuf+VERIF_HASHSIZE, pc_hsBuff+6, cwt_len);
 						*cwt_wDataLen = cwt_len + VERIF_HASHSIZE;
-						CW_MEMCOPY(pc_wData, ps_hsElem->ac_hsBuf, *cwt_wDataLen);
+						memcpy(pc_wData, ps_hsElem->ac_hsBuf, *cwt_wDataLen);
 
 					}
 
@@ -6838,7 +7022,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						/* calculate the verification hash */
 						loc_compHash(ps_sslCtx, lbl, pc_hsHash);
 
-						if (CW_MEMCMP(pc_hsHash,
+						if (memcmp(pc_hsHash,
 								pc_hsBuff + HS_HEADERLEN,
 								ps_sslCtx->s_sslGut.c_verifyDataLen) != 0)
 						{
@@ -6859,13 +7043,13 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						{
 							if (ps_sslCtx->b_isCli == TRUE)
 							{
-								CW_MEMCOPY(ps_sslGut->ac_srvVerifyData,
+								memcpy(ps_sslGut->ac_srvVerifyData,
 										pc_hsHash,
 										ps_sslGut->c_verifyDataLen);
 							}
 							else
 							{
-								CW_MEMCOPY(ps_sslGut->ac_cliVerifyData,
+								memcpy(ps_sslGut->ac_cliVerifyData,
 										pc_hsHash,
 										ps_sslGut->c_verifyDataLen);
 							}
@@ -6996,7 +7180,7 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 
 	if (pc_rawTxt != pc_rec)
 	{
-		CW_MEMCOPY(pc_rec + l_IVLen, pc_rawTxt, cwt_rawTxtLen);
+		memcpy(pc_rec + l_IVLen, pc_rawTxt, cwt_rawTxtLen);
 	} else if (l_IVLen > 0) {
 		CW_MEMMOVE(pc_rec + l_IVLen, pc_rec, cwt_rawTxtLen);
 	}
@@ -7022,12 +7206,12 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 		if (ps_sslCtx->b_isCli == TRUE)
 		{
 			//TODO sw gci_encrypt + gci_decrypt
-			cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.gci_cliRc4Ctx, pc_rec, pc_rec, len);
+			cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx, pc_rec, pc_rec, len);
 		}
 		else
 		{
 			//TODO sw gci_encrypt + gci_decrypt
-			cw_rc4(&ps_sslCtx->s_secParams.u_srvKey.gci_srvRc4Ctx, pc_rec, pc_rec, len);
+			cw_rc4(&ps_sslCtx->s_secParams.u_srvKey.srvRc4Ctx, pc_rec, pc_rec, len);
 		}
 		break;
 
@@ -7044,13 +7228,13 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 		if (ps_sslCtx->b_isCli == TRUE)
 		{
 			//TODO sw gci_encrypt + gci_decrypt
-			cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.gci_cliRc4Ctx, pc_rec,
+			cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx, pc_rec,
 					pc_rec, len);
 		}
 		else
 		{
 			//TODO sw gci_encrypt + gci_decrypt
-			cw_rc4(&ps_sslCtx->s_secParams.u_srvKey.gci_srvRc4Ctx, pc_rec,
+			cw_rc4(&ps_sslCtx->s_secParams.u_srvKey.srvRc4Ctx, pc_rec,
 					pc_rec, len);
 		}
 
@@ -7065,9 +7249,9 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 	case TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA:
 	case TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA:
 		if (ps_sslCtx->b_isCli == TRUE) {
-			cwt_cipCtx = &ps_sslCtx->s_secParams.u_cliKey.gci_cli3DesCtx;
+			cwt_cipCtx = &ps_sslCtx->s_secParams.u_cliKey.cli3DesCtx;
 		} else {
-			cwt_cipCtx = &ps_sslCtx->s_secParams.u_srvKey.gci_srv3DesCtx;
+			cwt_cipCtx = &ps_sslCtx->s_secParams.u_srvKey.srv3DesCtx;
 		}
 
 		//AES
@@ -7084,9 +7268,9 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 	case TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA: //vpy
 	case TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA: //vpy
 		if ((ps_sslCtx->b_isCli == TRUE) && (cwt_cipCtx == NULL)) {
-			cwt_cipCtx = &ps_sslCtx->s_secParams.u_cliKey.gci_cliAesCtx;
+			cwt_cipCtx = &ps_sslCtx->s_secParams.u_cliKey.cliAesCtx;
 		} else if (cwt_cipCtx == NULL) {
-			cwt_cipCtx = &ps_sslCtx->s_secParams.u_srvKey.gci_srvAesCtx;
+			cwt_cipCtx = &ps_sslCtx->s_secParams.u_srvKey.srvAesCtx;
 		}
 
 		len += loc_compMac(ps_sslCtx,   pc_rec + len, cwt_maxLen,
@@ -7184,7 +7368,7 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 
 #if DBG_SSL_BAD_RECORDS
 	size_t reclen = cwt_recLen;
-	CW_MEMCOPY(ac_badRecBuf, pc_rec, cwt_recLen);
+	memcpy(ac_badRecBuf, pc_rec, cwt_recLen);
 #endif
 	/* Decrypt the content depending on cipher-spec */
 	//TODO vpy: support new cipher suites
@@ -7197,14 +7381,14 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 		if (ps_sslCtx->b_isCli == TRUE)
 		{
 			//TODO sw gci_encrypt + gci_decrypt
-			cw_rc4(&ps_sslCtx->s_secParams.u_srvKey.gci_srvRc4Ctx,
+			cw_rc4(&ps_sslCtx->s_secParams.u_srvKey.srvRc4Ctx,
 					pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN,
 					cwt_recLen - REC_HEADERLEN);
 		}
 		else
 		{
 			//TODO sw gci_encrypt + gci_decrypt
-			cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.gci_cliRc4Ctx,
+			cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx,
 					pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN,
 					cwt_recLen - REC_HEADERLEN);
 		}
@@ -7227,14 +7411,14 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 		if (ps_sslCtx->b_isCli == TRUE)
 		{
 			//TODO sw gci_encrypt + gci_decrypt
-			cw_rc4(&ps_sslCtx->s_secParams.u_srvKey.gci_srvRc4Ctx,
+			cw_rc4(&ps_sslCtx->s_secParams.u_srvKey.srvRc4Ctx,
 					pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN,
 					cwt_recLen - REC_HEADERLEN);
 		}
 		else
 		{
 			//TODO sw gci_encrypt + gci_decrypt
-			cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.gci_cliRc4Ctx,
+			cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx,
 					pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN,
 					cwt_recLen - REC_HEADERLEN);
 		}
@@ -7281,14 +7465,14 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 			if (ps_sslCtx->b_isCli == TRUE)
 				/* TODO: should catch encryption error */
 				//TODO sw gci_decrypt
-				cw_cbc_decrypt(&ps_sslCtx->s_secParams.u_srvKey.gci_srv3DesCtx,
+				cw_cbc_decrypt(&ps_sslCtx->s_secParams.u_srvKey.srv3DesCtx,
 						pc_rawTxt + REC_HEADERLEN,
 						pc_rec + REC_HEADERLEN,
 						cwt_recLen - REC_HEADERLEN);
 			else
 				/* TODO: should catch encryption error */
 				//TODO sw gci_decrypt
-				cw_cbc_decrypt(&ps_sslCtx->s_secParams.u_cliKey.gci_cli3DesCtx,
+				cw_cbc_decrypt(&ps_sslCtx->s_secParams.u_cliKey.cli3DesCtx,
 						pc_rawTxt + REC_HEADERLEN,
 						pc_rec + REC_HEADERLEN,
 						cwt_recLen - REC_HEADERLEN);
@@ -7304,14 +7488,14 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 			if (ps_sslCtx->b_isCli == TRUE)
 				/* TODO: should catch encryption error */
 				//TODO sw gci_decrypt
-				cw_cbc_decrypt(&ps_sslCtx->s_secParams.u_srvKey.gci_srvAesCtx,
+				cw_cbc_decrypt(&ps_sslCtx->s_secParams.u_srvKey.srvAesCtx,
 						pc_rawTxt + REC_HEADERLEN,
 						pc_rec + REC_HEADERLEN,
 						cwt_recLen - REC_HEADERLEN);
 			else
 				/* TODO: should catch encryption error */
 				//TODO sw gci_decrypt
-				cw_cbc_decrypt(&ps_sslCtx->s_secParams.u_cliKey.gci_cliAesCtx,
+				cw_cbc_decrypt(&ps_sslCtx->s_secParams.u_cliKey.cliAesCtx,
 						pc_rawTxt + REC_HEADERLEN,
 						pc_rec + REC_HEADERLEN,
 						cwt_recLen - REC_HEADERLEN);
@@ -7361,7 +7545,7 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 	LOG2_INFO("Checking MAC with length %u", cwt_hashLen);
 	/* TODO: Use a constant-time version of memcmp for comparing cryptographic
 	 * values (#1384) */
-	if (CW_MEMCMP(ac_hash, pc_rawTxt + *pcwt_rawTxtLen + l_blkSize, cwt_hashLen)
+	if (memcmp(ac_hash, pc_rawTxt + *pcwt_rawTxtLen + l_blkSize, cwt_hashLen)
 			!= 0)
 	{
 		LOG_ERR("%p| MAC-Check: Fail", ps_sslCtx);
@@ -7581,7 +7765,7 @@ int ssl_verifyHash(const uint8_t rac_verHash[], size_t cwt_verHashLen,
 	}
 
 	/* Check if the message signature is correct */
-	if (CW_MEMCMP(ac_encMsg + cwt_emLen - VERIF_HASHSIZE, rac_verHash,
+	if (memcmp(ac_encMsg + cwt_emLen - VERIF_HASHSIZE, rac_verHash,
 			VERIF_HASHSIZE) != 0)
 		cwt_stat = CW_ERROR;
 	else
@@ -8021,11 +8205,11 @@ int ssl_initCtx(s_sslCtx_t * ps_sslCtx, s_sslSett_t *ps_sslSett,
 
 	ps_sslCtx->s_secParams.e_prf = E_SSL_PRF_UNDEF;
 
-	ps_sslCtx->s_secParams.e_kst = E_SSL_KST_UNDEF;
+	ps_sslCtx->s_secParams.e_kst = GCI_KEY_PAIR_NONE;
 
-	ps_sslCtx->s_secParams.s_signAlg.c_hash = E_SSL_HASH_INVALID;
+	ps_sslCtx->s_secParams.s_signAlg.c_hash = GCI_HASH_INVALID;
 
-	ps_sslCtx->s_secParams.s_signAlg.c_sign = E_SSL_SIGN_INVALID;
+	ps_sslCtx->s_secParams.s_signAlg.c_sign = GCI_SIGN_INVALID;
 
 	ps_sslCtx->e_authLvl = ps_sslSett->e_authLvl;
 
