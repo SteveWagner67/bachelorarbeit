@@ -911,10 +911,10 @@ int sslSoc_free(s_sslCtx_t* ps_sslCtx)
 
 	cw_dh_free(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
 
-	if (ps_sslCtx->ps_hsElem->pgci_dheP != NULL)
+	if (ps_sslCtx->ps_hsElem->pgci_dheP.data != NULL)
 	{
 		//TODO sw ?? delete a BigNumber
-		cw_bn_freefree(ps_sslCtx->ps_hsElem->pgci_dheP);
+		cw_bn_freefree(ps_sslCtx->ps_hsElem->pgci_dheP.data);
 	}
 
 	if (ps_sslCtx->s_secParams.c_useDheKey == TRUE)

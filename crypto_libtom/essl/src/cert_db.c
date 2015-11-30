@@ -313,16 +313,26 @@ static int cdb_readCert(uint8_t* pc_dest, size_t* pcwt_destLen, const char* pc_f
 /*============================================================================*/
 static void cdb_erase(size_t cwt_length)
 {
+	GciResult_t err;
+
 
     if (cwt_length && (cwt_length < sizeof(workingBuffer)))
     {
-    	//TODO sw gci_rng_gen
-        cw_prng_read(workingBuffer, cwt_length);
+        //OLD-CW: cw_prng_read(workingBuffer, cwt_length);
+        err = gci_rng_gen(cwt_length, workingBuffer);
+        if(err != GCI_OK)
+        {
+        	//TODO return error state
+        }
     }
     else
     {
-    	//TODO sw gci_rng_gen
-        cw_prng_read(workingBuffer, sizeof(workingBuffer));
+        //OLD-CW: cw_prng_read(workingBuffer, sizeof(workingBuffer));
+        err = gci_rng_gen(sizeof(workingBuffer), workingBuffer);
+        if(err != GCI_OK)
+        {
+        	//TODO return error state
+        }
     }
 
     workingBufLen = 0;

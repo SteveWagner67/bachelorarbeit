@@ -476,15 +476,15 @@ void sslDiag_printGenericString(s_sslGenStr_t * ps_str, rpcw_str_t p_name)
     {
         int len2cpy = ((ps_str->cwt_len < DBG_SSL_MAX_DEBUG_STRING_LEN) ? ps_str->cwt_len : (DBG_SSL_MAX_DEBUG_STRING_LEN - 1));
 
-        CW_MEMSET(ac_string, 0, DBG_SSL_MAX_DEBUG_STRING_LEN);
-        CW_MEMCOPY(ac_string, ps_str->pc_data, len2cpy);
+        memset(ac_string, 0, DBG_SSL_MAX_DEBUG_STRING_LEN);
+        memcpy(ac_string, ps_str->pc_data, len2cpy);
 
         if(len2cpy < ps_str->cwt_len)
             printf("(cropped)");
 
         printf(" %s: %s\n", p_name, ac_string);
 
-        if(CW_STRLEN((char *)ps_str->pc_data) < ps_str->cwt_len)
+        if(strlen((char *)ps_str->pc_data) < ps_str->cwt_len)
             printf(" rogue %s occured! string length not equal to ASN.1 length", p_name);
     }
     else

@@ -589,7 +589,8 @@ typedef enum ssl_verificationResults
 typedef struct ssl_certificate
 {
    /* Public Key of the certificate */
-   gci_rsaPubKey_t        gci_caPubKey;
+   //OLD-CW: gci_rsaPubKey_t        gci_caPubKey;
+	GciKeyId_t 			 gci_caPubKey;
    /* Indicates if the certificate is a CA certificate */
    uint8_t               c_isCa;
    /* pathLenConstraint defines the maximum number of CA's following */
@@ -645,8 +646,10 @@ typedef struct ssl_sessionCache
 
 typedef struct ssl_md5sha1HashCombination
 {
-    gci_sha1Ctx_t          gci_sha1Ctx;
-    gci_md5Ctx_t           gci_md5Ctx;
+    //OLD-CW: gci_sha1Ctx_t          gci_sha1Ctx;
+    GciCtxId_t			   gci_sha1Ctx;
+    //OLD-CW: gci_md5Ctx_t           gci_md5Ctx;
+    GciCtxId_t			   gci_md5Ctx;
 
 }s_md5Sha1_t;
 
@@ -659,25 +662,29 @@ typedef struct ssl_handshakeElements
     * In client mode it's the public key for generation of the ClientKeyExchange
     * In server mode it's the public key to perform the client authentication
     */
-   gci_rsaPubKey_t        gci_peerPubKey;
+   //OLD-CW: gci_rsaPubKey_t        gci_peerPubKey;
+   GciKeyId_t			gci_peerPubKey;
 
    /* TODO adjust memory usage for dhe key exchange
     * the private key if diffie hellman is used and we act as client */
-   gci_dhKey_t            gci_dheCliPrivKey;
-
+   //OLD-CW: gci_dhKey_t            gci_dheCliPrivKey;
+   GciKeyId_t 			gci_dheCliPrivKey;
 
    /* the public key if dh is used and we act as server */
-   gci_dhKey_t            gci_dheSrvPubKey;
+   //OLD-CW: gci_dhKey_t            gci_dheSrvPubKey;
+   GciKeyId_t			gci_dheSrvPubKey;
+
 
    /* pointer to memory address where p will be stored when we act as client */
-   gci_bigNum_t*          pgci_dheP;
-
+   //OLD-CW: gci_bigNum_t*          pgci_dheP;
+   GciBigInt_t			pgci_dheP;
    /* We've to save the offered version of the Client Hello to verify the
     * PreMasterSecret
     */
 
    //When ECC is used, the public key  of the peer is stored here after client/server key exchange
-   gci_eccKey_t			eccPubKeyPeer;
+   //OLD-CW: gci_eccKey_t			eccPubKeyPeer;
+   GciKeyId_t			eccPubKeyPeer;
    //Name of the curve which is proposed by peer (server) when acting as a client.
    uint16_t				eccCurve;
 
@@ -734,11 +741,14 @@ typedef struct ssl_peerGlobalSettings
    /* Pointer to the 'certificate chain' list */
    s_sslCertList_t*         ps_certChainListHead;
    /* Pointer to \ref cwt_rsaMyPrivKey */
-   gci_rsaPrivKey_t*         pgci_rsaMyPrivKey;
+   //OLD-CW: gci_rsaPrivKey_t*         pgci_rsaMyPrivKey;
+   GciKeyId_t				pgci_rsaMyPrivKey;
+
 
    /* Pointer to \ref cwt_rsaMyPrivKey */
-   ecc_key*			        p_ECCMyPrivKey; //vpy
-   ltc_ecc_set_type			ltc_ECC_curvesParameters; //vpy
+   //OLD-CW: ecc_key*			        p_ECCMyPrivKey; //vpy
+   GciKeyId_t				p_ECCMyPrivKey;
+   ltc_ecc_set_type			ltc_ECC_curvesParameters; //TODO sw - change to GciNamedCurve_t ?
    GciNamedCurve_t 			gci_curveName;
 
    /* Behaviour of the SSL context pertaining to Client Authentication */
@@ -769,7 +779,8 @@ typedef struct ssl_securityParameters
    /* Supported sognature and hash algorithm. For TLS version prior 1.2 md5+sha1 used */
    s_sslSignHashAlg_t   s_signAlg;
    /* the key if diffie hellman is used as handshake algorithm and we act as server */
-   gci_dhKey_t*       	pgci_dheKey;
+   //OLD-CW: gci_dhKey_t*       	pgci_dheKey;
+   GciKeyId_t			pgci_dheKey;
    uint8_t             	c_useDheKey;
 
    //vpy: the ECC key used when ECDHE is used
@@ -920,11 +931,17 @@ typedef struct ssl_connectionContextStruct {
  * \sa CL_Pkcs1VerifyV1_5, CL_Pkcs1DecryptV1_5
  */
 
-int  ssl_verifyHash(const uint8_t          aucVerifyHash[],
+/*OLD-CW: int  ssl_verifyHash(const uint8_t          aucVerifyHash[],
                               size_t         uiVerifyHashLen,
                         const uint8_t          aucSignature[],
                               size_t         uiSigLen,
                               rpgci_rsaPubKey_t  pPubKey);
+*/
+int  ssl_verifyHash(const uint8_t          aucVerifyHash[],
+                              size_t         uiVerifyHashLen,
+                        const uint8_t          aucSignature[],
+                              size_t         uiSigLen,
+                              GciKeyId_t  pPubKey);
 
 
 /****************************************************************************/

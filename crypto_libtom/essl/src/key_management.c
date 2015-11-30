@@ -31,7 +31,8 @@
 typedef struct s_dheKey
 {
     /*! The key we manage with this module */
-    gci_dhKey_t cwt_dheKey;
+    //OLD-CW: gci_dhKey_t cwt_dheKey;
+	GciKeyId_t cwt_dheKey;
     /*! Indicates the number of times this key has been used */
     int32_t l_count;
     /*! Indicates the number of times this key is currently in use */
@@ -68,8 +69,18 @@ int km_dhe_init(void)
 {
     int i_ret;
 
-    //TODO sw gci_key_delete
-    cw_dh_free(&gst_dheKey.cwt_dheKey);
+    GciResult_t err;
+
+    GciCtxId_t dhCtx;
+    GciDhConfig_t dhConf;
+
+    //OLD-CW: cw_dh_free(&gst_dheKey.cwt_dheKey);
+
+    err = gci_key_delete(gst_dheKey.cwt_dheKey);
+    if(err != GCI_OK)
+    {
+    	//TODO return error state
+    }
 
     gst_dheKey.b_isValid = FALSE;
 
@@ -77,8 +88,19 @@ int km_dhe_init(void)
 
     gst_dheKey.l_inUse = 0;
 
-    //TODO sw gci_dh_gen_key DH
-    if ((i_ret = cw_dhe_makeKey(&gst_dheKey.cwt_dheKey)) == CW_OK)
+    dhConf.type = GCI_DH;
+    //TODO sw - what for domain parameters ??
+
+    err = gci_dh_new_ctx(&dhConf, &dhCtx);
+    if(err != GCI_OK)
+    {
+    	//TODO return error state
+    }
+
+    err = gci_dh_gen_key(dhCtx, &gst_dheKey.cwt_dheKey);
+
+    //if ((i_ret = cw_dhe_makeKey(&gst_dheKey.cwt_dheKey)) == CW_OK)
+    if(err == GCI_OK)
     {
         gst_dheKey.b_isValid = TRUE;
     }

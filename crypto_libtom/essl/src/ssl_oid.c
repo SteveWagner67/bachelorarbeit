@@ -357,7 +357,7 @@ int sslOid_fromText (pcw_str_t pOid)
      */
     while ((res == SSL_OID_UNDEF) && (aOidInfo[i].iId != SSL_OID_UNDEF))
     {
-        if (CW_STRCMP(pOid, aOidInfo[i].strOid) == 0)
+        if (strcmp(pOid, aOidInfo[i].strOid) == 0)
         {
             res = aOidInfo[i].iId;
         }

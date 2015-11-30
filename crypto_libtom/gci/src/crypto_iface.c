@@ -123,12 +123,12 @@ GciResult_t gci_dh_calc_sharedSecret(GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciK
 }
 
 
-GciResult_t gci_key_put(const GciKey_t* key, size_t keyLen, GciKeyId_t* keyID)
+GciResult_t gci_key_put(const GciKey_t* key, GciKeyId_t* keyID)
 {
 	return GCI_OK;
 }
 
-GciResult_t gci_key_get(GciKeyId_t keyID, GciKey_t* key, size_t* keyLen)
+GciResult_t gci_key_get(GciKeyId_t keyID, GciKey_t* key)
 {
 	return GCI_OK;
 }

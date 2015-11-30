@@ -950,9 +950,7 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
         e_ret = E_SSL_CERT_ERR_INVALID_HASH;
     }
 
-    //TODO sw gci_sign_new_ctx HMAC +
-    //TODO sw gci_sign_update HMAC +
-    //TODO sw gci_sign_verify_finish HMAC
+    //TODO sw index of hash ?? + length of the salt ??
     if ((e_ret == E_SSL_CERT_OK)
             && (cw_rsa_hash_verify_ltc(ps_certInfo->s_sign.pc_bitStr,
                     ps_certInfo->s_sign.cwt_len, ac_buf, ul_bufLen, l_hashAlgo,

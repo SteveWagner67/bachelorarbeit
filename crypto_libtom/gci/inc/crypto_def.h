@@ -246,7 +246,7 @@ typedef struct
 {
 	/**
 	 * GCI_CIPH_NONE
-	 * GCI_CIPH_RC4
+	 * GCI_CIPH_RC4 - No block mode and padding possible
 	 * GCI_CIPH_TDES
 	 * GCI_CIPH_AES
 	 * GCI_CIPH_DES
@@ -451,6 +451,8 @@ typedef enum
 	GCI_SIGN_RSASSA_PKCS,
 	/** RSA SSA X509 */
 	GCI_SIGN_RSASSA_X509,
+	/** RSA CRT*/
+	GCI_SIGN_RSA_CRT, //TODO new[30/11/2015]
 	/** ECDSA GFP */
 	GCI_SIGN_ECDSA_GFP,
 	/** ECDSA GF2M */
@@ -566,6 +568,7 @@ typedef struct
 	 * GCI_SIGN_RSASSA_PKCS
 	 * GCI_SIGN_RSASSA_PSS
 	 * GCI_SIGN_RSASSA_X509
+	 * GCI_SIGN_RSA_CRT
 	 * GCI_SIGN_DSA
 	 * GCI_SIGN_ECDSA_GFP
 	 * GCI_SIGN_ECDSA_GF2M
@@ -801,7 +804,6 @@ typedef struct
 /*		      										KEYS						      							  	  */
 /**********************************************************************************************************************/
 
-
 /*!
  * \struct 					GciRsaPubKey_t
  * \brief					Structure representing an RSA public key
@@ -812,7 +814,7 @@ typedef struct
 	GciBigInt_t n;
 	/**Public exponent*/
 	GciBigInt_t e;
-} GciRsaPubKey_t;
+}GciRsaPubKey;
 
 
 
@@ -826,7 +828,7 @@ typedef struct
 	GciBigInt_t n;
 	/**Private exponent*/
 	GciBigInt_t d;
-} GciRsaPrivKey_t;
+}GciRsaPrivKey;
 
 
 
@@ -902,31 +904,31 @@ typedef struct
 	union keyData
 	{
 		/**Symmetric key*/
-		GciBuffer_t symKey;
-		/**Diffie-Hellman Public Key Object*/
+		GciBuffer_t sym;
+		/**Diffie-Hellman Public Key*/
 		GciBigInt_t dhPub;
-		/**Diffie-Hellman Private Key Object*/
+		/**Diffie-Hellman Private Key*/
 		GciBigInt_t dhPriv;
-		/**Diffie-Hellman Secret Key Object*/
+		/**Diffie-Hellman Secret Key*/
 		GciBuffer_t dhSecret;
-		/**Elliptic Curve Diffie-Hellman Public Key Object*/
+		/**Elliptic Curve Diffie-Hellman Public Key*/
 		GciEcPoint_t ecdhPub;
-		/**Elliptic Curve Diffie-Hellman Private Key Object*/
+		/**Elliptic Curve Diffie-Hellman Private Key*/
 		GciBigInt_t ecdhPriv;
-		/**Elliptic Curve Diffie-Hellman Secret Key Object*/
+		/**Elliptic Curve Diffie-Hellman Secret Key*/
 		GciBuffer_t ecdhSecret;
-		/**DSA Public Key Object*/
+		/**DSA Public Key*/
 		GciBigInt_t dsaPub;
-		/**DSA Private Key Object*/
+		/**DSA Private Key*/
 		GciBigInt_t dsaPriv;
-		/**Elliptic Curve DSA Public Key Object*/
+		/**Elliptic Curve DSA Public Key*/
 		GciEcPoint_t ecdsaPub;
-		/**Elliptic Curve DSA Private Key Object*/
+		/**Elliptic Curve DSA Private Key*/
 		GciBigInt_t ecdsaPriv;
-		/**RSA Public Key Object*/
-		GciRsaPubKey_t rsaPub;
-		/**RSA Private Key Object*/
-		GciRsaPrivKey_t rsaPriv;
+		/**RSA Public Key*/
+		GciRsaPubKey rsaPub;
+		/**RSA Private Key*/
+		GciRsaPrivKey rsaPriv;
 	} key;
 } GciKey_t;
 

@@ -102,7 +102,7 @@ static void _rmUnusedEntries(s_sslSessCache_t *ps_sessCache)
             /* reset the timer before it will been overwritten */
             tot2_resetTmr(&pCache[i].s_sessTimeout);
             /* Clear the entire cache entry */
-            CW_MEMSET(&pCache[i], 0x00, sizeof(s_sslSessCache_t));
+            memset(&pCache[i], 0x00, sizeof(s_sslSessCache_t));
             LOG2_INFO("Session Cache Element @ %p has been erased", &pCache[i]);
         }
     }
@@ -110,7 +110,7 @@ static void _rmUnusedEntries(s_sslSessCache_t *ps_sessCache)
 
 static uint32_t _resetCache(s_tot2_Tmr_t* p_tmr, void* p_ctx)
 {
-    CW_MEMSET(p_ctx, 0x00, sizeof(s_sslSessCache_t));
+    memset(p_ctx, 0x00, sizeof(s_sslSessCache_t));
     LOG2_INFO("Session Cache Element @ %p has " "been hit by reset timer", p_ctx);
     return 0;
 }
@@ -168,7 +168,7 @@ e_sslSesCacheErr_t sslSesCache_addEntry(s_sslSessCache_t *ps_sessCache,
             ps_sessCache[i].i_lruCounter--;
 
             /* This entry is also a candidate for an update */
-            if (CW_MEMCMP(ps_sessCache[i].s_sessElem.ac_id, ps_newSessElem->ac_id,
+            if (memcmp(ps_sessCache[i].s_sessElem.ac_id, ps_newSessElem->ac_id,
             SESSID_SIZE) == 0)
             {
                 l_cacheHit = i;
@@ -199,7 +199,7 @@ e_sslSesCacheErr_t sslSesCache_addEntry(s_sslSessCache_t *ps_sessCache,
         /* There was no cache hit. Thus overwrite the oldest cache entry */
         ps_sslSessCache = &ps_sessCache[l_freeEntry];
 
-        if (CW_MEMCMP(ps_sslSessCache->s_sessElem.ac_id, cmpArray, SESSID_SIZE)
+        if (memcmp(ps_sslSessCache->s_sessElem.ac_id, cmpArray, SESSID_SIZE)
                 != 0)
         {
             LOG2_RAW("\nreplace Session ID");
@@ -207,7 +207,7 @@ e_sslSesCacheErr_t sslSesCache_addEntry(s_sslSessCache_t *ps_sessCache,
             LOG2_RAW("\nby this Session ID");
             LOG2_HEX(ps_newSessElem->ac_id, SESSID_SIZE);
         }
-        if (CW_MEMCMP(ps_sslSessCache->s_sessElem.ac_msSec, cmpArray,
+        if (memcmp(ps_sslSessCache->s_sessElem.ac_msSec, cmpArray,
                 MSSEC_SIZE) != 0)
         {
             LOG2_RAW("\nreplace MasterSecret");
@@ -216,12 +216,12 @@ e_sslSesCacheErr_t sslSesCache_addEntry(s_sslSessCache_t *ps_sessCache,
             LOG2_HEX(ps_newSessElem->ac_msSec, MSSEC_SIZE);
         }
 
-        /* For optimisation: use CW_MEMCOPY to copy the SESSION_ELEMENT     */
+        /* For optimisation: use memcpy to copy the SESSION_ELEMENT     */
         /* struct from ps_sslSessElem to pCache[freeEntry] */
-        CW_MEMCOPY(ps_sslSessCache->s_sessElem.ac_id,
+        memcpy(ps_sslSessCache->s_sessElem.ac_id,
                 ps_newSessElem->ac_id, SESSID_SIZE);
 
-        CW_MEMCOPY(ps_sslSessCache->s_sessElem.ac_msSec,
+        memcpy(ps_sslSessCache->s_sessElem.ac_msSec,
                 ps_newSessElem->ac_msSec, MSSEC_SIZE);
 
         ps_sslSessCache->s_sessElem.l_authId = ps_newSessElem->l_authId;
@@ -266,7 +266,7 @@ e_sslSesCacheErr_t sslSesCache_getElem(s_sslSessCache_t *ps_sessCache,s_sslSessE
         /* Check only active entrys */
         if (ps_sessCache[i].i_lruCounter > FREE_CACHE_ENTRY)
         {
-            if (CW_MEMCMP(ps_sessElem->ac_id, ps_sessCache[i].s_sessElem.ac_id,
+            if (memcmp(ps_sessElem->ac_id, ps_sessCache[i].s_sessElem.ac_id,
             SESSID_SIZE) == 0)
             {
                 /* We have a cache hit. Set the counter to the max value */
@@ -274,10 +274,10 @@ e_sslSesCacheErr_t sslSesCache_getElem(s_sslSessCache_t *ps_sessCache,s_sslSessE
 
                 /* Isn't it useless to copy the SessionID? At this stage they */
                 /* are equal anyway. */
-                CW_MEMCOPY(ps_sessElem->ac_id,
+                memcpy(ps_sessElem->ac_id,
                         ps_sessCache[i].s_sessElem.ac_id, SESSID_SIZE);
 
-                CW_MEMCOPY(ps_sessElem->ac_msSec,
+                memcpy(ps_sessElem->ac_msSec,
                         ps_sessCache[i].s_sessElem.ac_msSec, MSSEC_SIZE);
 
                 ps_sessElem->l_authId = ps_sessCache[i].s_sessElem.l_authId;
@@ -325,9 +325,9 @@ e_sslSesCacheErr_t sslSesCache_findElem(s_sslSessCache_t *ps_sessCache,
 
         /* Isn't it useless to copy the SessionID? At this stage they */
         /* are equal anyway. */
-        CW_MEMCOPY(ps_sessElem->ac_id,ps_entry->s_sessElem.ac_id,SESSID_SIZE);
+        memcpy(ps_sessElem->ac_id,ps_entry->s_sessElem.ac_id,SESSID_SIZE);
 
-        CW_MEMCOPY(ps_sessElem->ac_msSec,ps_entry->s_sessElem.ac_msSec, MSSEC_SIZE);
+        memcpy(ps_sessElem->ac_msSec,ps_entry->s_sessElem.ac_msSec, MSSEC_SIZE);
 
         ps_sessElem->l_authId = ps_entry->s_sessElem.l_authId;
 
@@ -371,6 +371,7 @@ e_sslSesCacheErr_t sslSesCache_getById(s_sslSessCache_t *ps_sessCache,
 l_sslSess_t sslSesCache_getNewSessId(s_sslSessCache_t *ps_sessCache)
 {
     l_sslSess_t l_id;
+    GciResult_t err;
 
     assert(ps_sessCache != NULL);
 
@@ -379,8 +380,13 @@ l_sslSess_t sslSesCache_getNewSessId(s_sslSessCache_t *ps_sessCache)
      */
     do
     {
-    	//TODO sw gci_rng_gen
-        cw_prng_read((uint8_t*) &l_id, sizeof(l_id));
+        //OLD-CW: cw_prng_read((uint8_t*) &l_id, sizeof(l_id));
+        err = gci_rng_gen(sizeof(l_id), (uint8_t*) &l_id);
+        if(err != GCI_OK)
+        {
+        	//TODO return error state
+        }
+
         /*
          * Loop until the PRNG generates a valid session and the
          * generated session can't be found in the session cache
@@ -409,13 +415,13 @@ e_sslSesCacheErr_t sslSesCache_delEntry(s_sslSessCache_t *ps_sessCache,
         /* Check only the active entries */
         if (ps_sessCache[i].i_lruCounter > FREE_CACHE_ENTRY)
         {
-            if (CW_MEMCMP(pc_sessID, ps_sessCache[i].s_sessElem.ac_id,
+            if (memcmp(pc_sessID, ps_sessCache[i].s_sessElem.ac_id,
             SESSID_SIZE) == 0)
             {
                 /* first reset the timer */
                 tot2_resetTmr(&ps_sessCache[i].s_sessTimeout);
                 /* Clear the entire DB entry: ID, mastersecret, i_lruCounter, ... */
-                CW_MEMSET(&ps_sessCache[i], 0x00, sizeof(s_sslSessCache_t));
+                memset(&ps_sessCache[i], 0x00, sizeof(s_sslSessCache_t));
 
                 e_ret = E_SSL_SESSCACHE_HIT;
                 break;
