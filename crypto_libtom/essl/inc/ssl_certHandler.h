@@ -241,8 +241,11 @@ void sslCert_delInfo(s_sslKeyCertInfo_t * ps_certInfo);
  \return \ref E_SSL_CERT_ERR_VERIFICATION_FAILED   The verification itself failed
  */
 /*============================================================================*/
-e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
+/*e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
         gci_rsaPubKey_t *ps_caPubKey);
+*/
+e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
+        GciKeyId_t *ps_caPubKey);
 
 /****************************************************************************
  * Convert public key to publicKeyStruct
@@ -251,7 +254,10 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
  * This function is not threadsafe, if bignum pool is not threadsafe
  ****************************************************************************/
 
-e_derdRet_t sslCert_prepPubKey(s_pubKey_t       *ps_pubKeyInfo,
+/*e_derdRet_t sslCert_prepPubKey(s_pubKey_t       *ps_pubKeyInfo,
+                               s_sslOctetStr_t  *ps_pubKeyStr);
+*/
+e_derdRet_t sslCert_prepPubKey(GciKey_t       *ps_pubKeyInfo,
                                s_sslOctetStr_t  *ps_pubKeyStr);
 
 /****************************************************************************

@@ -417,12 +417,14 @@ e_derdRet_t sslDerd_getBool(s_derdCtx_t *ps_derdCtx, uint8_t *pc_value)
 /*============================================================================*/
 /*  sslDerd_getBigNum()                                                         */
 /*============================================================================*/
-e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, gci_bigNum_t **ppcwt_val)
+//OLD-CW: e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, gci_bigNum_t **ppcwt_val)
+e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, GciBigInt_t **ppcwt_val)
 {
     e_derdRet_t e_res = E_SSL_DER_OK;
     size_t cwt_tmp = 0;
 
     assert(ps_derdCtx != NULL);
+    //OLD-CW: assert(ppcwt_val != NULL);
     assert(ppcwt_val != NULL);
 
     if ((ps_derdCtx->c_tag == SSL_DER_ASN1_INTEGER)
@@ -446,11 +448,15 @@ e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, gci_bigNum_t **ppcwt_val)
          */
         if (ps_derdCtx->s_octVal.cwt_len <= SSL_DER_MAX_INTEGER_LEN)
         {
-        	//TODO sw ?? set a value of a BigNumber
-            *ppcwt_val = cw_bn_create(*ppcwt_val,
+            /**ppcwt_val = cw_bn_create(*ppcwt_val,
                     (size_t) (ps_derdCtx->s_octVal.cwt_len * 8));
             cw_bn_set(*ppcwt_val, &ps_derdCtx->s_octVal.pc_data[cwt_tmp],
                     (size_t) ps_derdCtx->s_octVal.cwt_len);
+            */
+        	memcpy((*ppcwt_val)->data, &ps_derdCtx->s_octVal.pc_data[cwt_tmp], (size_t) ps_derdCtx->s_octVal.cwt_len);
+        	(*ppcwt_val)->len = (size_t) ps_derdCtx->s_octVal.cwt_len;
+
+
         }
         else
             e_res = E_SSL_DER_ERR_NO_BIGNUM;
@@ -475,7 +481,7 @@ e_derdRet_t sslDerd_getTime(s_derdCtx_t *ps_derdCtx,
     if ((ps_derdCtx->c_tag == SSL_DER_ASN1_UTCTIME)
             && (ps_derdCtx->s_octVal.cwt_len <= SSL_DER_ASN1_UTCTIME_LEN))
     {
-        CW_MEMCOPY(&cwt_strTime[2],
+        memcpy(&cwt_strTime[2],
                 ps_derdCtx->s_octVal.pc_data,
                 (size_t)ps_derdCtx->s_octVal.cwt_len);
 
@@ -497,7 +503,7 @@ e_derdRet_t sslDerd_getTime(s_derdCtx_t *ps_derdCtx,
                 && (ps_derdCtx->s_octVal.cwt_len
                         <= SSL_DER_ASN1_GENERALIZEDTIME_LEN))
         {
-            CW_MEMCOPY(cwt_strTime,
+            memcpy(cwt_strTime,
                     ps_derdCtx->s_octVal.pc_data,
                     (size_t)ps_derdCtx->s_octVal.cwt_len);
 

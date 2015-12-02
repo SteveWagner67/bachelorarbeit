@@ -157,7 +157,7 @@ static void loc_freeSubjStor(s_sslOctetStr_t *ps_octStor)
         {
             if (ast_certSubject[i].ac_data == ps_octStor->pc_data)
             {
-                CW_MEMSET(ast_certSubject[i].ac_data, 0,
+                memset(ast_certSubject[i].ac_data, 0,
                 SSL_SUBJECT_STORAGE_SIZE);
                 ast_certSubject[i].c_inUse = 0;
                 return;
@@ -179,9 +179,16 @@ static void loc_freeSubjStor(s_sslOctetStr_t *ps_octStor)
 /*============================================================================*/
 /*  sslCert_init()                                                            */
 /*============================================================================*/
-e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
+/*OLD-CW: e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
                             s_sslCert_t *ps_cert,
                             gci_rsaPubKey_t *pcwt_rsaPubKey,
+                            uint8_t *pc_caSubjName, uint32_t l_caSubjNameLen,
+                            s_sslCert_t *ps_caRootCert,
+                            s_sslCertList_t *ps_caListHead)
+*/
+e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
+                            s_sslCert_t *ps_cert,
+							GciKeyId_t *pcwt_rsaPubKey,
                             uint8_t *pc_caSubjName, uint32_t l_caSubjNameLen,
                             s_sslCert_t *ps_caRootCert,
                             s_sslCertList_t *ps_caListHead)
@@ -191,13 +198,25 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
     s_sslKeyCertExt_t s_certExt;
     s_sslCert_t *ps_tmpCaRootCert = NULL;
     s_sslCertList_t *ps_caListElem = NULL;
-    s_pubKey_t s_pubKey;
+    //OLD-CW: s_pubKey_t s_pubKey;
     int32_t l_pathLen;
     int16_t i_tmpRet;
 
+    GciResult_t err;
+    GciKey_t s_pubKey;
+
+    err = gci_key_get(*pcwt_rsaPubKey, &s_pubKey);
+    if(err != GCI_OK)
+    {
+    	//TODO return error state
+    }
+
+
+
     assert(ps_octStrCert != NULL);
     assert(ps_cert != NULL);
-    assert(pcwt_rsaPubKey != NULL);
+    //OLD-CW: assert(pcwt_rsaPubKey != NULL);
+    assert(s_pubKey.key.rsaPub.e.data != NULL);
 
     /*
      * Decode the certificate
@@ -270,8 +289,8 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
          * Prepare the SSL public key according to the crypto lib used
          * and try to extract the public key of the certificate
          */
-    	//TODO sw ?? rsa copy parameters from rsa tomcrypt to a intern structure
-        cw_rsa_publickey_prep(pcwt_rsaPubKey, &s_pubKey);
+        //OLD-CW: cw_rsa_publickey_prep(pcwt_rsaPubKey, &s_pubKey);
+
 
         i_tmpRet = sslCert_prepPubKey(&s_pubKey, &s_certInfo.s_octPubKey);
         if (i_tmpRet != E_SSL_DER_OK)
@@ -280,17 +299,21 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
             goto error;
         }
 
-        //TODO sw ?? rsa copy parameters from intern structure to rsa tomcrypt
-        cw_rsa_publickey_post(&s_pubKey, pcwt_rsaPubKey);
+        //OLD-CW:cw_rsa_publickey_post(&s_pubKey, pcwt_rsaPubKey);
         i_tmpRet = E_SSL_CERT_ERR;
         /*
          * When a root certificate has been found, try to verify this certificate
          * When the user forces to allow the usage of this cert, do so
          */
         if (ps_tmpCaRootCert != NULL)
+        {
             i_tmpRet = ssl_verifyCertSign(&s_certInfo, &ps_tmpCaRootCert->gci_caPubKey);
+        }
         else if ((ps_caRootCert == NULL) && (ps_caListHead == NULL))
+        {
             i_tmpRet = E_SSL_CERT_OK;
+        }
+
 
         if (i_tmpRet != E_SSL_CERT_OK)
         {
@@ -332,7 +355,7 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
              * Copy the data, the pointer where the subject is stored now
              * and the length of the subject
              */
-            CW_MEMCOPY(pc_caSubjName, s_certInfo.s_octSubj.pc_data, s_certInfo.s_octSubj.cwt_len);
+            memcpy(pc_caSubjName, s_certInfo.s_octSubj.pc_data, s_certInfo.s_octSubj.cwt_len);
             ps_cert->s_caSubject.pc_data = pc_caSubjName;
             ps_cert->s_caSubject.cwt_len = s_certInfo.s_octSubj.cwt_len;
             /*
@@ -362,7 +385,7 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
             if (ps_tmpCaRootCert == NULL)
             {
                 if ((s_certInfo.s_octIssuer.cwt_len == s_certInfo.s_octSubj.cwt_len)
-                        && (CW_MEMCMP(s_certInfo.s_octIssuer.pc_data, s_certInfo.s_octSubj.pc_data,
+                        && (memcmp(s_certInfo.s_octIssuer.pc_data, s_certInfo.s_octSubj.pc_data,
                                 s_certInfo.s_octIssuer.cwt_len) == 0))
                 {
                     e_ret = E_SSL_CERT_ERR_SELF_SIGNED;
@@ -503,7 +526,7 @@ s_sslCertList_t * sslCert_getBySubject(s_sslCertList_t *ps_caListHead,
         s_sslOctetStr_t o_storage = loc_allocSubjStor();
         sslCert_getSubject(ps_caListHead, o_storage.pc_data, &o_storage.cwt_len);
         if ((o_storage.cwt_len > 0) && (o_storage.cwt_len == ps_octSubj->cwt_len)
-                && (CW_MEMCMP(o_storage.pc_data, ps_octSubj->pc_data, ps_octSubj->cwt_len) == 0))
+                && (memcmp(o_storage.pc_data, ps_octSubj->pc_data, ps_octSubj->cwt_len) == 0))
         {
             ps_ret = ps_caListHead;
             loc_freeSubjStor(&o_storage);
@@ -528,6 +551,10 @@ e_sslResult_t sslCert_getSubject(s_sslCertList_t *ps_entry, uint8_t *pc_dest, si
     s_sslOctetStr_t s_octCert;
     size_t cwt_bufLen;
 
+    GciResult_t err;
+
+    GciKeyGenConfig_t rsaConf;
+
     assert(ps_entry != NULL);
     assert(pc_dest != NULL);
     assert(pcwt_space != NULL);
@@ -539,7 +566,7 @@ e_sslResult_t sslCert_getSubject(s_sslCertList_t *ps_entry, uint8_t *pc_dest, si
     {
         if (ps_caCert->s_caSubject.cwt_len <= *pcwt_space)
         {
-            CW_MEMCOPY(pc_dest, ps_caSubj->pc_data, ps_caSubj->cwt_len);
+            memcpy(pc_dest, ps_caSubj->pc_data, ps_caSubj->cwt_len);
             *pcwt_space = ps_caSubj->cwt_len;
             i_ret = E_SSL_OK;
         }
@@ -561,10 +588,23 @@ e_sslResult_t sslCert_getSubject(s_sslCertList_t *ps_entry, uint8_t *pc_dest, si
         if (s_octCert.pc_data != NULL)
         {
             s_octCert.cwt_len = cwt_bufLen;
-            //TODO sw gci_key_pair_gen RSA
-            cw_rsa_publickey_init(&tmp_cert.gci_caPubKey);
-            i_ret = sslCert_init(&s_octCert, &tmp_cert, &tmp_cert.gci_caPubKey, pc_dest, *pcwt_space,
-            NULL, NULL);
+
+            rsaConf.algo = GCI_KEY_PAIR_RSA;
+            //TODO sw - RSA modulus length ??
+            //TODO sw - key length 1024 ??
+
+            err = gci_key_pair_gen(&rsaConf, 1024, &tmp_cert.gci_caPubKey, NULL);
+            if(err != GCI_OK)
+            {
+            	//TODO return error state
+            }
+
+
+
+            //OLD-CW: cw_rsa_publickey_init(&tmp_cert.gci_caPubKey);
+            //OLD-CW: i_ret = sslCert_init(&s_octCert, &tmp_cert, &tmp_cert.gci_caPubKey, pc_dest, *pcwt_space, NULL, NULL);
+
+            i_ret = sslCert_init(&s_octCert, &tmp_cert, &tmp_cert.gci_caPubKey, pc_dest, *pcwt_space, NULL, NULL);
 
             if (i_ret == E_SSL_CERT_OK)
             {
@@ -587,8 +627,14 @@ e_sslResult_t sslCert_getSubject(s_sslCertList_t *ps_entry, uint8_t *pc_dest, si
             /*
              * Free the public key
              */
-            //TODO sw gci_key_delete
-            cw_rsa_publickey_free(&tmp_cert.gci_caPubKey);
+            //OLD-CW: cw_rsa_publickey_free(&tmp_cert.gci_caPubKey);
+            err =  gci_key_delete(tmp_cert.gci_caPubKey);
+            if(err != GCI_OK)
+            {
+            	//TODO return error state
+            }
+
+
             /*
              * Free the cert_db entry
              */
@@ -617,11 +663,15 @@ e_sslResult_t sslCert_getSubject(s_sslCertList_t *ps_entry, uint8_t *pc_dest, si
 /*==============================================================================
  sslCert_verifyChain()
  ==============================================================================*/
-e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, gci_rsaPubKey_t *pcwt_rsaPubKey,
+/*OLD-CW: e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, gci_rsaPubKey_t *pcwt_rsaPubKey,
+        s_sslCertList_t *ps_caListHead)
+*/
+e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcwt_rsaPubKey,
         s_sslCertList_t *ps_caListHead)
 {
     e_sslCertErr_t i_ret;
-    gci_rsaPubKey_t *pcwt_tmpRsaPubKey;
+    //OLD-CW: gci_rsaPubKey_t *pcwt_tmpRsaPubKey;
+    GciKeyId_t *pcwt_tmpRsaPubKey;
     s_sslOctetStr_t s_octPeerCert;
     s_sslOctetStr_t ast_tmpOct[2];
     s_sslOctetStr_t ast_tmpOctStor[2];
@@ -633,6 +683,9 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, gci_rsaPubKey_t
     s_sslCert_t ast_tmpCert[2];
     s_sslCert_t *ps_rootCert;
     s_sslCert_t *ps_tbvCert;
+
+    GciResult_t err;
+    GciKeyGenConfig_t rsaConf;
 
     /* Allocate some memory for a subject name */
     ps_octTbvStor  = &ast_tmpOctStor[1];
@@ -659,10 +712,25 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, gci_rsaPubKey_t
         /*
          * Init the temporary public keys
          */
-    	//TODO sw gci_key_pair_gen RSA
-        cw_rsa_publickey_init(&ast_tmpCert[0].gci_caPubKey);
-        //TODO sw gci_key_pair_gen RSA
-        cw_rsa_publickey_init(&ast_tmpCert[1].gci_caPubKey);
+        //OLD-CW: cw_rsa_publickey_init(&ast_tmpCert[0].gci_caPubKey);
+
+        rsaConf.algo = GCI_KEY_PAIR_RSA;
+        //TODO sw - RSA modulus length ??
+        //TODO sw - key length 1024 ??
+
+        err = gci_key_pair_gen(&rsaConf, 1024, &ast_tmpCert[0].gci_caPubKey, NULL);
+        if(err != GCI_OK)
+        {
+        	//TODO return error state
+        }
+
+        //OLD-CW: cw_rsa_publickey_init(&ast_tmpCert[1].gci_caPubKey);
+
+        err = gci_key_pair_gen(&rsaConf, 1024, &ast_tmpCert[1].gci_caPubKey, NULL);
+        if(err != GCI_OK)
+        {
+        	//TODO return error state
+        }
 
         /*
          * Init all other pointers
@@ -704,10 +772,19 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, gci_rsaPubKey_t
                 /*
                  * Re-Init the public key when init failed
                  */
-            	//TODO sw gci_key_delete
-                cw_rsa_publickey_free(&ps_rootCert->gci_caPubKey);
-                //TODO sw gci_key_pair_gen RSA
-                cw_rsa_publickey_init(&ps_rootCert->gci_caPubKey);
+                //OLD-CW: cw_rsa_publickey_free(&ps_rootCert->gci_caPubKey);
+                err = gci_key_delete(ps_rootCert->gci_caPubKey);
+                if(err != GCI_OK)
+                {
+                	//TODO return error state
+                }
+
+                //OLD-CW: cw_rsa_publickey_init(&ps_rootCert->gci_caPubKey);
+                err = gci_key_pair_gen(&rsaConf, 1024, &ps_rootCert->gci_caPubKey, NULL);
+                if(err != GCI_OK)
+                {
+                	//TODO return error state
+                }
             }
 
             /*
@@ -786,10 +863,21 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, gci_rsaPubKey_t
                  */
                 if (i_ret == E_SSL_CERT_OK)
                 {
-                	//TODO sw gci_key_delete
-                    cw_rsa_publickey_free(&ps_rootCert->gci_caPubKey);
-                    //TODO sw gci_key_pair_gen RSA
-                    cw_rsa_publickey_init(&ps_rootCert->gci_caPubKey);
+                    //OLD-CW: cw_rsa_publickey_free(&ps_rootCert->gci_caPubKey);
+                    err = gci_key_delete(&ps_rootCert->gci_caPubKey);
+                    if(err != GCI_OK)
+                    {
+                    	//TODO return error state
+                    }
+
+                    //OLD-CW: cw_rsa_publickey_init(&ps_rootCert->gci_caPubKey);
+                    err = gci_key_delete(ps_rootCert->gci_caPubKey);
+                    if(err != GCI_OK)
+                    {
+                    	//TODO return error state
+                    }
+
+
                     loc_freeSubjStor(ps_octRootStor);
                     if (ps_octRoot == &ast_tmpOct[0])
                     {
@@ -815,10 +903,21 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, gci_rsaPubKey_t
         /*
          * Free the temporary allocated data
          */
-        //TODO sw gci_key_delete
-        cw_rsa_publickey_free(&ast_tmpCert[0].gci_caPubKey);
-        //TODO sw gci_key_delete
-        cw_rsa_publickey_free(&ast_tmpCert[1].gci_caPubKey);
+        //OLD-CW: cw_rsa_publickey_free(&ast_tmpCert[0].gci_caPubKey);
+        err = gci_key_delete(&ast_tmpCert[0].gci_caPubKey);
+        if(err != GCI_OK)
+        {
+        	//TODO return error state
+        }
+
+        //OLD-CW: cw_rsa_publickey_free(&ast_tmpCert[1].gci_caPubKey);
+        err = gci_key_delete(&ast_tmpCert[1].gci_caPubKey);
+        if(err != GCI_OK)
+        {
+        	//TODO return error state
+        }
+
+
         loc_freeSubjStor(&ast_tmpOctStor[0]);
         loc_freeSubjStor(&ast_tmpOctStor[1]);
     } /* if */
@@ -939,7 +1038,7 @@ e_sslResult_t sslCert_addToReqList(uint8_t *pc_data, size_t *pcwt_dataLen,
     if (cwt_len > *pcwt_dataLen)
         return (E_SSL_ERROR);
 
-    CW_MEMCOPY(pc_data + cwt_pos, pc_cert, cwt_certLen);
+    memcpy(pc_data + cwt_pos, pc_cert, cwt_certLen);
     (void) ssl_writeInteger(pc_data, cwt_len, 2);
 
     return (E_SSL_OK);
@@ -1159,19 +1258,19 @@ uint8_t *sslCert_extractX509Len(uint8_t *pc_read, size_t *pcwt_elemLen)
 /****************************************************************************/
 /* X509_element_extract                                                     */
 /****************************************************************************/
-uint8_t *sslCert_extractX509Elem(uint8_t *pc_read, gci_bigNum_t **ppcwt_bigNum)
+/*uint8_t *sslCert_extractX509Elem(uint8_t *pc_read, gci_bigNum_t **ppcwt_bigNum)
 {
     size_t elementLen;
 
     pc_read = sslCert_extractX509Len(pc_read + 1, &elementLen);
-    /* fprintf(fp, "Len = %d\n", elementLen ); */
+    // fprintf(fp, "Len = %d\n", elementLen );
 
     if (ppcwt_bigNum != NULL)
     {
-        /* Now, length of the second element: private modulus is known */
-        if (elementLen % 16) /* not a power of two */
+        // Now, length of the second element: private modulus is known
+        if (elementLen % 16) // not a power of two
         {
-            /* Check for the first Byte, probably zero */
+            // Check for the first Byte, probably zero
             if (*pc_read == 0x00)
             {
                 pc_read++;
@@ -1179,10 +1278,8 @@ uint8_t *sslCert_extractX509Elem(uint8_t *pc_read, gci_bigNum_t **ppcwt_bigNum)
             }
         }
 
-        /* generate a Bignum and extract the element */
-        //TODO sw ?? create BigNumber
+        // generate a Bignum and extract the element
         *ppcwt_bigNum = cw_bn_create(*ppcwt_bigNum, elementLen * 8);
-        //TODO sw ?? RSA OctetString2IntegerPointer
         cw_rsa_os2ip(*ppcwt_bigNum, pc_read, elementLen);
     }
 
@@ -1190,4 +1287,4 @@ uint8_t *sslCert_extractX509Elem(uint8_t *pc_read, gci_bigNum_t **ppcwt_bigNum)
 
     return (pc_read);
 }
-
+*/

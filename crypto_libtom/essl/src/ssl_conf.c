@@ -63,8 +63,17 @@
 /*============================================================================*/
 void sslConf_seedRand(uint8_t *pc_dest, size_t cwt_bytes)
 {
-	//TODO sw gci_rng_seed
-    cw_prng_seed(pc_dest, cwt_bytes);
+	GciResult_t err;
+
+	//OLD-CW: cw_prng_seed(pc_dest, cwt_bytes);
+
+	err = gci_rng_seed(pc_dest, cwt_bytes);
+	if(err != GCI_OK)
+	{
+		//TODO return error state
+	}
+
+
 }/* sslConf_seedRand */
 
 /*============================================================================*/
@@ -72,8 +81,16 @@ void sslConf_seedRand(uint8_t *pc_dest, size_t cwt_bytes)
 /*============================================================================*/
 void sslConf_rand(uint8_t *pc_dest, size_t cwt_bytes)
 {
-	//TODO sw gci_rng_gen
-    cw_prng_read(pc_dest, cwt_bytes);
+	GciResult_t err;
+
+    //OLD-CW: cw_prng_read(pc_dest, cwt_bytes);
+
+    err = gci_rng_gen(cwt_bytes, pc_dest);
+    if(err != GCI_OK)
+    {
+    	//TODO return error state
+    }
+
 }/* sslConf_rand */
 
 /*============================================================================*/
@@ -581,15 +598,21 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
         size_t *pcwt_outLen)
 {
 
-    s_pubKey_t s_pubKeyInfo;
+    //s_pubKey_t s_pubKeyInfo;
+	GciKey_t s_pubKeyInfo;;
     s_sslOctetStr_t s_octPeerCert;
     e_sslPendAct_t e_pendEvent;
     s_sslHsElem_t *ps_handshElem;
     int32_t l_result;
     uint8_t ac_rndBuf[46];
-    gci_dhKey_t cwt_dhKeyCliY;
+    //OLD-CW: gci_dhKey_t cwt_dhKeyCliY;
+    GciKeyId_t cwt_dhKeyCliY;
     s_sslCertList_t *ps_caList = NULL;
     e_sslCertErr_t e_ret;
+
+    GciResult_t err;
+
+    GciCtxId_t decCtx;
 
     assert(ps_sslCtx != NULL);
     assert(pc_inData != NULL);
@@ -598,8 +621,14 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
     ps_handshElem = ps_sslCtx->ps_hsElem;
 
-    //TODO sw ?? rsa copy parameters from rsa tomcrypt to a intern structure
-    cw_rsa_publickey_prep(&ps_handshElem->gci_peerPubKey, &s_pubKeyInfo);
+
+    //OLD-CW: cw_rsa_publickey_prep(&ps_handshElem->gci_peerPubKey, &s_pubKeyInfo);
+    err = gci_key_get(ps_handshElem->gci_peerPubKey, &s_pubKeyInfo);
+    if(err != GCI_OK)
+    {
+    	//TODO return error state
+    }
+
 
     switch (e_nextAction)
     {
@@ -610,26 +639,36 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
         TIME_STAMP(TS_PMS_DECRYPT_BEGIN);
 
-        //TODO sw gci_decrypt
-       l_result = cw_pkcs1_v15_decrypt(pc_inData, cwt_inLen, pc_outData,
-                pcwt_outLen, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey);
+       //OLD-CW: l_result = cw_pkcs1_v15_decrypt(pc_inData, cwt_inLen, pc_outData, pcwt_outLen, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey);
+
+
+       err = gci_cipher_new_ctx(NULL, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &decCtx);
+       if(err != GCI_OK)
+       {
+    	   //TODO return error state
+       }
+
+
+       err = gci_cipher_decrypt(decCtx, pc_inData, cwt_inLen, pc_outData, pcwt_outLen);
+
 
        TIME_STAMP(TS_PMS_DECRYPT_END);
 
        /* Ignore the result value */
-        if ((l_result != CW_OK) || (*pcwt_outLen != 48))
-        {
+        //OLD-CW: if ((l_result != CW_OK) || (*pcwt_outLen != 48))
+       if((err != GCI_OK) || (*pcwt_outLen != 48))
+       {
             LOG_ERR("PKCS#1 decrypt not successful");
             /* In case of an error: return client_version + 46 byte random */
             pc_outData[0] = SSL_VERSION_GET_MAJ(
                     ps_sslCtx->ps_hsElem->e_offerVer);
             pc_outData[1] = SSL_VERSION_GET_MIN(
                     ps_sslCtx->ps_hsElem->e_offerVer);
-            CW_MEMCOPY(&pc_outData[2], ac_rndBuf, 46);
+            memcpy(&pc_outData[2], ac_rndBuf, 46);
             *pcwt_outLen = 48;
-        }
-        else
-        {
+       }
+       else
+       {
             /*
              * In every version since SSL 3.0 the first 2 bytes of the decrypted
              * PreMasterSecret MUST be validated to be the offered version of the client
@@ -649,7 +688,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
                     ps_sslCtx->ps_hsElem->e_offerVer);
             pc_outData[1] = SSL_VERSION_GET_MIN(
                     ps_sslCtx->ps_hsElem->e_offerVer);
-        }
+       }
 
         LOG2_INFO("Decrypted PreMasterSecret");
         LOG2_HEX(pc_outData, 48);
@@ -660,31 +699,47 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
     case E_PENDACT_ASYM_DHECALCSHARED:
     {
+
+
+
         /* reset this variable */
-        CW_MEMSET(&cwt_dhKeyCliY, 0x00, sizeof(gci_dhKey_t));
+        memset(&cwt_dhKeyCliY, 0x00, sizeof(gci_dhKey_t));
         /* read the Yc of the client that has been transmitted in the ClientKeyExchange */
-        //TODO sw gci_key_get DH PRIV
-        if (cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY) != CW_OK) {
-            LOG_ERR("DHE import error");
-        } else {
+       // if (cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY) != CW_OK)
+       // {
+       //     LOG_ERR("DHE import error");
+       // }
+       // else {
+
+        cwt_dhKeyCliY = *(pc_inData-2);
 
         	TIME_STAMP(TS_DHE_CALC_SHARED_SEC_BEGIN);
 
+        	//TODO BEGIN HERE
+
             /* now calculate the shared secret that will be used as PreMasterSecret */
-        	//TODO sw gci_dh_calc_sharedSecret DH
-            if (cw_dhe_sharedSec_with_p(ps_sslCtx->s_secParams.pgci_dheKey,
-                                        &cwt_dhKeyCliY,
-                                        &ps_sslCtx->ps_hsElem->pgci_dheP,
-                                        pc_outData, pcwt_outLen) != CW_OK)
+
+        	err = gci_dh_calc_sharedSecret(ps_sslCtx->s_secParams.dheCtx, cwt_dhKeyCliY, pc_outData);
+
+//            if (cw_dhe_sharedSec_with_p(ps_sslCtx->s_secParams.pgci_dheKey,
+//                                        &cwt_dhKeyCliY,
+//                                        &ps_sslCtx->ps_hsElem->pgci_dheP,
+//                                        pc_outData, pcwt_outLen) != CW_OK)
+        	if(err != GCI_OK)
             {
                 LOG_ERR("DHE sharedSecret error");
             }
 
         	TIME_STAMP(TS_DHE_CALC_SHARED_SEC_END);
-        }
+        //}
         /* we have to free what we malloc'ed before */
-        //TODO sw gci_key_delete
-        cw_dh_free(&cwt_dhKeyCliY);
+
+        //OLD-CW: cw_dh_free(&cwt_dhKeyCliY);
+        err = gci_key_delete(cwt_dhKeyCliY);
+        if(err != GCI_OK)
+        {
+        	//TODO return error state
+        }
 
         e_pendEvent = E_PENDACT_SRV_DHECALCSHARED;
     }
@@ -695,33 +750,40 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     case E_PENDACT_ASYM_ECDHECALCSHARED:
 
     	/* reset this variable */
-    	CW_MEMSET(&(ps_handshElem->eccPubKeyPeer), 0x00, sizeof(ecc_key));
+    	memset(&(ps_handshElem->eccPubKeyPeer), 0x00, sizeof(ecc_key));
 
         /* read the public key of the client that has been transmitted in the ClientKeyExchange */
-    	//TODO sw gci_key_get ECDH PUB
-    	if(cw_ecc_import_public(pc_inData, cwt_inLen, &(ps_handshElem->eccPubKeyPeer))!=CRYPT_OK)
-    	{
-            LOG_ERR("ECDHE import error");
-    	}
-    	else
-    	{
+//    	OLD-CW: if(cw_ecc_import_public(pc_inData, cwt_inLen, &(ps_handshElem->eccPubKeyPeer))!=CRYPT_OK)
+//    	{
+//            LOG_ERR("ECDHE import error");
+//    	}
+//    	else
+//    	{
     		TIME_STAMP(TS_ECDHE_CALC_SHARED_SEC_BEGIN);
 
     		/* now calculate the shared secret that will be used as PreMasterSecret */
-    		//TODO sw gci_dh_calc_sharedSecret ECDH
-    		if (cw_ecc_sharedSecret(&(ps_sslCtx->s_secParams.eccKey),
-    				&(ps_handshElem->eccPubKeyPeer),
-					pc_outData, pcwt_outLen) != CW_OK)
+
+    		err = gci_dh_calc_sharedSecret(ps_sslCtx->s_secParams.eccCtx, &(ps_handshElem->eccPubKeyPeer), pc_outData);
+
+//    		OLD-CW: if (cw_ecc_sharedSecret(&(ps_sslCtx->s_secParams.eccKey),
+//    				&(ps_handshElem->eccPubKeyPeer),
+//					pc_outData, pcwt_outLen) != CW_OK)
+    		if(err != GCI_OK)
     		{
     			LOG_ERR("ECDHE sharedSecret error");
     		}
 
     		TIME_STAMP(TS_ECDHE_CALC_SHARED_SEC_END);
-    	}
+//    	}
 
     	/* we have to free what we malloc'ed before */
-    	//TODO sw gci_key_delete
-    	cw_ecc_free(&(ps_handshElem->eccPubKeyPeer));
+
+    	//OLD-CW: cw_ecc_free(&(ps_handshElem->eccPubKeyPeer));
+    	err = gci_key_delete(&(ps_handshElem->eccPubKeyPeer));
+    	if(err != GCI_OK)
+    	{
+    		//TODO return error state
+    	}
 
     	e_pendEvent = E_PENDACT_SRV_ECDHECALCSHARED;
 
@@ -776,8 +838,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
              * shrink the public key down to its minimal size to reduce
              * memory usage
              */
-            //TODO sw ??
-            cw_rsa_publickey_shrink(&ps_handshElem->gci_peerPubKey);
+            //OLD-CW: cw_rsa_publickey_shrink(&ps_handshElem->gci_peerPubKey);
         }
 
         *pcwt_outLen = sizeof(E_SSL_VERIFRES);

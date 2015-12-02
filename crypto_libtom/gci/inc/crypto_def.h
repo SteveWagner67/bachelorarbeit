@@ -148,8 +148,8 @@ typedef struct
  */
 typedef enum
 {
-	/** No hash algorithm used */
-	GCI_HASH_NONE,
+	/** Invalid Hash */
+	GCI_HASH_INVALID,
 	/** MD5 */
 	GCI_HASH_MD5,
 	/** SHA 1 */
@@ -162,8 +162,8 @@ typedef enum
 	GCI_HASH_SHA384,
 	/** SHA 512 */
 	GCI_HASH_SHA512,
-	/** Invalid Hash */
-	GCI_HASH_INVALID = 0xFF,
+	/** No hash algorithm used */
+	GCI_HASH_NONE=0xFF
 } GciHashAlgo_t;
 
 
@@ -178,8 +178,8 @@ typedef enum
  */
 typedef enum
 {
-	/** No block mode used*/
-	GCI_BLOCK_MODE_NONE,
+	/** Invalid block mode*/
+	GCI_BLOCK_MODE_INVALID,
 	/** CBC mode */
 	GCI_BLOCK_MODE_CBC,
 	/** ECB mode*/
@@ -190,8 +190,8 @@ typedef enum
 	GCI_BLOCK_MODE_OFB,
 	/** GCM mode */
 	GCI_BLOCK_MODE_GCM,
-	/** Invalid block mode*/
-	GCI_BLOCK_MODE_INVALID=0xFF
+	/** No block mode used*/
+	GCI_BLOCK_MODE_NONE=0xFF
 } GciBlockMode_t;
 
 
@@ -202,16 +202,18 @@ typedef enum
  */
 typedef enum
 {
-	/** None padding */
-	GCI_PADDING_NONE,
+	/**Invalid padding*/
+	GCI_PADDING_INVALID,
 	/** ISO9797 padding */
 	GCI_PADDING_ISO9797_METHOD2,
+	/** PKCS1 padding */
+	GCI_PADDING_PKCS1,
 	/** PKCS5 padding */
 	GCI_PADDING_PKCS5,
 	/** PKCS7 padding */
 	GCI_PADDING_PKCS7,
-	/**Invalid padding*/
-	GCI_PADDING_INVALID=0xFF
+	/** None padding */
+	GCI_PADDING_NONE=0xFF
 } GciPadding_t;
 
 
@@ -222,8 +224,8 @@ typedef enum
  */
 typedef enum
 {
-	/**No cipher*/
-	GCI_CIPH_NONE,
+	/** Cipher type invalid*/
+	GCI_CIPH_INVALID,
 	/** Stream cipher RC4 */
 	GCI_CIPH_RC4,
 	/** Block cipher Triple DES */
@@ -232,8 +234,8 @@ typedef enum
 	GCI_CIPH_AES,
 	/** Block cipher DES*/
 	GCI_CIPH_DES,
-	/** Cipher type invalid*/
-	GCI_CIPH_INVALID=0xFF
+	/**No cipher*/
+	GCI_CIPH_NONE=0xFF
 } GciCipherAlgo_t;
 
 
@@ -245,32 +247,32 @@ typedef enum
 typedef struct
 {
 	/**
-	 * GCI_CIPH_NONE
+	 * GCI_CIPH_INVALID
 	 * GCI_CIPH_RC4 - No block mode and padding possible
 	 * GCI_CIPH_TDES
 	 * GCI_CIPH_AES
 	 * GCI_CIPH_DES
-	 * GCI_CIPH_INVALID=0xFF
+	 * GCI_CIPH_NONE=0xFF
 	 */
 	GciCipherAlgo_t algo;
 
 	/**
-	 * GCI_BLOCK_MODE_NONE
+	 * GCI_BLOCK_MODE_INVALID
 	 * GCI_BLOCK_MODE_CBC
  	 * GCI_BLOCK_MODE_ECB
 	 * GCI_BLOCK_MODE_CFB
 	 * GCI_BLOCK_MODE_OFB
 	 * GCI_BLOCK_MODE_GCM
-	 * GCI_BLOCK_MODE_INVALID=0xFF
+	 * GCI_BLOCK_MODE_NONE=0xFF
  	 */
 	GciBlockMode_t blockMode;
 
 	/**
-	 * GCI_PADDING_NONE
+	 * GCI_PADDING_INVALID
 	 * GCI_PADDING_ISO9797_METHOD2
 	 * GCI_PADDING_PKCS5
 	 * GCI_PADDING_PKCS7
-	 * GCI_PADDING_INVALID=0xFF
+	 * GCI_PADDING_NONE=0xFF
 	 */
 	GciPadding_t padding;
 
@@ -429,8 +431,8 @@ typedef struct
  */
 typedef enum
 {
-	/**No algorithm*/
-	GCI_SIGN_NONE,
+	/**Invalid signature*/
+	GCI_SIGN_INVALID,
 	/** RSA */
 	GCI_SIGN_RSA,
 	/** DSA */
@@ -451,15 +453,31 @@ typedef enum
 	GCI_SIGN_RSASSA_PKCS,
 	/** RSA SSA X509 */
 	GCI_SIGN_RSASSA_X509,
-	/** RSA CRT*/
-	GCI_SIGN_RSA_CRT, //TODO new[30/11/2015]
 	/** ECDSA GFP */
 	GCI_SIGN_ECDSA_GFP,
 	/** ECDSA GF2M */
 	GCI_SIGN_ECDSA_GF2M,
-	/**Invalid signature*/
-	GCI_SIGN_INVALID = 0xFF
+	/**No algorithm*/
+	GCI_SIGN_NONE = 0xFF
 } GciSignAlgo_t;
+
+
+
+/*!
+ * \struct 					GciSignRsaConfig_t
+ * \brief					Structure for the configuration of a RSA signature
+ */
+typedef struct
+{
+	/**
+	 * GCI_PADDING_INVALID
+	 * GCI_PADDING_ISO9797_METHOD2
+	 * GCI_PADDING_PKCS5
+	 * GCI_PADDING_PKCS7
+	 * GCI_PADDING_NONE=0xFF
+	 */
+	GciPadding_t padding;
+} GciSignRsaConfig_t;
 
 
 
@@ -471,22 +489,22 @@ typedef struct
 {
 
 	/**
-	 * GCI_BLOCK_MODE_NONE
+	 * GCI_BLOCK_MODE_INVALID
 	 * GCI_BLOCK_MODE_CBC
 	 * GCI_BLOCK_MODE_ECB
 	 * GCI_BLOCK_MODE_CFB
 	 * GCI_BLOCK_MODE_OFB
 	 * GCI_BLOCK_MODE_GCM
-	 * GCI_BLOCK_MODE_INVALID=0xFF
+	 * GCI_BLOCK_MODE_NONE=0xFF
 	 */
 	GciBlockMode_t block;
 
 	/**
-	 * GCI_PADDING_NONE
+	 * GCI_PADDING_INVALID
 	 * GCI_PADDING_ISO9797_METHOD2
 	 * GCI_PADDING_PKCS5
 	 * GCI_PADDING_PKCS7
-	 * GCI_PADDING_INVALID=0xFF
+	 * GCI_PADDING_NONE=0xFF
 	 */
 	GciPadding_t padding;
 
@@ -557,7 +575,7 @@ typedef struct
 typedef struct
 {
 	/**
-	 * GCI_SIGN_NONE
+	 * GCI_SIGN_INVALID
 	 * GCI_SIGN_RSA
 	 * GCI_SIGN_DSA
 	 * GCI_SIGN_ECDSA
@@ -569,23 +587,22 @@ typedef struct
 	 * GCI_SIGN_RSASSA_PSS
 	 * GCI_SIGN_RSASSA_X509
 	 * GCI_SIGN_RSA_CRT
-	 * GCI_SIGN_DSA
 	 * GCI_SIGN_ECDSA_GFP
 	 * GCI_SIGN_ECDSA_GF2M
-	 * GCI_SIGN_INVALID
+	 * GCI_SIGN_NONE=0xFF
 	 */
 	GciSignAlgo_t algo;
 
 
 	/**
-	 * GCI_HASH_NONE
+	 * GCI_HASH_INVALID
 	 * GCI_HASH_MD5
 	 * GCI_HASH_SHA1
 	 * GCI_HASH_SHA224
 	 * GCI_HASH_SHA256
 	 * GCI_HASH_SHA384
 	 * GCI_HASH_SHA512
-	 * GCI_HASH_INVALID = 0xFF,
+	 * GCI_HASH_NONE = 0xFF
 	 */
 
 	GciHashAlgo_t hash;
@@ -596,6 +613,9 @@ typedef struct
 	 */
 	union signConfig
 	{
+		/** RSA Configuration */
+		GciSignRsaConfig_t rsa;
+
 		/** CMAC Configuration */
 		GciSignCmacConfig_t cmac;
 
@@ -619,8 +639,8 @@ typedef struct
  */
 typedef enum
 {
-	/**No key pair */
-	GCI_KEY_PAIR_NONE,
+	/**Invalid key pair*/
+	GCI_KEY_PAIR_INVALID,
 	/**RSA key pair*/
 	GCI_KEY_PAIR_RSA,
 	/**DHE RSA key pair */
@@ -635,8 +655,8 @@ typedef enum
 	GCI_KEY_PAIR_DSA,
 	/**EC DSA key pair*/
 	GCI_KEY_PAIR_ECDSA,
-	/**Invalid key pair*/
-	GCI_KEY_PAIR_INVALID=0xFF
+	/**No key pair */
+	GCI_KEY_PAIR_NONE=0xFF
 } GciKeyPairType_t;
 
 
@@ -660,7 +680,7 @@ typedef struct
 typedef struct
 {
 	/**
-	 * GCI_KEY_PAIR_NONE
+	 * GCI_KEY_INVALID
 	 * GCI_KEY_RSA
 	 * GCI_KEY_PAIR_DHE_RSA
 	 * GCI_KEY_PAIR_DHE_DSS
@@ -668,7 +688,7 @@ typedef struct
 	 * GCI_KEY_PAIR_ECDHE_ECDSA
 	 * GCI_KEY_DSA
 	 * GCI_KEY_ECDSA
-	 * GCI_KEY_INVALID=0xFF
+	 * GCI_KEY_PAIR_NONE=0xFF
 	 */
 	GciKeyPairType_t algo;
 
@@ -814,7 +834,21 @@ typedef struct
 	GciBigInt_t n;
 	/**Public exponent*/
 	GciBigInt_t e;
-}GciRsaPubKey;
+}GciRsaPubKey_t;
+
+
+/*!
+ * \struct 					GciRsaCrtPrivKey_t
+ * \brief					Structure representing an RSA CRT private key
+ */
+typedef struct
+{
+	GciBigInt_t p;
+	GciBigInt_t q;
+	GciBigInt_t dP;
+	GciBigInt_t dQ;
+	GciBigInt_t qInv;
+} GciRsaCrtPrivKey_t;
 
 
 
@@ -828,7 +862,9 @@ typedef struct
 	GciBigInt_t n;
 	/**Private exponent*/
 	GciBigInt_t d;
-}GciRsaPrivKey;
+	/**Private CRT*/
+	GciRsaCrtPrivKey_t* crt;
+} GciRsaPrivKey_t;
 
 
 
@@ -838,8 +874,8 @@ typedef struct
  */
 typedef enum
 {
-	/**No key*/
-	GCI_KEY_NONE,
+	/**Invalid key*/
+	GCI_KEY_INVALID,
 	/**Symmetric key*/
 	GCI_KEY_SYM,
 	/**Diffie-Hellman public key*/
@@ -866,8 +902,8 @@ typedef enum
 	GCI_KEY_RSA_PUB,
 	/**RSA private key*/
 	GCI_KEY_RSA_PRIV,
-	/**Invalid key*/
-	GCI_KEY_INVALID=0xFF
+	/**No key*/
+	GCI_KEY_NONE=0xFF
 } GciKeyType_t;
 
 
@@ -879,7 +915,7 @@ typedef enum
 typedef struct
 {
 	/**
-	 * GCI_KEY_NONE
+	 * GCI_KEY_INVALID
 	 * GCI_KEY_SYM
 	 * GCI_KEY_DH_PUB
 	 * GCI_KEY_DH_PRIV
@@ -893,7 +929,7 @@ typedef struct
 	 * GCI_KEY_ECDSA_PRIV
 	 * GCI_KEY_RSA_PUB
 	 * GCI_KEY_RSA_PRIV
-	 * GCI_KEY_INVALID=0xFF
+	 * GCI_KEY_NONE=0xFF
 	 */
 	GciKeyType_t type;
 
@@ -926,9 +962,9 @@ typedef struct
 		/**Elliptic Curve DSA Private Key*/
 		GciBigInt_t ecdsaPriv;
 		/**RSA Public Key*/
-		GciRsaPubKey rsaPub;
+		GciRsaPubKey_t rsaPub;
 		/**RSA Private Key*/
-		GciRsaPrivKey rsaPriv;
+		GciRsaPrivKey_t rsaPriv;
 	} key;
 } GciKey_t;
 

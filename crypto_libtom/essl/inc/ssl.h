@@ -780,8 +780,9 @@ typedef struct ssl_securityParameters
    s_sslSignHashAlg_t   s_signAlg;
    /* the key if diffie hellman is used as handshake algorithm and we act as server */
    //OLD-CW: gci_dhKey_t*       	pgci_dheKey;
-   GciKeyId_t			pgci_dheKey;
-   uint8_t             	c_useDheKey;
+   //GciKeyId_t			pgci_dheKey;
+   GciCtxId_t			dheCtx;
+   uint8_t             	c_useDheKey; //TODO see where it's used and if is useful
 
    //vpy: the ECC key used when ECDHE is used
    //TODO vpy: change and use a pointer for eccKey;
@@ -789,7 +790,10 @@ typedef struct ssl_securityParameters
    //OLD-CW: uint16_t				eccChoosenCurve;
    GciNamedCurve_t		eccChoosenCurve;
    //OLD-CW: ecc_key				eccKey;
-   GciKeyId_t			eccKey;
+   //GciKeyId_t			eccKey;
+   GciCtxId_t			eccCtx;
+
+
    //uint8_t				c_useEccKey;
 
    /* the symmetric cipher algorithm used to encrypt application data */

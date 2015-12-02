@@ -39,6 +39,7 @@
 #include "ssl_conf.h"
 #include "ssl_record.h"
 #include "key_management.h"
+//#include "crypto_wrap.h"
 
 /*** Defines ****************************************************************/
 #define	LOGGER_ENABLE		DBG_SSL_PROTO_MODULE
@@ -651,8 +652,9 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 
 
 
-			rsaConf.algo = GCI_SIGN_RSA,
-			rsaConf.hash = GCI_HASH_NONE,
+			rsaConf.algo = GCI_SIGN_RSA;
+			rsaConf.hash = GCI_HASH_NONE;
+			rsaConf.config.rsa.padding = GCI_PADDING_NONE;
 
 
 			err = gci_sign_new_ctx(&rsaConf, ps_hsElem->gci_peerPubKey, &rsaCtx);
@@ -1070,14 +1072,16 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 	case GCI_SIGN_DSA:
 	case GCI_SIGN_NONE:
 	default:
-		e_result = CW_ERROR;
+		//OLD-CW: e_result = CW_ERROR;
+		e_result = GCI_ERR;
 		break;
 	}
 
 	TIME_STAMP(TS_DHE_SIGN_END);
 
 	/* and sign the hashes by rsa encryption */
-	if (e_result != CW_OK)
+	//OLD-CW: if (e_result != CW_OK)
+	if(e_result != GCI_OK)
 	{
 		*sz_outLen = 0;
 		LOG_ERR("%p| RSA/ECDSA encrypt not successful",ps_sslCtx);
@@ -1542,7 +1546,7 @@ static void loc_compHashTLS( s_sslCtx_t* ps_sslCtx, const uint8_t *pc_label,
 		{
 			loc_prfTLS(E_SSL_PRF_MD5_SHA1,
 					ps_sslCtx->ps_hsElem->s_sessElem.ac_msSec, MSSEC_SIZE,
-					pc_label, CW_STRLEN((char const*) pc_label),
+					pc_label, strlen((char const*) pc_label),
 					ac_md5hash,  GCI_MD5_SIZE,
 					ac_sha1hash,  GCI_SHA1_SIZE,
 					pc_result, VERIF_HASHSIZE_TLS);
@@ -1691,7 +1695,8 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 	LOG2_HEX(as_temp, 11);
 
 	/* Check which hash algorithm to use (0 means MD5, 1 means SHA1) */
-	if (hashAlgo == E_SSL_HASH_SHA1)
+	//OLD-CW: if (hashAlgo == E_SSL_HASH_SHA1)
+	if (hashAlgo == GCI_HASH_SHA1)
 	{
 		//OLD-CW: cr_digestInit(&cw_hashCtx,NULL, 0, hashAlgo);
 		err = gci_hash_new_ctx(hashAlgo, &hashCtx);
@@ -2405,19 +2410,35 @@ static void loc_prfTLS(e_sslPrf_t  e_prf,
 		pc_sec2    =   &pc_secret[sz_len];
 		sz_len     +=  (sz_secretLen & 1);
 
-		loc_pHash(E_SSL_HASH_MD5,
+		/*OLD-CW: loc_pHash(E_SSL_HASH_MD5,
 				pc_sec1,  sz_len,
 				pc_label, c_labelLen,
 				pc_seed1, c_seed1Len,
 				pc_seed2, c_seed2Len,
 				c_prf1Res,sz_outLen);
 
-		loc_pHash(E_SSL_HASH_SHA1,
+		*/
+		loc_pHash(GCI_HASH_MD5,
+				pc_sec1,  sz_len,
+				pc_label, c_labelLen,
+				pc_seed1, c_seed1Len,
+				pc_seed2, c_seed2Len,
+				c_prf1Res,sz_outLen);
+
+		/*loc_pHash(E_SSL_HASH_SHA1,
 				pc_sec2,  sz_len,
 				pc_label, c_labelLen,
 				pc_seed1, c_seed1Len,
 				pc_seed2, c_seed2Len,
 				c_prf2Res,sz_outLen);
+		*/
+
+		loc_pHash(GCI_HASH_SHA1,
+				pc_sec1,  sz_len,
+				pc_label, c_labelLen,
+				pc_seed1, c_seed1Len,
+				pc_seed2, c_seed2Len,
+				c_prf1Res,sz_outLen);
 
 		for (i = 0; i < sz_outLen; i++)
 		{
@@ -4185,7 +4206,8 @@ void ssl_destroyKeys(s_sslCtx_t * ps_sslCtx)
 	sslConf_rand((uint8_t*) &ps_sslCtx->s_secParams.u_srvKey,
 			sizeof(ps_sslCtx->s_secParams.u_srvKey));
 	km_dhe_releaseKey();
-	ps_sslCtx->s_secParams.pgci_dheKey = NULL;
+	//OLD-CW: ps_sslCtx->s_secParams.pgci_dheKey = NULL;
+	ps_sslCtx->s_secParams.dheCtx = -1;
 	LOG_INFO("!!!!!!!!!!!!s_secParams have been destroyed!!!!!!!!!!!!");
 }
 
@@ -4532,18 +4554,19 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 					case GCI_KEY_PAIR_ECDHE_RSA:
 					case GCI_KEY_PAIR_ECDHE_ECDSA:
 
-						//TODO sw gci_dh_gen_key ECDH
 						eccConf.type = GCI_ECDH;
 						eccConf.config.ecdhCurveName = ps_secPar->eccChoosenCurve;
 
-						err = gci_dh_new_ctx(&eccConf, &eccCtx);
+						err = gci_dh_new_ctx(&eccConf, &ps_secPar->eccCtx);
 						if(err != GCI_OK)
 						{
 							//TODO return an error
 						}
 
 
-						err = gci_dh_gen_key(eccCtx, ps_secPar->eccKey);
+						err = gci_dh_gen_key(ps_secPar->eccCtx, NULL);
+
+
 
 
 						//OLD-CW: if(cw_ecc_makeKey(&(ps_secPar->eccKey), ps_secPar->eccChoosenCurve)!=CRYPT_OK)
@@ -4586,11 +4609,25 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 						//TODO sw - How to choose the domain parameters ??
 
 						err = gci_dh_new_ctx(&dhConfig, &dhCtx);
+						if(err != GCI_OK)
+						{
+							//TODO return error state
+						}
 						err = gci_dh_gen_key(dhCtx, &dhKeyId);
+						if(err != GCI_OK)
+						{
+							//TODO return error state
+						}
 
 						err = gci_key_get(dhKeyId, &dhKey);
 
-						if ((ps_secPar->pgci_dheKey = km_dhe_getKey()) == NULL)
+
+						//Public and private key of dhe stay intern in the context then dheCtx better to save as a key
+
+						ps_secPar->dheCtx = dhCtx;
+
+						//if ((ps_secPar->pgci_dheKey = km_dhe_getKey()) == NULL)
+						if(err != GCI_OK)
 						{
 							LOG_INFO("%p| Couldn't fetch the DHE key", ps_sslCtx);
 							return (E_PENDACT_COM_CIPHER_CLOSE);
@@ -4602,7 +4639,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 										-  (size_t) ps_sslCtx->ac_socBuf));
 
 						/* export the formerly generated public DHE values */
-						cw_dhe_export_pgY(pc_write, &cwt_exportLen, ps_secPar->pgci_dheKey, &ps_hsElem->pgci_dheP);
+						//OLD-CW: cw_dhe_export_pgY(pc_write, &cwt_exportLen, ps_secPar->pgci_dheKey, &ps_hsElem->pgci_dheP);
 
 						break;
 					}
@@ -4961,7 +4998,9 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							ecdhConf.config.ecdhCurveName = ps_hsElem->eccCurve;
 							err = gci_dh_new_ctx(&ecdhConf, &ecdhCtx);
 
-							err = gci_dh_gen_key(ecdhCtx, ps_secPar->eccKey);
+							err = gci_dh_gen_key(ecdhCtx, NULL);
+
+							ps_secPar->eccCtx = ecdhCtx;
 
 							//if(cw_ecc_makeKey(&(ps_secPar->eccKey), ps_hsElem->eccCurve)!=CRYPT_OK)
 							if(err != GCI_OK)
@@ -5017,13 +5056,13 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 
 
 							/* export our public ECDHE key*/
-							if(cw_ecc_export_public(pc_write+1, &cwt_hashLen, &ps_secPar->eccKey)!=CRYPT_OK)
-
-							{
-								LOG_ERR("%p| DHE export not successful", ps_sslCtx);
-								ps_sslCtx->e_lastError = E_SSL_ERROR_CRYPTO;
-								return (E_PENDACT_COM_CIPHER_CLOSE);
-							}
+//							if(cw_ecc_export_public(pc_write+1, &cwt_hashLen, &ps_secPar->eccKey)!=CRYPT_OK)
+//
+//							{
+//								LOG_ERR("%p| DHE export not successful", ps_sslCtx);
+//								ps_sslCtx->e_lastError = E_SSL_ERROR_CRYPTO;
+//								return (E_PENDACT_COM_CIPHER_CLOSE);
+//							}
 							*pc_write = cwt_hashLen;
 
 							ssl_writeInteger(pc_rec + 1, cwt_hashLen+1, 3);
@@ -5127,6 +5166,8 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 
 
 								rsaConf.algo = GCI_SIGN_RSA;
+								rsaConf.hash = GCI_HASH_NONE;
+								rsaConf.config.rsa.padding = GCI_PADDING_NONE;
 
 								err = gci_sign_new_ctx(&rsaConf, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &rsaCtx);
 								if(err != GCI_OK)
@@ -5212,16 +5253,16 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							e_pendAct                       = E_PENDACT_MAC_ENCRYPT_REC;
 							if (ps_sslCtx->c_isResumed == TRUE)
 							{
-								if (ps_sslCtx->s_secParams.c_useDheKey == TRUE)
-								{
-									//OLD-CW: km_dhe_releaseKey();
-									err = gci_key_delete(ps_sslCtx->s_secParams.pgci_dheKey);
-									if(err != GCI_OK)
-									{
-										//TODO return state
-									}
-									ps_sslCtx->s_secParams.c_useDheKey = FALSE;
-								}
+//								if (ps_sslCtx->s_secParams.c_useDheKey == TRUE)
+//								{
+//									//OLD-CW: km_dhe_releaseKey();
+//									err = gci_key_delete(ps_sslCtx->s_secParams.pgci_dheKey);
+//									if(err != GCI_OK)
+//									{
+//										//TODO return state
+//									}
+//									ps_sslCtx->s_secParams.c_useDheKey = FALSE;
+//								}
 								ps_sslGut->e_smState = E_SSL_SM_APPDATA_EXCHANGE;
 								LOG1_INFO("%p| Send Finish -> APPDATA_EXCHANGE ", ps_sslCtx);
 							}
@@ -5286,16 +5327,16 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							LOG_INFO("pcwt_recLen = %d",pc_write - pc_rec);
 							ps_sslGut->e_asmCtrl = E_SSL_ASM_FINISH;
 
-							if (ps_sslCtx->s_secParams.c_useDheKey == TRUE)
-							{
-								//OLD-CW: km_dhe_releaseKey();
-								err = gci_key_delete(ps_sslCtx->s_secParams.pgci_dheKey);
-								if(err != GCI_OK)
-								{
-									//TODO return state
-								}
-								ps_sslCtx->s_secParams.c_useDheKey = FALSE;
-							}
+//							if (ps_sslCtx->s_secParams.c_useDheKey == TRUE)
+//							{
+//								//OLD-CW: km_dhe_releaseKey();
+//								err = gci_key_delete(ps_sslCtx->s_secParams.pgci_dheKey);
+//								if(err != GCI_OK)
+//								{
+//									//TODO return state
+//								}
+//								ps_sslCtx->s_secParams.c_useDheKey = FALSE;
+//							}
 
 							ps_sslGut->e_smState = E_SSL_SM_APPDATA_EXCHANGE;
 							break;
@@ -7049,6 +7090,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 							/* Decode signature using peers public key*/
 							rsaConf.algo = GCI_SIGN_RSA;
 							rsaConf.hash=GCI_HASH_NONE;
+							rsaConf.config.rsa.padding = GCI_PADDING_NONE;
 
 							err = gci_sign_new_ctx(&rsaConf, ps_hsElem->gci_peerPubKey, &rsaCtx);
 							if(err != GCI_OK)
@@ -7961,9 +8003,17 @@ int ssl_verifyHash(const uint8_t rac_verHash[], size_t cwt_verHashLen,
 
 
 
+
 #ifdef TOMLIB_CRYPTO
-	//OLD-Cw: gci_bigNum_t M, S;
-	GciBigInt_t  M, S;
+	//OLD-CW: gci_bigNum_t M, S;
+	//TODO sw - fixe the size of the buffers
+	GciBigInt_t  M[1024], S[1024];
+
+	/* ****Example better than the use of malloc****
+	uint8_t var2[1024];
+	M.len = sizeof(var2);
+	M.data = var2;
+	*/
 
 	pcw_msg = &M;
 	pcw_sign = &S;
@@ -7995,38 +8045,43 @@ int ssl_verifyHash(const uint8_t rac_verHash[], size_t cwt_verHashLen,
 #ifdef ASCOM_CRYPTO
 	ModLen = GetOctets (pPubKey->pN);
 #elif defined (TOMLIB_CRYPTO)
-	//TODO sw - what should I do??
+	//TODO sw - equivalent to sizeof()??
 	//OLD-CW: cwt_modLen = mp_unsigned_bin_size(rpcw_pubKey->N);
-	cwt_modLen = mp_unsigned_bin_size(rpcw_pubKey.key.rsaPub.n.data);
+	rpcw_pubKey.key.rsaPub.n.len = sizeof(rpcw_pubKey.key.rsaPub.n.data);
 #endif
+
+	cwt_modLen = rpcw_pubKey.key.rsaPub.n.len;
 
 	/* Check if the temporary buffer will be big enough */
 	if (cwt_modLen > MAX_MSG_SIZE)
-		return (CW_ERROR);
+	{
+		//return (CW_ERROR);
+		return(GCI_ERR);
+	}
 
 	/* Message must be big enough to hold the encoded message */
-	//TODO sw ?? create BigNumber
-	pcw_msg = cw_bn_create(pcw_msg, cwt_modLen * 8);
+	//OLD-CW: pcw_msg = cw_bn_create(pcw_msg, cwt_modLen * 8);
 
-	//TODO sw ?? create BigNumber
-	pcw_sign = cw_bn_create(pcw_sign, cwt_modLen * 8);
+	//OLD-CW: pcw_sign = cw_bn_create(pcw_sign, cwt_modLen * 8);
 
 	/* The signature must have the size of the modulus */
 	if (cwt_sigLen != cwt_modLen)
 	{
-		cwt_stat = CW_ERROR;
+		//TODO SW - in this case the the size in the initiale buffer M or S
+		//OLD-CW: cwt_stat = CW_ERROR;
+		cwt_stat = GCI_ERR;
 		goto loc_hashVerify_Error;
 	}
 
 	/* Convert the octet string to an integer */
-	//TODO sw ?? RSA OctetString2IntegerPointer
-	cw_rsa_os2ip(pcw_sign, (uint8_t*) rac_sign, cwt_sigLen);
+	//OLD-CW: cw_rsa_os2ip(pcw_sign, (uint8_t*) rac_sign, cwt_sigLen);
 
 	/* Make public key decryption (RSAVP1) */
 	GciCtxId_t rsaCtx;
 	GciSignConfig_t rsaConf;
 	rsaConf.algo = GCI_SIGN_RSA;
 	rsaConf.hash = GCI_HASH_NONE;
+	rsaConf.config.rsa.padding = GCI_PADDING_NONE;
 
 	err = gci_sign_new_ctx(&rsaConf, pPubKey, &rsaCtx);
 	if(err != GCI_OK)
@@ -8056,27 +8111,31 @@ int ssl_verifyHash(const uint8_t rac_verHash[], size_t cwt_verHashLen,
 
 	/* Transform the integer to a string of length k-1 (Modulus-1) */
 	cwt_emLen = cwt_modLen - 1;
-	//TODO sw ?? RSA Integer2OctetStringPointer
-	if (cw_rsa_i2osp(pcw_msg, cwt_emLen, ac_encMsg) == CW_ERROR)
-	{
-		cwt_stat = CW_ERROR;
-		goto loc_hashVerify_Error;
-	}
+
+//	OLD-CW: if (cw_rsa_i2osp(pcw_msg, cwt_emLen, ac_encMsg) == CW_ERROR)
+//	{
+//		cwt_stat = CW_ERROR;
+//		goto loc_hashVerify_Error;
+//	}
 
 	/* Check if the message signature is correct */
 	if (memcmp(ac_encMsg + cwt_emLen - VERIF_HASHSIZE, rac_verHash,
 			VERIF_HASHSIZE) != 0)
-		cwt_stat = CW_ERROR;
+	{
+		//OLS-CW: cwt_stat = CW_ERROR;
+		cwt_stat = GCI_ERR;
+	}
 	else
-		cwt_stat = CW_OK;
+	{
+		//OLD-CW: cwt_stat = CW_OK;
+		cwt_stat = GCI_OK;
+	}
 
 	/* No special error handling done here */
 	loc_hashVerify_Error:
 
-	//TODO sw ?? free big numbers
-	cw_bn_free(pcw_sign);
-	//TODO sw ?? free big numbers
-	cw_bn_free(pcw_msg);
+//	OLD-CW: cw_bn_free(pcw_sign);
+//	OLD-CW: cw_bn_free(pcw_msg);
 
 	return (cwt_stat);
 
@@ -8510,7 +8569,7 @@ int ssl_initCtx(s_sslCtx_t * ps_sslCtx, s_sslSett_t *ps_sslSett,
 	err = gci_key_pair_gen(&rsaGen, 10, ps_sslHsElem->gci_peerPubKey, NULL);
 	if(err != GCI_OK)
 	{
-		//TODO return state
+		//TODO return error state
 	}
 
 	//OLD-CW: w_rsa_publickey_init(&ps_sslHsElem->gci_peerPubKey);

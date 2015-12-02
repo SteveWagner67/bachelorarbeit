@@ -218,7 +218,8 @@ GciResult_t gci_key_pair_gen(const GciKeyGenConfig_t* keyConfig, size_t keyLen, 
 /**
  * \fn						GciResult_t gci_cipher_new_ctx(const GciCipherConfig_t* ciphConfig, GciKeyId_t keyID, GciCtxId_t* ctxID)
 
- * \brief					Create a new symmetric cipher context
+ * \brief					Create a new symmetric cipher context by adding a ciphConfig and no keyID
+ * \brief					OR create a asymmetric cipher context by adding a keyID and no ciphConfig
  * \param [in]	ciphConfig	Configuration of the symmetric cipher
  * \param [in]  keyID		Key's ID
  * \param [out] ctxID		Context's ID

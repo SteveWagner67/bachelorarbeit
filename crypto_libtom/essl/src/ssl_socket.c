@@ -50,10 +50,17 @@ static s_sslHsElem_t as_hsElemBuf[SSL_MAX_SSL_CTX];
 /*==============================================================================
  LOCAL FUNCTION PROTOTYPES
  ==============================================================================*/
+//OLD-CW: static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
+//		gci_rsaPrivKey_t* pcwt_privKey);
+
 static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
-		gci_rsaPrivKey_t* pcwt_privKey);
+		GciKeyId_t* pcwt_privKey);
+
+//static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
+//		ecc_key* pcwt_privKey, ltc_ecc_set_type* dp);
+
 static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
-		ecc_key* pcwt_privKey, ltc_ecc_set_type* dp);
+		GciKeyId_t* pcwt_privKey, GciNamedCurve_t* curveName);
 
 
 /*==============================================================================
@@ -76,12 +83,19 @@ static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
 
  */
 /*============================================================================*/
+//OLD-CW: static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
+//		gci_rsaPrivKey_t* pcwt_privKey)
+
 static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
-		gci_rsaPrivKey_t* pcwt_privKey)
+		GciKeyId_t* pcwt_privKey)
 {
-	int err = E_SSL_ERROR;
+	//OLD-CW: int err = E_SSL_ERROR;
 	size_t cwt_len;
 	unsigned char* p_buffer;
+
+	GciResult_t err;
+	GciKeyGenConfig_t rsaConf;
+
 	/*
 	 * Read the cert into the cert_db buffer
 	 */
@@ -92,21 +106,31 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 		/*
 		 * Import the privatekey
 		 */
-		//TODO sw gci_key_pair_gen RSA
-		iRet = cw_rsa_privatekey_init(p_buffer, (uint32_t) cwt_len,
-				pcwt_privKey);
-		if (iRet == CRYPT_OK)
+		//OLD-CW: iRet = cw_rsa_privatekey_init(p_buffer, (uint32_t) cwt_len, pcwt_privKey);
+
+		rsaConf.algo = GCI_KEY_PAIR_RSA;
+		//TODO sw - modulus length ?
+		//TODO sw - length of the rsa key = 1024?
+
+		err = gci_key_pair_gen(&rsaConf, 1024, NULL, pcwt_privKey);
+		if(err != GCI_OK)
 		{
-			//TODO sw ?? private key shrink
-			cw_rsa_privatekey_shrink(pcwt_privKey);
-			err = E_SSL_OK;
-		} /* if */
-		else
-		{
-			LOG_ERR(
-					"Import of the private key was't successful! Cryptolib says: %s",
-					cw_error2string(iRet));
-		} /* else */
+			LOG_ERR("Import of the private key was't successful!");
+		}
+
+
+//		if (iRet == CRYPT_OK)
+//		{
+//
+//			cw_rsa_privatekey_shrink(pcwt_privKey);
+//			err = E_SSL_OK;
+//		} /* if */
+//		else
+//		{
+//			LOG_ERR(
+//					"Import of the private key was't successful! Cryptolib says: %s",
+//					cw_error2string(iRet));
+//		} /* else */
 
 		cdb_free();
 	} /* if */
@@ -138,13 +162,18 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 
  */
 /*============================================================================*/
+//static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
+//		ecc_key* pcwt_privKey, ltc_ecc_set_type* dp)
 static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
-		ecc_key* pcwt_privKey, ltc_ecc_set_type* dp)
+		GciKeyId_t* pcwt_privKey, GciNamedCurve_t* curveName)
 {
-	int err = E_SSL_ERROR;
+	//OLD-CW: int err = E_SSL_ERROR;
 
 	size_t cwt_len;
 	unsigned char* p_buffer;
+
+	GciResult_t err;
+	GciKeyGenConfig_t ecdsaConf;
 
 	/*
 	 * Read the cert into the cert_db buffer
@@ -157,19 +186,29 @@ static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
 		 * Import the privatekey
 		 */
 
-		//TODO sw gci_key_pair_gen for ECDSA or gci_dh_gen_key for ECDH
-		iRet = cw_ecc_privatekey_init(p_buffer, (uint32_t) cwt_len, pcwt_privKey, dp);
-		if (iRet == CRYPT_OK)
+//		OLD-CW: iRet = cw_ecc_privatekey_init(p_buffer, (uint32_t) cwt_len, pcwt_privKey, dp);
+		ecdsaConf.algo = GCI_KEY_PAIR_ECDSA;
+		ecdsaConf.config.ecdsaCurveName = *curveName;
+		//TODO sw - length of a ecdsa key = 1024 ??
+		err = gci_key_pair_gen(&ecdsaConf, 1024, NULL, pcwt_privKey);
+
+		if(err != GCI_OK)
 		{
-			//printf()
-			err = E_SSL_OK;
-		} /* if */
-		else
-		{
-			LOG_ERR(
-					"Import of the private key was't successful! Cryptolib says: %s",
-					cw_error2string(iRet));
-		} /* else */
+			LOG_ERR("Import of the private key was't successful!");
+		}
+
+
+//		if (iRet == CRYPT_OK)
+//		{
+//			//printf()
+//			err = E_SSL_OK;
+//		} /* if */
+//		else
+//		{
+//			LOG_ERR(
+//					"Import of the private key was't successful! Cryptolib says: %s",
+//					cw_error2string(iRet));
+//		} /* else */
 
 		cdb_free();
 	} /* if */
@@ -215,7 +254,7 @@ void sslSoc_initSett(s_sslSett_t* ps_sslSett, e_sslKeyType_t keyType)
 {
 	assert(ps_sslSett != NULL);
 
-	CW_MEMSET(ps_sslSett, 0x00, sizeof(s_sslSett_t));
+	memset(ps_sslSett, 0x00, sizeof(s_sslSett_t));
 
 	sslSoc_setVer(ps_sslSett, SSL_MIN_SSL_TLS_VERSION, SSL_MAX_SSL_TLS_VERSION);
 
@@ -451,7 +490,7 @@ void sslSoc_setCtxCipSpecs(s_sslCtx_t* ps_sslCtx, e_sslCipSpec_t wt_ciph, ...)
 	int i = 0;
 	va_list args;
 
-	CW_MEMSET(ps_sslCtx->s_sslGut.ae_cipSpecs, 0,
+	memset(ps_sslCtx->s_sslGut.ae_cipSpecs, 0,
 			sizeof(ps_sslCtx->s_sslGut.ae_cipSpecs));
 	va_start(args, wt_ciph);
 
@@ -478,7 +517,7 @@ int sslSoc_setCtxCipList(s_sslCtx_t *ps_sslCtx, const char *str)
 	char strCipher[64];
 
 	i = 0;
-	CW_MEMSET(ps_sslCtx->s_sslGut.ae_cipSpecs, 0,
+	memset(ps_sslCtx->s_sslGut.ae_cipSpecs, 0,
 			sizeof(ps_sslCtx->s_sslGut.ae_cipSpecs));
 
 	while ((str != NULL) && (i < SSL_CIPSPEC_COUNT) && (p_str < (str+strlen(str))))
@@ -722,11 +761,11 @@ e_sslResult_t sslSoc_killall(void)
 
 	/* Clear the memory that holds the socket interface contexts */
 	/* Clear the memory buffer containing the connection contexts */
-	CW_MEMSET(&as_sslConnCtx, 0x00, sizeof(as_sslConnCtx));
+	memset(&as_sslConnCtx, 0x00, sizeof(as_sslConnCtx));
 
 	/* Clear the memory buffer storing the information used during the SSL    */
 	/* handshake phase */
-	CW_MEMSET(&as_hsElemBuf, 0x00, sizeof(as_hsElemBuf));
+	memset(&as_hsElemBuf, 0x00, sizeof(as_hsElemBuf));
 
 	/*
 	 * Reset the timers
@@ -737,7 +776,7 @@ e_sslResult_t sslSoc_killall(void)
 	}
 
 	/* Clear the buffer containing the session resumption cache */
-	CW_MEMSET(&as_sessCache, 0x00, sizeof(as_sessCache));
+	memset(&as_sessCache, 0x00, sizeof(as_sessCache));
 
 	return E_SSL_OK;
 } /* sslSoc_killall() */
@@ -899,29 +938,44 @@ s_sslCtx_t* sslSoc_new(s_sslSett_t* ps_sslSett)
  ==============================================================================*/
 int sslSoc_free(s_sslCtx_t* ps_sslCtx)
 {
+	GciResult_t err;
 
 	assert(ps_sslCtx != NULL);
 	assert(ps_sslCtx->ps_hsElem != NULL);
 
-	//TODO sw gci_key_delete
-	cw_rsa_publickey_free(&ps_sslCtx->ps_hsElem->gci_peerPubKey);
 
-	//TODO sw gci_key_delete
-	cw_dh_free(&ps_sslCtx->ps_hsElem->gci_dheCliPrivKey);
-
-	cw_dh_free(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
-
-	if (ps_sslCtx->ps_hsElem->pgci_dheP.data != NULL)
+	//OLD-cw:	cw_rsa_publickey_free(&ps_sslCtx->ps_hsElem->gci_peerPubKey);
+	err = gci_key_delete(&ps_sslCtx->ps_hsElem->gci_peerPubKey);
+	if(err != GCI_OK)
 	{
-		//TODO sw ?? delete a BigNumber
-		cw_bn_freefree(ps_sslCtx->ps_hsElem->pgci_dheP.data);
+		//TODO return error state
 	}
 
-	if (ps_sslCtx->s_secParams.c_useDheKey == TRUE)
-		km_dhe_releaseKey();
+	//OLD-cw:	cw_dh_free(&ps_sslCtx->ps_hsElem->gci_dheCliPrivKey);
+	err = gci_key_delete(&ps_sslCtx->ps_hsElem->gci_dheCliPrivKey);
+	if(err != GCI_OK)
+	{
+		//TODO return error state
+	}
 
-	CW_MEMSET(ps_sslCtx->ps_hsElem, 0x00, sizeof(s_sslHsElem_t));
-	CW_MEMSET(ps_sslCtx, 0x00, sizeof(s_sslCtx_t)); /* Destroy context data */
+	//OLD-cw:	cw_dh_free(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
+		err = gci_key_delete(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
+		if(err != GCI_OK)
+		{
+			//TODO return error state
+		}
+
+//	OLD-cw: if (ps_sslCtx->ps_hsElem->pgci_dheP.data != NULL)
+//	{
+//
+//		cw_bn_freefree(ps_sslCtx->ps_hsElem->pgci_dheP.data);
+//	}
+
+	//	OLD-cw:	if (ps_sslCtx->s_secParams.c_useDheKey == TRUE)
+//		km_dhe_releaseKey();
+
+	memset(ps_sslCtx->ps_hsElem, 0x00, sizeof(s_sslHsElem_t));
+	memset(ps_sslCtx, 0x00, sizeof(s_sslCtx_t)); /* Destroy context data */
 
 	ps_sslCtx->e_socState = E_SSL_SOCKET_UNUSED;
 
@@ -958,7 +1012,7 @@ int sslSoc_read(s_sslCtx_t* ps_sslCtx, char* pcReadBuffer, int iReadBufferLen)
 		iBytesToTransfer = _min(iReadBufferLen, ps_sslCtx->l_buffLen);
 
 		if (pcReadBuffer)
-			CW_MEMCOPY( pcReadBuffer, ps_sslCtx->ac_socBuf + ps_sslCtx->l_readOff, iBytesToTransfer );
+			memcpy( pcReadBuffer, ps_sslCtx->ac_socBuf + ps_sslCtx->l_readOff, iBytesToTransfer );
 
 		ps_sslCtx->l_readOff += iBytesToTransfer;
 		ps_sslCtx->l_buffLen -= iBytesToTransfer;
@@ -1051,7 +1105,7 @@ int sslSoc_write(s_sslCtx_t* ps_sslCtx, const char* pcWriteBuffer,
 			iBytesToTransfer = _min(iWriteBufferLen,
 					(ps_sslCtx->l_mtu - ps_sslCtx->l_buffLen));
 
-			CW_MEMCOPY(pcBuffer + ps_sslCtx->l_buffLen, pcWriteBuffer, iBytesToTransfer);
+			memcpy(pcBuffer + ps_sslCtx->l_buffLen, pcWriteBuffer, iBytesToTransfer);
 
 			ps_sslCtx->l_buffLen += iBytesToTransfer;
 
@@ -1169,7 +1223,7 @@ int sslSoc_flush(s_sslCtx_t* ps_sslCtx)
 			ps_sslCtx->e_socState = E_SSL_SOCKET_IDLE;
 			ps_sslCtx->l_buffLen = 0;
 			ps_sslCtx->l_readOff = 0;
-			CW_MEMSET(ps_sslCtx->ac_socBuf, 0x00, 5);
+			memset(ps_sslCtx->ac_socBuf, 0x00, 5);
 			if (ps_sslCtx->e_nextAction == E_PENDACT_COM_CIPHER_TX)
 				return E_SSL_OK;
 			/* action is COM_TXMIT_CLOSE: Fall through and close the connection */
@@ -1374,7 +1428,7 @@ int sslSoc_procRec(s_sslCtx_t * ps_sslCtx/*, int socket, char * source */)
 			ps_sslCtx->e_socState = E_SSL_SOCKET_READOUT;
 			ps_sslCtx->e_event = E_PENDACT_GEN_WAIT_EVENT;
 			/* -------------- */
-			CW_MEMSET(pcBuffer, 0x00, ps_sslCtx->l_readOff);
+			memset(pcBuffer, 0x00, ps_sslCtx->l_readOff);
 			break;
 
 		case E_PENDACT_SCACHE_RM:

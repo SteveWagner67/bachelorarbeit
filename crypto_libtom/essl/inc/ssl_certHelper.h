@@ -92,9 +92,16 @@ extern "C"
  \return \ref E_SSL_CERT_ERR_SMALL_BUFFER
  */
 /*============================================================================*/
-e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
+/*e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
                             s_sslCert_t *ps_cert,
                             gci_rsaPubKey_t *pcwt_rsaPubKey,
+                            uint8_t *pc_caSubjName, uint32_t l_caSubjNameLen,
+                            s_sslCert_t *ps_caRootCert,
+                            s_sslCertList_t *ps_caListHead);
+*/
+e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
+                            s_sslCert_t *ps_cert,
+							GciKeyId_t *pcwt_rsaPubKey,
                             uint8_t *pc_caSubjName, uint32_t l_caSubjNameLen,
                             s_sslCert_t *ps_caRootCert,
                             s_sslCertList_t *ps_caListHead);
@@ -247,9 +254,11 @@ e_sslResult_t sslCert_getSubject(s_sslCertList_t *ps_entry, uint8_t *pc_dest,
  \return    E_SSL_ERROR  Another error occurred.
  */
 /*============================================================================*/
-e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData,
-                                  gci_rsaPubKey_t  *pcwt_rsaPubKey,
-                                  s_sslCertList_t *ps_caListHead);
+/*OLD-CW: e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, gci_rsaPubKey_t *pcwt_rsaPubKey,
+        s_sslCertList_t *ps_caListHead);
+*/
+e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcwt_rsaPubKey,
+        s_sslCertList_t *ps_caListHead);
 
 /* *************************************************************************/
 /* Functions handling entire certificates                                  */
@@ -444,7 +453,7 @@ uint8_t *sslCert_extractX509Len(uint8_t *pc_read, size_t *pcwt_elemLen);
  * \return A pointer to the first character following the element processed.
  */
 
-uint8_t *sslCert_extractX509Elem(uint8_t *pc_read, gci_bigNum_t **ppcwt_bigNum);
+//uint8_t *sslCert_extractX509Elem(uint8_t *pc_read, gci_bigNum_t **ppcwt_bigNum);
 
 /*** Global Variables *******************************************************/
 
