@@ -110,9 +110,9 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 
 		rsaConf.algo = GCI_KEY_PAIR_RSA;
 		//TODO sw - modulus length ?
-		//TODO sw - length of the rsa key = 1024?
+		rsaConf.config.rsa.modulusLen = 1024;
 
-		err = gci_key_pair_gen(&rsaConf, 1024, NULL, pcwt_privKey);
+		err = gci_key_pair_gen(&rsaConf, NULL, pcwt_privKey);
 		if(err != GCI_OK)
 		{
 			LOG_ERR("Import of the private key was't successful!");
@@ -189,8 +189,8 @@ static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
 //		OLD-CW: iRet = cw_ecc_privatekey_init(p_buffer, (uint32_t) cwt_len, pcwt_privKey, dp);
 		ecdsaConf.algo = GCI_KEY_PAIR_ECDSA;
 		ecdsaConf.config.ecdsaCurveName = *curveName;
-		//TODO sw - length of a ecdsa key = 1024 ??
-		err = gci_key_pair_gen(&ecdsaConf, 1024, NULL, pcwt_privKey);
+
+		err = gci_key_pair_gen(&ecdsaConf, NULL, pcwt_privKey);
 
 		if(err != GCI_OK)
 		{

@@ -939,7 +939,7 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
 {
     int32_t hashAlgo;
     int32_t l_verifyRes;
-    uint8_t ac_buf[GCI_MAX_HASHSIZE];
+    uint8_t ac_buf[GCI_MAX_HASHSIZE_BYTES];
     uint32_t ul_bufLen = sizeof(ac_buf);
     e_sslCertErr_t e_ret = E_SSL_CERT_OK;
 
@@ -1022,7 +1022,7 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
     rsaConf.hash = hashAlgo;
     rsaConf.config.rsa.padding = GCI_PADDING_PKCS1;
 
-    err = gci_sign_new_ctx(&rsaConf, &ps_caPubKey, &signCtx);
+    err = gci_sign_verify_new_ctx(&rsaConf, &ps_caPubKey, &signCtx);
     if(err != GCI_OK)
     {
     	//TODO return error state

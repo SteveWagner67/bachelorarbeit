@@ -112,29 +112,42 @@ typedef struct
 #define 	GCI_NB_KEY_MAX				255
 /*! Size in bits for md5 digest */
 #define     GCI_MD5_SIZE_BITS           128
-/*! Size in bytes for sha1 digest */
-#define     GCI_MD5_SIZE                (GCI_MD5_SIZE_BITS / 8)
+/*! Size in bytes for md5 digest */
+#define     GCI_MD5_SIZE_BYTES          (GCI_MD5_SIZE_BITS / 8)
 
 /*! Size in bits for sha1 digest */
 #define     GCI_SHA1_SIZE_BITS          160
 /*! Size in bytes for sha1 digest */
-#define     GCI_SHA1_SIZE               (GCI_SHA1_SIZE_BITS / 8)
+#define     GCI_SHA1_SIZE_BYTES         (GCI_SHA1_SIZE_BITS / 8)
 
-/*! Size in bits for sha1 digest */
+/*! Size in bits for sha224 digest */
 #define     GCI_SHA224_SIZE_BITS        224
-/*! Size in bytes for sha1 digest */
-#define     GCI_SHA224_SIZE             (GCI_SHA224_SIZE_BITS / 8)
+/*! Size in bytes for sha224 digest */
+#define     GCI_SHA224_SIZE_BYTES      (GCI_SHA224_SIZE_BITS / 8)
 
-/*! Size in bits for sha1 digest */
+/*! Size in bits for sha256 digest */
 #define     GCI_SHA256_SIZE_BITS        256
-/*! Size in bytes for sha1 digest */
-#define     GCI_SHA256_SIZE             (GCI_SHA256_SIZE_BITS / 8)
+/*! Size in bytes for sha256 digest */
+#define     GCI_SHA256_SIZE_BYTES      (GCI_SHA256_SIZE_BITS / 8)
+
+/*! Size in bits for sha384 digest */
+#define     GCI_SHA384_SIZE_BITS        384
+/*! Size in bytes for sha384 digest */
+#define     GCI_SHA384_SIZE_BYTES      (GCI_SHA384_SIZE_BITS / 8)
+
+/*! Size in bits for sha512 digest */
+#define     GCI_SHA512_SIZE_BITS        512
+/*! Size in bytes for sha512 digest */
+#define     GCI_SHA512_SIZE_BYTES      (GCI_SHA512_SIZE_BITS / 8)
 
 /*! Size in bytes for md5+sha1 digest */
-#define     GCI_MD5_SHA1_SIZE           GCI_SHA1_SIZE + GCI_MD5_SIZE
+#define     GCI_MD5_SHA1_SIZE_BYTES     GCI_SHA1_SIZE_BYTES + GCI_MD5_SIZE_BYTES
 
 /*! Maximum size in bits for a digest */
-#define     GCI_MAX_HASHSIZE             GCI_SHA256_SIZE
+#define     GCI_MAX_HASHSIZE_BITS       GCI_SHA512_SIZE_BITS
+/*! Maximum size in bits for a digest */
+#define     GCI_MAX_HASHSIZE_BYTES      GCI_SHA512_SIZE_BYTES
+
 
 #define     GCI_PKCS1_MAX_KEYSIZE        4096
 #define     SSL_RSA_MAX_KEY_SIZE        GCI_PKCS1_MAX_KEYSIZE
@@ -469,13 +482,7 @@ typedef enum
  */
 typedef struct
 {
-	/**
-	 * GCI_PADDING_INVALID
-	 * GCI_PADDING_ISO9797_METHOD2
-	 * GCI_PADDING_PKCS5
-	 * GCI_PADDING_PKCS7
-	 * GCI_PADDING_NONE=0xFF
-	 */
+	/**RSA domain parameters*/
 	GciPadding_t padding;
 } GciSignRsaConfig_t;
 
@@ -520,7 +527,7 @@ typedef struct
  */
 typedef struct
 {
-	/**ECDSA domain parameters*/
+	/**DSA domain parameters*/
 	GciDsaDomainParam_t param;
 } GciSignDsaConfig_t;
 
@@ -643,6 +650,10 @@ typedef enum
 	GCI_KEY_PAIR_INVALID,
 	/**RSA key pair*/
 	GCI_KEY_PAIR_RSA,
+	/**RSA key pair - sign*/
+	GCI_KEY_PAIR_RSA_SSA,
+	/**RSA key pair - encrypt*/
+	GCI_KEY_PAIR_RSA_ES,
 	/**DHE RSA key pair */
 	GCI_KEY_PAIR_DHE_RSA,
 	/**DHE DSS key pair */
@@ -898,10 +909,20 @@ typedef enum
 	GCI_KEY_ECDSA_PUB,
 	/**ECDSA private key*/
 	GCI_KEY_ECDSA_PRIV,
-	/**RSA public key*/
+	/**RSA public key - general*/
 	GCI_KEY_RSA_PUB,
-	/**RSA private key*/
+	/**RSA private key - general*/
 	GCI_KEY_RSA_PRIV,
+	/**RSA private key - signing*/
+	GCI_KEY_RSA_PRIV_SSA,
+	/**RSA private key - signing*/
+	GCI_KEY_RSA_PUB_SSA,
+	/**RSA public key - encrypt*/
+	GCI_KEY_RSA_PUB_ES,
+	/**RSA private key - encrypt*/
+	GCI_KEY_RSA_PRIV_ES,
+	/**HMAC*/
+	GCI_KEY_HMAC,
 	/**No key*/
 	GCI_KEY_NONE=0xFF
 } GciKeyType_t;

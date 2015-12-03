@@ -351,13 +351,13 @@ static uint8_t loc_getHashSize(GciHashAlgo_t hashAlg)
 	switch (hashAlg)
 	{
 	case GCI_HASH_MD5:
-		hashSize = GCI_MD5_SIZE;
+		hashSize = GCI_MD5_SIZE_BYTES;
 		break;
 	case GCI_HASH_SHA1:
-		hashSize = GCI_SHA1_SIZE;
+		hashSize = GCI_SHA1_SIZE_BYTES;
 		break;
 	case GCI_HASH_SHA256:
-		hashSize = GCI_SHA256_SIZE;
+		hashSize = GCI_SHA256_SIZE_BYTES;
 		break;
 	default:
 	case GCI_HASH_NONE:
@@ -376,10 +376,10 @@ static uint8_t loc_getHashSizeByPrf(e_sslPrf_t e_prfAlg)
 	switch (e_prfAlg)
 	{
 	case E_SSL_PRF_MD5_SHA1:
-		c_hashSize = GCI_MD5_SIZE + GCI_SHA1_SIZE;
+		c_hashSize = GCI_MD5_SIZE_BYTES + GCI_SHA1_SIZE_BYTES;
 		break;
 	case E_SSL_PRF_SHA256:
-		c_hashSize = GCI_SHA256_SIZE;
+		c_hashSize = GCI_SHA256_SIZE_BYTES;
 		break;
 	default:
 	case E_SSL_PRF_UNDEF:
@@ -442,9 +442,9 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 	uint16_t            i_signLen;
 	uint8_t             hashLen;
 	int8_t              e_result = E_SSL_NO_ERROR;
-	uint8_t             ac_sign[GCI_MAX_HASHSIZE];
+	uint8_t             ac_sign[GCI_MAX_HASHSIZE_BYTES];
 	/* In case of TLS 1.2 we have prepended hash oid */
-	size_t              sz_decSignLen = GCI_MAX_HASHSIZE + SSL_DER_ASN1_OID_HASH_MAX_LEN;
+	size_t              sz_decSignLen = GCI_MAX_HASHSIZE_BYTES + SSL_DER_ASN1_OID_HASH_MAX_LEN;
 	uint8_t             ac_decSign[sz_decSignLen];
 
 
@@ -562,7 +562,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 			//TODO: return from error state
 		}
 
-		hashLen = GCI_MD5_SHA1_SIZE;
+		hashLen = GCI_MD5_SHA1_SIZE_BYTES;
 	}
 
 	else
@@ -659,7 +659,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 			rsaConf.config.rsa.padding = GCI_PADDING_NONE;
 
 
-			err = gci_sign_new_ctx(&rsaConf, ps_hsElem->gci_peerPubKey, &rsaCtx);
+			err = gci_sign_verify_new_ctx(&rsaConf, ps_hsElem->gci_peerPubKey, &rsaCtx);
 			if (err != GCI_OK)
 			{
 				//TODO: return from error state
@@ -753,10 +753,10 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 	e_sslError_t        e_result = E_SSL_NO_ERROR;
 	/* In case of TLS 1.2 we allocate more memory for ASN.1 DER encoding */
 	/* Here we use c_hashLen as a real hash length */
-	uint8_t             c_hashLen = GCI_MAX_HASHSIZE;
+	uint8_t             c_hashLen = GCI_MAX_HASHSIZE_BYTES;
 	/* But need to allocate as much memmory as it requires by possibly encoded
 	 * signature*/
-	uint8_t             ac_hash[GCI_MAX_HASHSIZE +
+	uint8_t             ac_hash[GCI_MAX_HASHSIZE_BYTES +
 								SSL_DER_ASN1_MAX_OID_OCTET + 20];
 	uint8_t             c_signOff = 0;
 	uint8_t             c_hashType;
@@ -790,7 +790,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		GciCtxId_t md5Ctx;
 
-		c_hashLen = GCI_MD5_SHA1_SIZE;
+		c_hashLen = GCI_MD5_SHA1_SIZE_BYTES;
 
 		/* generate data that has to be signed afterwards */
 		/*! MD5(ClientRandom, ServerRandom, DiffieHellmanParamaeters) */
@@ -954,7 +954,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 	{
 		if (ps_sslCtx->e_ver >= E_TLS_1_2) {
 			s_derdCtx_t     	s_derdCtx;
-			uint8_t             c_signLen = GCI_MAX_HASHSIZE + SSL_DER_ASN1_MAX_OID_OCTET + 22;
+			uint8_t             c_signLen = GCI_MAX_HASHSIZE_BYTES + SSL_DER_ASN1_MAX_OID_OCTET + 22;
 			/* This array will be temporally used by DER Decoder module */
 			uint8_t             ac_sign[c_signLen];
 			s_sslOctetStr_t     s_sigOctStr;
@@ -987,7 +987,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 		signConf.algo = GCI_SIGN_RSA;
 		signConf.hash = GCI_HASH_NONE;
 
-		err = gci_sign_new_ctx(&signConf, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &signCtx);
+		err = gci_sign_gen_new_ctx(&signConf, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &signCtx);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -1032,7 +1032,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 		signConf.hash = GCI_HASH_NONE;
 		signConf.config.ecdsa.name = ps_sslCtx->ps_sslSett->gci_curveName;
 
-		err = gci_sign_new_ctx(&signConf, ps_sslCtx->ps_sslSett->p_ECCMyPrivKey, &signCtx);
+		err = gci_sign_gen_new_ctx(&signConf, ps_sslCtx->ps_sslSett->p_ECCMyPrivKey, &signCtx);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -1501,8 +1501,8 @@ static void loc_compHashTLS( s_sslCtx_t* ps_sslCtx, const uint8_t *pc_label,
 	if (ps_sslCtx->s_secParams.e_prf == E_SSL_PRF_MD5_SHA1){
 		//OLD-CW: gci_md5Ctx_t cwt_md5Ctx;
 		//OLD-CW: gci_sha1Ctx_t cwt_sha1Ctx;
-		uint8_t ac_md5hash[GCI_MD5_SIZE];
-		uint8_t ac_sha1hash[GCI_SHA1_SIZE];
+		uint8_t ac_md5hash[GCI_MD5_SIZE_BYTES];
+		uint8_t ac_sha1hash[GCI_SHA1_SIZE_BYTES];
 
 		GciCtxId_t md5Ctx;
 		GciCtxId_t sha1Ctx;
@@ -1546,16 +1546,16 @@ static void loc_compHashTLS( s_sslCtx_t* ps_sslCtx, const uint8_t *pc_label,
 			loc_prfTLS(E_SSL_PRF_MD5_SHA1,
 					ps_sslCtx->ps_hsElem->s_sessElem.ac_msSec, MSSEC_SIZE,
 					pc_label, strlen((char const*) pc_label),
-					ac_md5hash,  GCI_MD5_SIZE,
-					ac_sha1hash,  GCI_SHA1_SIZE,
+					ac_md5hash,  GCI_MD5_SIZE_BYTES,
+					ac_sha1hash,  GCI_SHA1_SIZE_BYTES,
 					pc_result, VERIF_HASHSIZE_TLS);
 		}
 		else
 		{
 			//OLD-CW: memcpy(pc_result, ac_md5hash, GCI_MD5_SIZE);
-			memcpy(pc_result, ac_md5hash, GCI_MD5_SIZE);
+			memcpy(pc_result, ac_md5hash, GCI_MD5_SIZE_BYTES);
 			//OLD-CW: memcpy(pc_result + GCI_MD5_SIZE, ac_sha1hash, GCI_SHA1_SIZE);
-			memcpy(pc_result + GCI_MD5_SIZE, ac_sha1hash, GCI_SHA1_SIZE);
+			memcpy(pc_result + GCI_MD5_SIZE_BYTES, ac_sha1hash, GCI_SHA1_SIZE_BYTES);
 		}
 	}
 
@@ -1705,7 +1705,7 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, pc_sec, GCI_SHA1_SIZE, hashAlgo);
-		err = gci_hash_update(hashCtx, pc_sec, GCI_SHA1_SIZE);
+		err = gci_hash_update(hashCtx, pc_sec, GCI_SHA1_SIZE_BYTES);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -1748,7 +1748,7 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, pc_sec, GCI_SHA1_SIZE, hashAlgo);
-		err = gci_hash_update(hashCtx, pc_sec, GCI_SHA1_SIZE);
+		err = gci_hash_update(hashCtx, pc_sec, GCI_SHA1_SIZE_BYTES);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -1762,7 +1762,7 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, ac_hashBuf, GCI_SHA1_SIZE, hashAlgo);
-		err = gci_hash_update(hashCtx, ac_hashBuf, GCI_SHA1_SIZE);
+		err = gci_hash_update(hashCtx, ac_hashBuf, GCI_SHA1_SIZE_BYTES);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -1775,7 +1775,7 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 			//TODO: return from error state
 		}
 
-		cwt_retLen = GCI_SHA1_SIZE;
+		cwt_retLen = GCI_SHA1_SIZE_BYTES;
 	}
 	else if (hashAlgo == GCI_HASH_MD5)
 	{
@@ -1788,7 +1788,7 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, pc_sec, GCI_MD5_SIZE, hashAlgo);
-		err = gci_hash_update(hashCtx, pc_sec, GCI_MD5_SIZE);
+		err = gci_hash_update(hashCtx, pc_sec, GCI_MD5_SIZE_BYTES);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -1831,7 +1831,7 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, pc_sec, GCI_MD5_SIZE, hashAlgo);
-		err = gci_hash_update(hashCtx, pc_sec, GCI_MD5_SIZE);
+		err = gci_hash_update(hashCtx, pc_sec, GCI_MD5_SIZE_BYTES);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -1845,7 +1845,7 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 		}
 
 		//OLD-CW: cr_digestUpdate(&cw_hashCtx, ac_hashBuf, GCI_MD5_SIZE, hashAlgo);
-		err = gci_hash_update(hashCtx, ac_hashBuf, GCI_MD5_SIZE);
+		err = gci_hash_update(hashCtx, ac_hashBuf, GCI_MD5_SIZE_BYTES);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -1859,7 +1859,7 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 			//TODO: return from error state
 		}
 
-		cwt_retLen = GCI_MD5_SIZE;
+		cwt_retLen = GCI_MD5_SIZE_BYTES;
 	}
 
 	LOG_INFO("result:");
@@ -2098,7 +2098,7 @@ static void loc_pHash(GciHashAlgo_t hashAlgo,
 
 
 	//HMAC is defined as a signature in gci
-	err = gci_sign_new_ctx(&hmacConf, secretKeyID, &hmacCtx);
+	err = gci_sign_gen_new_ctx(&hmacConf, secretKeyID, &hmacCtx);
 	if (err != GCI_OK)
 	{
 		//TODO: return from error state
@@ -2127,7 +2127,7 @@ static void loc_pHash(GciHashAlgo_t hashAlgo,
 	while(err==GCI_OK)
 	{
 
-		err = gci_sign_new_ctx(&hmacConf, secretKeyID, &hmacCtx);
+		err = gci_sign_gen_new_ctx(&hmacConf, secretKeyID, &hmacCtx);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -2246,7 +2246,7 @@ static void loc_prfSSL( uint8_t* pc_sec, size_t cwt_secLen,
 	uint8_t c_mixCount;
 	uint8_t ac_mix[20];
 	uint8_t secBuf[48];
-	uint8_t sha1_hash[GCI_SHA1_SIZE];
+	uint8_t sha1_hash[GCI_SHA1_SIZE_BYTES];
 
 	/* Two local copies of Hash-Contexts are needed */
 	//OLD-CW: gci_sha1Ctx_t cwt_sha1KbCtx;
@@ -2285,7 +2285,7 @@ static void loc_prfSSL( uint8_t* pc_sec, size_t cwt_secLen,
 
 	while (i_bytes > 0)
 	{
-		i_bytes -= GCI_MD5_SIZE;
+		i_bytes -= GCI_MD5_SIZE_BYTES;
 
 		/* Generate the mixerstring */
 		pc_tmp = ac_mix;
@@ -2357,7 +2357,7 @@ static void loc_prfSSL( uint8_t* pc_sec, size_t cwt_secLen,
 		}
 
 		//OLD-CW: cr_digestUpdate(&cwt_md5KbCtx, sha1_hash, GCI_SHA1_SIZE, E_SSL_HASH_MD5);
-		err = gci_hash_update(md5Ctx, sha1_hash, GCI_SHA1_SIZE);
+		err = gci_hash_update(md5Ctx, sha1_hash, GCI_SHA1_SIZE_BYTES);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -2370,7 +2370,7 @@ static void loc_prfSSL( uint8_t* pc_sec, size_t cwt_secLen,
 			//TODO: return from error state
 		}
 
-		pc_out += GCI_MD5_SIZE;
+		pc_out += GCI_MD5_SIZE_BYTES;
 	}
 }
 
@@ -5100,7 +5100,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 								memcpy(pc_rec, (void*)rac_certVerify, sizeof(rac_certVerify));
 								pc_write = pc_rec + sizeof(rac_certVerify);
 
-								uint8_t c_hashLen = GCI_MAX_HASHSIZE;
+								uint8_t c_hashLen = GCI_MAX_HASHSIZE_BYTES;
 
 								/* compute the verification data
 								 * for the CertificateVerify message */
@@ -5118,12 +5118,12 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 
 								if (ps_sslCtx->e_ver >= E_TLS_1_2) {
 									s_derdCtx_t     	s_derdCtx;
-									uint8_t             c_signLen = GCI_MAX_HASHSIZE +
+									uint8_t             c_signLen = GCI_MAX_HASHSIZE_BYTES +
 											SSL_DER_ASN1_MAX_OID_OCTET + 22;
 									/* This array will be temporally used by DER Decoder module */
 									uint8_t             ac_sign[c_signLen];
 									s_sslOctetStr_t     s_sigOctStr;
-									uint8_t             ac_hash[GCI_MAX_HASHSIZE +
+									uint8_t             ac_hash[GCI_MAX_HASHSIZE_BYTES +
 																SSL_DER_ASN1_MAX_OID_OCTET + 20];
 
 									c_hashLen = loc_getHashSize(c_hashType);
@@ -5168,7 +5168,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 								rsaConf.hash = GCI_HASH_NONE;
 								rsaConf.config.rsa.padding = GCI_PADDING_NONE;
 
-								err = gci_sign_new_ctx(&rsaConf, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &rsaCtx);
+								err = gci_sign_gen_new_ctx(&rsaConf, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &rsaCtx);
 								if(err != GCI_OK)
 								{
 									//TODO return state
@@ -7075,7 +7075,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						cwt_len = pc_hsBuff[6] * 256 + pc_hsBuff[7];
 
 						/* In case of TLS 1.2 we have prepended hash oid */
-						size_t              sz_decSignLen = GCI_MAX_HASHSIZE + SSL_DER_ASN1_OID_HASH_MAX_LEN;
+						size_t              sz_decSignLen = GCI_MAX_HASHSIZE_BYTES + SSL_DER_ASN1_OID_HASH_MAX_LEN;
 						uint8_t             ac_decSign[sz_decSignLen];
 						GciCtxId_t rsaCtx;
 						GciSignConfig_t rsaConf;
@@ -7088,7 +7088,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 							rsaConf.hash=GCI_HASH_NONE;
 							rsaConf.config.rsa.padding = GCI_PADDING_NONE;
 
-							err = gci_sign_new_ctx(&rsaConf, ps_hsElem->gci_peerPubKey, &rsaCtx);
+							err = gci_sign_verify_new_ctx(&rsaConf, ps_hsElem->gci_peerPubKey, &rsaCtx);
 							if(err != GCI_OK)
 							{
 								//TODO return state
@@ -8041,7 +8041,6 @@ int ssl_verifyHash(const uint8_t rac_verHash[], size_t cwt_verHashLen,
 #ifdef ASCOM_CRYPTO
 	ModLen = GetOctets (pPubKey->pN);
 #elif defined (TOMLIB_CRYPTO)
-	//TODO sw - equivalent to sizeof()??
 	//OLD-CW: cwt_modLen = mp_unsigned_bin_size(rpcw_pubKey->N);
 	rpcw_pubKey.key.rsaPub.n.len = sizeof(rpcw_pubKey.key.rsaPub.n.data);
 #endif
@@ -8079,7 +8078,7 @@ int ssl_verifyHash(const uint8_t rac_verHash[], size_t cwt_verHashLen,
 	rsaConf.hash = GCI_HASH_NONE;
 	rsaConf.config.rsa.padding = GCI_PADDING_NONE;
 
-	err = gci_sign_new_ctx(&rsaConf, pPubKey, &rsaCtx);
+	err = gci_sign_verify_new_ctx(&rsaConf, pPubKey, &rsaCtx);
 	if(err != GCI_OK)
 	{
 		//TODO return state
@@ -8559,10 +8558,10 @@ int ssl_initCtx(s_sslCtx_t * ps_sslCtx, s_sslSett_t *ps_sslSett,
 
 	rsaGen.algo = GCI_KEY_PAIR_RSA;
 	//TODO sw - how to know the rsa modulus length ??
-	//TODO sw - how to know the rsa key length ??
+	rsaGen.config.rsa.modulusLen = 1024;
 	//TODO sw - rsa private key useless ??
 
-	err = gci_key_pair_gen(&rsaGen, 1024, ps_sslHsElem->gci_peerPubKey, NULL);
+	err = gci_key_pair_gen(&rsaGen, ps_sslHsElem->gci_peerPubKey, NULL);
 	if(err != GCI_OK)
 	{
 		//TODO return error state

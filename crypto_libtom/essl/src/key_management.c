@@ -90,6 +90,7 @@ int km_dhe_init(void)
 
     dhConf.type = GCI_DH;
     //TODO sw - what for domain parameters ??
+    //dhConf.config.dhDomain
 
     err = gci_dh_new_ctx(&dhConf, &dhCtx);
     if(err != GCI_OK)

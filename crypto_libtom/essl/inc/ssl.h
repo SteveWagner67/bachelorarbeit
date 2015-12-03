@@ -833,8 +833,8 @@ typedef struct ssl_securityParameters
    /* length of the output produced by the MAC algorithm */
    uint8_t              c_hmacLen;
    /* storage for the MAC secrets. Maximum Possible amount of bytes */
-   uint8_t              ac_cliSecret[GCI_MAX_HASHSIZE];
-   uint8_t              ac_srvSecret[GCI_MAX_HASHSIZE];
+   uint8_t              ac_cliSecret[GCI_MAX_HASHSIZE_BYTES];
+   uint8_t              ac_srvSecret[GCI_MAX_HASHSIZE_BYTES];
 }s_sslSecParams_t;
 
 

@@ -591,9 +591,9 @@ e_sslResult_t sslCert_getSubject(s_sslCertList_t *ps_entry, uint8_t *pc_dest, si
 
             rsaConf.algo = GCI_KEY_PAIR_RSA;
             //TODO sw - RSA modulus length ??
-            //TODO sw - key length 1024 ??
+            rsaConf.config.rsa.modulusLen = 1024;
 
-            err = gci_key_pair_gen(&rsaConf, 1024, &tmp_cert.gci_caPubKey, NULL);
+            err = gci_key_pair_gen(&rsaConf, &tmp_cert.gci_caPubKey, NULL);
             if(err != GCI_OK)
             {
             	//TODO return error state
@@ -716,9 +716,9 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcw
 
         rsaConf.algo = GCI_KEY_PAIR_RSA;
         //TODO sw - RSA modulus length ??
-        //TODO sw - key length 1024 ??
+        rsaConf.config.rsa.modulusLen = 1024;
 
-        err = gci_key_pair_gen(&rsaConf, 1024, &ast_tmpCert[0].gci_caPubKey, NULL);
+        err = gci_key_pair_gen(&rsaConf, &ast_tmpCert[0].gci_caPubKey, NULL);
         if(err != GCI_OK)
         {
         	//TODO return error state
@@ -726,7 +726,7 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcw
 
         //OLD-CW: cw_rsa_publickey_init(&ast_tmpCert[1].gci_caPubKey);
 
-        err = gci_key_pair_gen(&rsaConf, 1024, &ast_tmpCert[1].gci_caPubKey, NULL);
+        err = gci_key_pair_gen(&rsaConf, &ast_tmpCert[1].gci_caPubKey, NULL);
         if(err != GCI_OK)
         {
         	//TODO return error state
@@ -780,7 +780,7 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcw
                 }
 
                 //OLD-CW: cw_rsa_publickey_init(&ps_rootCert->gci_caPubKey);
-                err = gci_key_pair_gen(&rsaConf, 1024, &ps_rootCert->gci_caPubKey, NULL);
+                err = gci_key_pair_gen(&rsaConf, &ps_rootCert->gci_caPubKey, NULL);
                 if(err != GCI_OK)
                 {
                 	//TODO return error state

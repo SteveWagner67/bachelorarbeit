@@ -130,15 +130,28 @@ GciResult_t gci_hash_finish(GciCtxId_t ctxID, uint8_t* digest, size_t* digestLen
 /**********************************************************************************************************************/
 
 /**
- * \fn						GciResult_t gci_sign_new_ctx(const GciSignConfig_t* signConfig, GciKeyId_t keyID, GciCtxId_t* ctxID)
+ * \fn						GciResult_t gci_sign_gen_new_ctx(const GciSignConfig_t* signConfig, GciCtxId_t* ctxID)
  * \brief					Create a new signature context and become an ID of it
  * \param [in]  signConfig	Configuration of the signature
- * \param [in]  keyID		Private Key's ID
+ * \param [in]  keyID		Key's ID
  * \param [out] ctxID		Context's ID
  * @return					GCI_NO_ERR on success
  * @return					GCI_ERR on error
  */
-GciResult_t gci_sign_new_ctx(const GciSignConfig_t* signConfig, GciKeyId_t keyID, GciCtxId_t* ctxID);
+GciResult_t gci_sign_gen_new_ctx(const GciSignConfig_t* signConfig, GciKeyId_t keyID, GciCtxId_t* ctxID);
+
+
+
+/**
+ * \fn						GciResult_t gci_sign_verify_new_ctx(const GciSignConfig_t* signConfig, GciCtxId_t* ctxID)
+ * \brief					Create a new signature context and become an ID of it
+ * \param [in]  signConfig	Configuration of the signature
+ * \param [in]  keyID		Key's ID
+ * \param [out] ctxID		Context's ID
+ * @return					GCI_NO_ERR on success
+ * @return					GCI_ERR on error
+ */
+GciResult_t gci_sign_verify_new_ctx(const GciSignConfig_t* signConfig, GciKeyId_t keyID, GciCtxId_t* ctxID);
 
 
 
@@ -193,6 +206,7 @@ GciResult_t gci_sign_gen_finish(GciCtxId_t ctxID, uint8_t* sign, size_t* signLen
 GciResult_t gci_sign_verify_finish(GciCtxId_t ctxID, const uint8_t* sign, size_t signLen);
 
 
+
 /**********************************************************************************************************************/
 /*		      											KEY GENERATOR			      							  	  */
 /**********************************************************************************************************************/
@@ -207,7 +221,7 @@ GciResult_t gci_sign_verify_finish(GciCtxId_t ctxID, const uint8_t* sign, size_t
  * @return					GCI_NO_ERR on success
  * @return					GCI_ERR on error
  */
-GciResult_t gci_key_pair_gen(const GciKeyGenConfig_t* keyConfig, size_t keyLen, GciKeyId_t* pubKeyID, GciKeyId_t* privKeyID);
+GciResult_t gci_key_pair_gen(const GciKeyGenConfig_t* keyConfig, GciKeyId_t* pubKeyID, GciKeyId_t* privKeyID);
 
 
 
@@ -218,8 +232,7 @@ GciResult_t gci_key_pair_gen(const GciKeyGenConfig_t* keyConfig, size_t keyLen, 
 /**
  * \fn						GciResult_t gci_cipher_new_ctx(const GciCipherConfig_t* ciphConfig, GciKeyId_t keyID, GciCtxId_t* ctxID)
 
- * \brief					Create a new symmetric cipher context by adding a ciphConfig and no keyID
- * \brief					OR create a asymmetric cipher context by adding a keyID and no ciphConfig
+ * \brief					Create a new symmetric cipher context
  * \param [in]	ciphConfig	Configuration of the symmetric cipher
  * \param [in]  keyID		Key's ID
  * \param [out] ctxID		Context's ID
@@ -256,7 +269,7 @@ GciResult_t gci_cipher_encrypt(GciCtxId_t ctxId, const uint8_t* plaintxt, size_t
  * @return					GCI_NO_ERR on success
  * @return					GCI_ERR on error
  */
-GciResult_t gci_cipher_decrypt(GciCtxId_t ctxId, const uint8_t* ciphtxt, int cptxtLen, uint8_t* plaintxt, size_t* pltxtLen);
+GciResult_t gci_cipher_decrypt(GciCtxId_t ctxId, const uint8_t* ciphtxt, size_t cptxtLen, uint8_t* plaintxt, size_t* pltxtLen);
 
 
 
