@@ -267,7 +267,8 @@ e_derdRet_t sslCert_prepPubKey(GciKey_t       *ps_pubKeyInfo,
  * "bignum"-pool will be freed.
  ****************************************************************************/
 
-void sslCert_delPubKey(s_pubKey_t * pPubKeyInfo);
+//OLD-CW: void sslCert_delPubKey(s_pubKey_t * pPubKeyInfo);
+void sslCert_delPubKey(GciKeyId_t * pPubKeyInfo);
 
 /****************************************************************************
  ****************************************************************************/

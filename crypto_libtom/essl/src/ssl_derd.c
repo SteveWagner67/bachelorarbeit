@@ -620,8 +620,11 @@ e_derdRet_t sslDerd_getOctStr(s_derdCtx_t *ps_derdCtx,
 /*============================================================================*/
 /*  sslDerd_getSign()                                                       */
 /*============================================================================*/
-e_derdRet_t sslDerd_getSign(s_derdCtx_t* 	ps_derdCtx,
-							e_sslHashAlg_t*	pe_hashAlg,
+//e_derdRet_t sslDerd_getSign(s_derdCtx_t* 	ps_derdCtx,
+//							e_sslHashAlg_t*	pe_hashAlg,
+//                            uint8_t*     	pc_decSign, size_t* pi_decSignLen)
+sslDerd_getSign(s_derdCtx_t* 	ps_derdCtx,
+							GciHashAlgo_t*	pe_hashAlg,
                             uint8_t*     	pc_decSign, size_t* pi_decSignLen)
 {
     e_derdRet_t         e_err = E_SSL_DER_OK;

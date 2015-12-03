@@ -32,6 +32,7 @@
 /*  \version  $Version$                                                      */
 /*                                                                           */
 /*****************************************************************************/
+#include "assert.h"
 #include "ssl.h"
 #include "ssl_diag.h"
 #include "ssl_certHelper.h"
@@ -53,6 +54,7 @@ typedef enum hashProcessingOperationTypes {
 	E_HASHOP_UPDATE,
 	E_HASHOP_FINISH
 }e_hashOp_t;
+
 
 
 /*** Local Variables ********************************************************/
@@ -575,7 +577,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 
 		//TODO see how to know the hash algorthm and adapt it with hash from gci
 		//OLD-CW: cr_digestInit(&cwt_hashCtx, NULL, 0, ps_secPar->s_signAlg.c_hash);
-		err = gci_hash_new_ctx(ps_secPar->s_signAlg.c_hash, hashCtx);
+		err = gci_hash_new_ctx(ps_secPar->s_signAlg.c_hash, &hashCtx);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -604,7 +606,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 		}
 
 		//OLD-CW: cr_digestFinish(&cwt_hashCtx, ac_sign, NULL, ps_secPar->s_signAlg.c_hash);
-		err = gci_hash_finish(hashCtx, ac_sign, ac_sign_len);
+		err = gci_hash_finish(hashCtx, ac_sign, &ac_sign_len);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -783,8 +785,8 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 	if (c_hashType == GCI_HASH_INVALID)
 	{
 
-		gci_md5Ctx_t    cwt_md5Ctx;
-		gci_sha1Ctx_t   cwt_sha1Ctx;
+		//OLD-CW: gci_md5Ctx_t    cwt_md5Ctx;
+		//OLD-CW: gci_sha1Ctx_t   cwt_sha1Ctx;
 
 		GciCtxId_t md5Ctx;
 
@@ -867,7 +869,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 
 		//cr_digestFinish(&cwt_sha1Ctx, &ac_hash[GCI_MD5_SIZE], NULL, E_SSL_HASH_SHA1);
-		err = gci_hash_finish(shaCtx, ac_hash, ac_hash_len);
+		err = gci_hash_finish(shaCtx, ac_hash, &ac_hash_len);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -916,7 +918,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 
 		//OLD-CW: err|=cr_digestFinish(&cwt_hashCtx, ac_hash, NULL, c_hashType);
-		err = gci_hash_finish(hashCtx, ac_hash, ac_hash_len);
+		err = gci_hash_finish(hashCtx, ac_hash, &ac_hash_len);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -1019,9 +1021,6 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 		LOG_INFO("hash before signature");
 		LOG_HEX(ac_hash,c_hashLen);
 
-		//debug vpy
-		char buffer[4096];
-
 
 		//OLD-CW: mp_toradix(ps_sslCtx->ps_sslSett->p_ECCMyPrivKey->k, buffer, 16);
 		//OLD-CW: printf("Private key: %s\n", buffer);
@@ -1051,7 +1050,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 			//TODO: return from error state
 		}
 
-		err = gci_sign_gen_finish(signCtx, pc_out + c_signOff + 2, sz_signLen);
+		err = gci_sign_gen_finish(signCtx, pc_out + c_signOff + 2, &sz_signLen);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -1073,7 +1072,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 	case GCI_SIGN_NONE:
 	default:
 		//OLD-CW: e_result = CW_ERROR;
-		e_result = GCI_ERR;
+		e_result = E_SSL_ERROR;
 		break;
 	}
 
@@ -1081,7 +1080,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 	/* and sign the hashes by rsa encryption */
 	//OLD-CW: if (e_result != CW_OK)
-	if(e_result != GCI_OK)
+	if(e_result != E_SSL_NO_ERROR)
 	{
 		*sz_outLen = 0;
 		LOG_ERR("%p| RSA/ECDSA encrypt not successful",ps_sslCtx);
@@ -1354,7 +1353,7 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 	}
 
 	//OLD-CW: cr_digestFinish(&cwt_sha1Ctx, ac_tmpSha1Hash, NULL, E_SSL_HASH_SHA1);
-	err = gci_hash_finish(sha1Ctx, ac_tmpSha1Hash, ac_tmpSha1Hash_len);
+	err = gci_hash_finish(sha1Ctx, ac_tmpSha1Hash, &ac_tmpSha1Hash_len);
 	if (err != GCI_OK)
 	{
 		//TODO: return from error state
@@ -1433,7 +1432,7 @@ static void loc_compHashSSL(s_sslCtx_t *ps_sslCtx, const uint8_t *pc_snd,
 
 
 	//OLD-CW: cr_digestFinish(&cwt_md5Ctx, ac_tmpMd5Hash, NULL, E_SSL_HASH_MD5);
-	err = gci_hash_finish(md5Ctx, ac_tmpMd5Hash, ac_tmpMd5Hash_len);
+	err = gci_hash_finish(md5Ctx, ac_tmpMd5Hash, &ac_tmpMd5Hash_len);
 	if (err != GCI_OK)
 	{
 		//TODO: return from error state
@@ -1594,7 +1593,7 @@ static void loc_compHashTLS( s_sslCtx_t* ps_sslCtx, const uint8_t *pc_label,
 		{
 			loc_prfTLS(ps_sslCtx->s_secParams.e_prf,
 					ps_sslCtx->ps_hsElem->s_sessElem.ac_msSec, MSSEC_SIZE,
-					pc_label, CW_STRLEN((char const*) pc_label),
+					pc_label, strlen((char const*) pc_label),
 					ac_hash,  c_hashLen,
 					NULL,    0,
 					pc_result, ps_sslCtx->s_sslGut.c_verifyDataLen);
@@ -1669,7 +1668,7 @@ static size_t loc_compMacSSL(s_sslCtx_t  *ps_sslCtx,  uint8_t    *result,
 	uint8_t*        pc_seqNum   = 0;
 	size_t          cwt_retLen  = 0;
 	//gci_hashCtx_t    cw_hashCtx;
-	GciHashAlgo_t hashCtx;
+	GciCtxId_t hashCtx;
 
 	GciResult_t err;
 
@@ -1932,7 +1931,7 @@ static size_t loc_compMacTLS(s_sslCtx_t  *ps_sslCtx,
 			/* MAC_write_secret. 20 byte is a length of mac secret*/
 
 			//OLD-CW: i_retCheck += cr_digestInit(&cwt_hmacCtx, pc_macSecret, ps_sslCtx->s_secParams.c_hmacLen ,hashAlgo);
-			err = gci_hash_new_ctx(hashAlgo, hmacCtx);
+			err = gci_hash_new_ctx(hashAlgo, &hmacCtx);
 			if (err != GCI_OK)
 			{
 				//TODO: return from error state
@@ -2480,7 +2479,7 @@ static uint32_t loc_addPadding(s_sslCtx_t* ps_sslCtx, uint8_t *pc_data,
 	case E_TLS_1_2:
 		/* We read a 32bit random.. */
 		//OLD-CW: cw_prng_read((uint8_t*) &l_rand, 4);
-		err = gci_rng_gen(4, l_rand);
+		err = gci_rng_gen(4, (uint8_t*)l_rand);
 
 		if (err != GCI_OK)
 		{
@@ -2744,7 +2743,7 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 	 * */
 	loc_prf(ps_sslCtx,
 			ps_hsElem->s_sessElem.ac_msSec, MSSEC_SIZE,
-			rac_TLSlabelKeyExp, CW_STRLEN((const char *)rac_TLSlabelKeyExp),
+			rac_TLSlabelKeyExp, strlen((const char *)rac_TLSlabelKeyExp),
 			ps_hsElem->ac_srvRand, SRV_RANDSIZE,
 			ps_hsElem->ac_cliRand, CLI_RANDSIZE,
 			ac_keyBlk, c_keyBlkLen);
@@ -2815,7 +2814,7 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 		//TODO sw - See later the use of the IV:
 		//memset(ciphConf.iv.data, 0, ciphConf.iv.len);
 
-		err = gci_cipher_new_ctx(&ciphConf, keyID, rc4Ctx);
+		err = gci_cipher_new_ctx(&ciphConf, keyID, &rc4Ctx);
 
 
 		LOG2_INFO("Key");
@@ -2838,7 +2837,7 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 		//TODO See later the use of the IV:
 		//memset(ciphConf.iv.data, 0, ciphConf.iv.len);
 
-		err = gci_cipher_new_ctx(&ciphConf, keyID, tdesCtx);
+		err = gci_cipher_new_ctx(&ciphConf, keyID, &tdesCtx);
 
 		LOG2_INFO("Key");
 		LOG2_HEX(&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen);
@@ -2869,7 +2868,7 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 		//TODO See later the use of the IV:
 		//memset(ciphConf.iv.data, 0, ciphConf.iv.len);
 
-		err = gci_cipher_new_ctx(&ciphConf, keyID, aesCtx);
+		err = gci_cipher_new_ctx(&ciphConf, keyID, &aesCtx);
 
 
 		LOG2_INFO("Key");
@@ -3014,7 +3013,7 @@ static void loc_setSecParams(s_sslCtx_t*        ps_sslCtx,
 		ps_secPar->e_cipType        = GCI_CIPH_TDES;
 		ps_secPar->b_isBlkCip       = TRUE;
 		ps_secPar->c_blockLen       = 8;
-		ps_secPar->e_hmacType       = E_SSL_HASH_SHA1;
+		ps_secPar->e_hmacType       = GCI_HASH_SHA1;
 		ps_secPar->c_keyLen         = 24;
 		break;
 	case TLS_RSA_WITH_AES_128_CBC_SHA:
@@ -3579,8 +3578,8 @@ static int32_t loc_processExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_extsStart,
 				ps_sslCtx->s_secParams.eccChoosenCurve = 0xFFFF;
 
 				//get locally supported curves
-				uint8_t numberOfCurves;
-				uint16_t supportedCurves[25]; //RFC 4492 5.1.1: Officially 25 curves are supported
+				size_t numberOfCurves;
+				uint8_t supportedCurves[25]; //RFC 4492 5.1.1: Officially 25 curves are supported - It was an uint16_t
 
 				//OLD-CW: numberOfCurves = cw_ecc_getSupportedCurves(supportedCurves);
 				err = gci_get_info(GCI_INFO_ECNAME, supportedCurves, &numberOfCurves);
@@ -3962,9 +3961,9 @@ static uint8_t* loc_appendExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_in)
 				//Reset extension length
 				l_outLen = 0;
 
-				uint16_t supportedCurves[25]; //RFC 4492, 5.1.1: Officially supported: 25 curves
+				uint8_t supportedCurves[25]; //RFC 4492, 5.1.1: Officially supported: 25 curves uint16_t
 				//OLD-CW: uint8_t numberOfCurves = cw_ecc_getSupportedCurves(supportedCurves);
-				uint8_t numberOfCurves;
+				size_t numberOfCurves;
 				err = gci_get_info(GCI_INFO_ECNAME, supportedCurves, &numberOfCurves);
 				uint8_t i;
 				for(i=0; i<numberOfCurves; i++)
@@ -4934,7 +4933,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							//TODO sw - how to know the generator ??
 
 
-							err = gci_dh_calc_sharedSecret(dhCtx, &ps_hsElem->gci_dheSrvPubKey, pc_write);
+							err = gci_dh_calc_sharedSecret(dhCtx, ps_hsElem->gci_dheSrvPubKey, pc_write);
 
 
 							//if (cw_dhe_sharedSec_with_p(&ps_hsElem->gci_dheCliPrivKey, &ps_hsElem->gci_dheSrvPubKey, &ps_hsElem->pgci_dheP, pc_write, &cwt_hashLen) != CW_OK)
@@ -4950,7 +4949,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							ps_sslCtx->e_lastError =
 									loc_prf(ps_sslCtx,
 											pc_write, cwt_hashLen,
-											rac_TLSlabelMsSec, CW_STRLEN((const char *)rac_TLSlabelMsSec),
+											rac_TLSlabelMsSec, strlen((const char *)rac_TLSlabelMsSec),
 											ps_hsElem->ac_cliRand, CLI_RANDSIZE,
 											ps_hsElem->ac_srvRand, SRV_RANDSIZE,
 											ps_hsElem->s_sessElem.ac_msSec, MSSEC_SIZE);
@@ -5042,7 +5041,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							ps_sslCtx->e_lastError =
 									loc_prf(ps_sslCtx,
 											pc_write, cwt_hashLen,
-											rac_TLSlabelMsSec, CW_STRLEN((const char *)rac_TLSlabelMsSec),
+											rac_TLSlabelMsSec, strlen((const char *)rac_TLSlabelMsSec),
 											ps_hsElem->ac_cliRand, CLI_RANDSIZE,
 											ps_hsElem->ac_srvRand, SRV_RANDSIZE,
 											ps_hsElem->s_sessElem.ac_msSec, MSSEC_SIZE);
@@ -5605,7 +5604,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 	{
 		loc_prf(ps_sslCtx,
 				pc_rec, *cwt_wDataLen,
-				rac_TLSlabelMsSec, CW_STRLEN((const char *)rac_TLSlabelMsSec),
+				rac_TLSlabelMsSec, strlen((const char *)rac_TLSlabelMsSec),
 				ps_hsElem->ac_cliRand, CLI_RANDSIZE,
 				ps_hsElem->ac_srvRand, SRV_RANDSIZE,
 				ps_hsElem->s_sessElem.ac_msSec,
@@ -6555,7 +6554,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						{
 
 							/* Move the Certificate to the output area */
-							CW_MEMMOVE(pc_wData, pc_hsBuff + HS_HEADERLEN, cwt_len);
+							memmove(pc_wData, pc_hsBuff + HS_HEADERLEN, cwt_len);
 							*cwt_wDataLen = cwt_len;
 
 							/* Decode the certificate */
@@ -6616,7 +6615,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						/*
 						 * Move the Certificate to the output area
 						 */
-						CW_MEMMOVE(pc_wData,pc_hsBuff + HS_HEADERLEN, cwt_len);
+						memmove(pc_wData,pc_hsBuff + HS_HEADERLEN, cwt_len);
 						*cwt_wDataLen = cwt_len;
 
 						if (ps_sslCtx->s_secParams.e_kst == GCI_KEY_PAIR_RSA)
@@ -6703,8 +6702,8 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 
 
 						//get supported curves
-						uint8_t numberOfCurves;
-						uint16_t supportedCurves[25]; //RFC4492, 5.1.1 Max 25 curves
+						size_t numberOfCurves;
+						uint8_t supportedCurves[25]; //RFC4492, 5.1.1 Max 25 curves
 
 						//OLD-CW: numberOfCurves = cw_ecc_getSupportedCurves(supportedCurves);
 						err = gci_get_info(GCI_INFO_ECNAME, supportedCurves, &numberOfCurves);
@@ -6742,13 +6741,12 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 
 
 						//read/import pubkey
-						err = gci_key_get(ps_hsElem->eccPubKeyPeer, &eccPubID);
+						err = gci_key_get(ps_hsElem->eccPubKeyPeer, &eccPub);
 						if(err !=GCI_OK)
 						{
 							//TODO return state
 						}
 
-						err = gci_key_get(eccPubID, &eccPub);
 
 						memcpy(pc_hsBuff, eccPub.key.ecdhPub.x.data, eccPub.key.ecdhPub.x.len);
 						memcpy(pc_hsBuff, eccPub.key.ecdhPub.y.data, eccPub.key.ecdhPub.y.len);
@@ -6778,18 +6776,16 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						pc_pqy = pc_hsBuff;
 						LOG_INFO("cwt_len = %zu",cwt_len);
 
-
-						//TODO sw what should I do ??
-						if (cw_dhe_import_make_privKey(pc_hsBuff, cwt_len,
-								&ps_hsElem->gci_dheCliPrivKey,
-								&ps_hsElem->gci_dheSrvPubKey,
-								&ps_hsElem->pgci_dheP) != CW_OK)
-						{
-							LOG_ERR("%p| E_PENDACT_PROTOERR, state is %s", ps_sslCtx,
-									sslDiag_getSMState(ps_sslGut->e_smState));
-							ps_sslCtx->e_lastError = E_SSL_ERROR_CRYPTO;
-							return (E_PENDACT_PROTOERR);
-						}
+//						OLD-CW: if (cw_dhe_import_make_privKey(pc_hsBuff, cwt_len,
+//								&ps_hsElem->gci_dheCliPrivKey,
+//								&ps_hsElem->gci_dheSrvPubKey,
+//								&ps_hsElem->pgci_dheP) != CW_OK)
+//						{
+//							LOG_ERR("%p| E_PENDACT_PROTOERR, state is %s", ps_sslCtx,
+//									sslDiag_getSMState(ps_sslGut->e_smState));
+//							ps_sslCtx->e_lastError = E_SSL_ERROR_CRYPTO;
+//							return (E_PENDACT_PROTOERR);
+//						}
 
 						/* jump over p */
 						pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
@@ -7384,7 +7380,7 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 	{
 		memcpy(pc_rec + l_IVLen, pc_rawTxt, cwt_rawTxtLen);
 	} else if (l_IVLen > 0) {
-		CW_MEMMOVE(pc_rec + l_IVLen, pc_rec, cwt_rawTxtLen);
+		memmove(pc_rec + l_IVLen, pc_rec, cwt_rawTxtLen);
 	}
 	pc_rec += l_IVLen;
 
@@ -8095,7 +8091,7 @@ int ssl_verifyHash(const uint8_t rac_verHash[], size_t cwt_verHashLen,
 		//TODO return state
 	}
 
-	err = gci_sign_verify_finish(rsaCtx, pcw_sign, sizeof(pcw_sign));
+	err = gci_sign_verify_finish(rsaCtx, pcw_sign->data, pcw_sign->len);
 	if(err != GCI_OK)
 	{
 		//TODO return state
@@ -8405,7 +8401,7 @@ e_sslPendAct_t ssl_serverFSM(s_sslCtx_t *ps_sslCtx, e_sslPendAct_t e_event,
 
 			loc_prf(ps_sslCtx,
 					pc_rData, MSSEC_SIZE,
-					rac_TLSlabelMsSec, CW_STRLEN((const char *)rac_TLSlabelMsSec),
+					rac_TLSlabelMsSec, strlen((const char *)rac_TLSlabelMsSec),
 					ps_hsElem->ac_cliRand, CLI_RANDSIZE,
 					ps_hsElem->ac_srvRand, SRV_RANDSIZE,
 					ps_hsElem->s_sessElem.ac_msSec,
@@ -8422,7 +8418,7 @@ e_sslPendAct_t ssl_serverFSM(s_sslCtx_t *ps_sslCtx, e_sslPendAct_t e_event,
 
 			loc_prf(ps_sslCtx,
 					ps_hsElem->s_sessElem.ac_msSec, MSSEC_SIZE,
-					rac_TLSlabelMsSec, CW_STRLEN((const char *)rac_TLSlabelMsSec),
+					rac_TLSlabelMsSec, strlen((const char *)rac_TLSlabelMsSec),
 					ps_hsElem->ac_cliRand, CLI_RANDSIZE,
 					ps_hsElem->ac_srvRand, SRV_RANDSIZE,
 					ps_hsElem->s_sessElem.ac_msSec, MSSEC_SIZE);
@@ -8566,7 +8562,7 @@ int ssl_initCtx(s_sslCtx_t * ps_sslCtx, s_sslSett_t *ps_sslSett,
 	//TODO sw - how to know the rsa key length ??
 	//TODO sw - rsa private key useless ??
 
-	err = gci_key_pair_gen(&rsaGen, 10, ps_sslHsElem->gci_peerPubKey, NULL);
+	err = gci_key_pair_gen(&rsaGen, 1024, ps_sslHsElem->gci_peerPubKey, NULL);
 	if(err != GCI_OK)
 	{
 		//TODO return error state

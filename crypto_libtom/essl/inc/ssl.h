@@ -701,7 +701,7 @@ typedef struct ssl_handshakeElements
    union {
        s_md5Sha1_t      s_md5Sha1;
 	   GciCtxId_t 		md5Ctx;
-       gci_hashCtx_t    gci_hashCtx;
+       //OLD-CW: gci_hashCtx_t    gci_hashCtx;
 	   GciCtxId_t		sha1Ctx;
 	   GciCtxId_t		hashCtx;
 
@@ -748,7 +748,7 @@ typedef struct ssl_peerGlobalSettings
    /* Pointer to \ref cwt_rsaMyPrivKey */
    //OLD-CW: ecc_key*			        p_ECCMyPrivKey; //vpy
    GciKeyId_t				p_ECCMyPrivKey;
-   ltc_ecc_set_type			ltc_ECC_curvesParameters; //TODO sw - change to GciNamedCurve_t ?
+   //OLD-CW: ltc_ecc_set_type			ltc_ECC_curvesParameters; //TODO sw - change to GciNamedCurve_t ?
    GciNamedCurve_t 			gci_curveName;
 
    /* Behaviour of the SSL context pertaining to Client Authentication */

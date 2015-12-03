@@ -961,7 +961,7 @@ e_sslResult_t sslCert_addDataToChain(uint8_t *pc_chain, size_t *pcwt_len,
         return (E_SSL_LEN);
 
     if ((pc_chain + cwt_startPos + 3) != pc_data)
-        CW_MEMMOVE(pc_chain + cwt_startPos + 3, pc_data, cwt_dataLen);
+        memmove(pc_chain + cwt_startPos + 3, pc_data, cwt_dataLen);
 
     /* Data Len field */
     (void) ssl_writeInteger(pc_chain + cwt_startPos, cwt_dataLen, 3);

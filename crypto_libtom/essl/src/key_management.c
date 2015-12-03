@@ -106,9 +106,10 @@ int km_dhe_init(void)
     }
     else
     {
-        LOG1_ERR("cw_dhe_makeKey() error: %s", cw_error2string(i_ret));
+        //OLD-CW: LOG1_ERR("cw_dhe_makeKey() error: %s", cw_error2string(i_ret));
+    	LOG1_ERR("Error by creating DH keys");
 #if LOGGER_LEVEL > 1
-        cw_mem_printUsage();
+        //OLD-CW: cw_mem_printUsage();
 #endif
     }
 

@@ -460,7 +460,7 @@ int sslSoc_setECCPrivKey(s_sslSett_t* ps_sslSett, s_cdbCert_t* pcdt_privKey)
 	/* Memory for my ECC Private Key */
 	ps_sslSett->p_ECCMyPrivKey = malloc(sizeof(ecc_key));
 
-	iRet = _sslSoc_sett_import_ECCprivKey(pcdt_privKey, ps_sslSett->p_ECCMyPrivKey, &(ps_sslSett->ltc_ECC_curvesParameters));
+	iRet = _sslSoc_sett_import_ECCprivKey(pcdt_privKey, ps_sslSett->p_ECCMyPrivKey, &(ps_sslSett->gci_curveName)); //last parameter was ps_sslSett->ltc_ECC_curvesParameters
 	if (iRet != E_SSL_OK)
 	{
 		ps_sslSett->p_ECCMyPrivKey = NULL;

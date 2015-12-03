@@ -1101,7 +1101,8 @@ e_derdRet_t sslCert_prepPubKey(GciKey_t       *ps_pubKeyInfo,
 /*============================================================================*/
 /*  sslCert_prepPubKey                                                        */
 /*============================================================================*/
-void sslCert_delPubKey(s_pubKey_t * ps_pubKeyInfo)
+//OLD-CW: void sslCert_delPubKey(s_pubKey_t * ps_pubKeyInfo)
+void sslCert_delPubKey(GciKeyId_t * ps_pubKeyInfo)
 {
     assert(ps_pubKeyInfo != NULL);
 

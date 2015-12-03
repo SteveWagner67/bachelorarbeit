@@ -46,6 +46,7 @@ extern "C"
 {
 #endif /* begin C prototype in C++ */
 
+#include <string.h>
 #include "ssl.h"
 
 /*** Defines ****************************************************************/

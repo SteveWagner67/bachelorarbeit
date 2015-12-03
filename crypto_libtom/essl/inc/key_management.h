@@ -68,7 +68,7 @@ void km_dhe_releaseKey(void);
 
  */
 /*============================================================================*/
-gci_dhKey_t* km_dhe_getKey(void);
+//OLD-CW: gci_dhKey_t* km_dhe_getKey(void); - Remplace with gci_key_get(...)
 
 /*============================================================================*/
 /*!

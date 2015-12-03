@@ -532,7 +532,7 @@ int cdb_initCert_linear(s_cdbCert_t* pcdbt_cert, const char* pc_cert)
     pcdbt_cert->e_memloc = CDB_MEM_LINEAR;
     pcdbt_cert->e_fstate = CDB_STATE_IS_ASCII;
     pcdbt_cert->filepointer.pc_linear = pc_cert;
-    pcdbt_cert->i_length = CW_STRLEN(pc_cert);
+    pcdbt_cert->i_length = strlen(pc_cert);
     return TRUE;
 }
 

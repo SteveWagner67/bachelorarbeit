@@ -48,7 +48,7 @@ extern "C"
 {
 #endif
 
-#include "crypto_wrap.h"
+//#include "crypto_wrap.h"
 #include "crypto_iface.h"
 #include "ssl_der.h"
 
@@ -359,9 +359,15 @@ e_derdRet_t sslDerd_getOctStr(s_derdCtx_t *ps_derdCtx,
  *   success        : E_SSL_DER_OK
  *   or error       : E_SSL_DER_ERR_NO_SIGNATURE
  */
-e_derdRet_t sslDerd_getSign(s_derdCtx_t* 	ps_derdCtx,
-							e_sslHashAlg_t*	pe_hashAlg,
+// OLD-CW: e_derdRet_t sslDerd_getSign(s_derdCtx_t* 	ps_derdCtx,
+//							e_sslHashAlg_t*	pe_hashAlg,
+//                            uint8_t*     	pc_decSign, size_t* pi_decSignLen);
+
+sslDerd_getSign(s_derdCtx_t* 	ps_derdCtx,
+							GciHashAlgo_t*	pe_hashAlg,
                             uint8_t*     	pc_decSign, size_t* pi_decSignLen);
+
+
 /*
  * Encode the signature to a DER string.
  *

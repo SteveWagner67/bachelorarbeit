@@ -35,6 +35,8 @@
 extern "C"
 {
 #endif /* begin C prototype in C++ */
+#include <string.h>
+#include "assert.h"
 #include "ssl.h"
 #include "ssl_cert.h"
 

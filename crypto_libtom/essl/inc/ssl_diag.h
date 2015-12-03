@@ -73,7 +73,8 @@ char* sslDiag_getHashAlg (uint8_t hash);
 char* sslDiag_getSignAlg (uint8_t sign);
 void sslDiag_printHex(uint8_t *pcData, uint32_t iDataLen);
 void sslDiag_printInternals(s_sslGut_t* internal, int details);
-void sslDiag_printGenericString(s_sslGenStr_t * p_str, rpcw_str_t p_name);
+//OLD-CW: void sslDiag_printGenericString(s_sslGenStr_t * p_str, rpcw_str_t p_name); const char*
+void sslDiag_printGenericString(s_sslGenStr_t * p_str, const char* p_name);
 void sslDiag_printSessHsElem(s_sslHsElem_t* elmt, int details);
 void sslDiag_printSessKeys(s_sslSecParams_t* keys, int details);
 void sslDiag_printSsl(s_sslCtx_t* ctx, int details);
@@ -111,7 +112,8 @@ void sslDiag_printMsg(uint8_t *descriptor);
  *  \return Nothing
  */
 
-void sslDiag_printHexData(rpcw_str_t descriptor, uint8_t *pcData, uint32_t iDataLen);
+//OLD-CW: void sslDiag_printHexData(rpcw_str_t descriptor, uint8_t *pcData, uint32_t iDataLen); const char*
+void sslDiag_printHexData(const char* descriptor, uint8_t *pcData, uint32_t iDataLen);
 
 
 
@@ -128,7 +130,8 @@ void sslDiag_printHexData(rpcw_str_t descriptor, uint8_t *pcData, uint32_t iData
  *  \return Nothing
  */
 
-void sslDiag_printDigestStates(gci_sha1Ctx_t *pSHA1_Ctx, gci_md5Ctx_t *pMD5_Ctx);
+//OLD-CW: void sslDiag_printDigestStates(gci_sha1Ctx_t *pSHA1_Ctx, gci_md5Ctx_t *pMD5_Ctx);
+void sslDiag_printDigestStates(GciCtxId_t *pSHA1_Ctx, GciCtxId_t *pMD5_Ctx);
 
 
 /****************************************************************************/
