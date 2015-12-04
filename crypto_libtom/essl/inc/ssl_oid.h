@@ -56,7 +56,9 @@
 extern "C" {
 #endif
 
-#include "crypto_wrap.h"
+//#include "crypto_wrap.h"
+#include <stdint.h>
+#include <string.h>
 
 /*** Defines ****************************************************************/
 
@@ -225,8 +227,8 @@ int sslOid_fromDer ( const uint8_t pOid[], int cwt_len );
  *   object and algorithm identifier
  */
 
-int sslOid_fromText ( pcw_str_t pstrOid ) ;
-
+//OLD-CW: int sslOid_fromText ( pcw_str_t pstrOid ) ;
+int sslOid_fromText ( const char* pstrOid );
 
 
 
@@ -242,7 +244,8 @@ int sslOid_fromText ( pcw_str_t pstrOid ) ;
  *   - pointer to "undef" if the input OID is undefined.
  */
 
-rpcw_str_t sslOid_toName ( int iOid );
+//OLD-CW: rpcw_str_t sslOid_toName ( int iOid );
+const char* sslOid_toName ( int iOid );
 
 
 
@@ -277,7 +280,8 @@ const uint8_t *sslOid_toDer ( int16_t iOid , int16_t *piLen);
  *   - NULL if the input OID is not defined.
  */
 
-rpcw_str_t sslOid_toText ( int iOid );
+//OLD-CW: rpcw_str_t sslOid_toText ( int iOid );
+const char* sslOid_toText ( int iOid );
 
 
 

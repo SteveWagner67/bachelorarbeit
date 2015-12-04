@@ -663,6 +663,10 @@ typedef struct ssl_handshakeElements
     * In server mode it's the public key to perform the client authentication
     */
    //OLD-CW: gci_rsaPubKey_t        gci_peerPubKey;
+   //Generate in sslCtx_init (ssl.c) -> RSA public key
+   //uses in loc_verifySign (ssl.c) to verify a signature
+   //in loc_protocolResp (ssl.c) to encrypt a plaintxt
+   //and loc_protocolHand (ssl.c) to verify a signature
    GciKeyId_t			gci_peerPubKey;
 
    /* TODO adjust memory usage for dhe key exchange

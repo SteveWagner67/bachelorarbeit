@@ -268,12 +268,14 @@ void sslSoc_initSett(s_sslSett_t* ps_sslSett, e_sslKeyType_t keyType)
 	//TODO vpy EDSA: move in cert parsing
 	if(keyType == E_SSL_KEY_EC)
 	{
-		ps_sslSett->s_certSignHashAlg.c_hash = E_SSL_HASH_SHA256;
+		//OLD-CW: ps_sslSett->s_certSignHashAlg.c_hash = E_SSL_HASH_SHA256;
+		ps_sslSett->s_certSignHashAlg.c_hash = GCI_HASH_SHA256;
 		ps_sslSett->s_certSignHashAlg.c_sign = E_SSL_SIGN_RSA;
 	}
 	else
 	{
-		ps_sslSett->s_certSignHashAlg.c_hash = E_SSL_HASH_SHA256;
+		//OLD-CW: ps_sslSett->s_certSignHashAlg.c_hash = E_SSL_HASH_SHA256;
+		ps_sslSett->s_certSignHashAlg.c_hash = GCI_HASH_SHA256;
 		ps_sslSett->s_certSignHashAlg.c_sign = E_SSL_SIGN_ECDSA;
 	}
 
@@ -286,11 +288,17 @@ void sslSoc_initSett(s_sslSett_t* ps_sslSett, e_sslKeyType_t keyType)
  ==============================================================================*/
 void sslSoc_freeSett(s_sslSett_t* ps_sslSett)
 {
+	GciResult_t err;
 	assert(ps_sslSett != NULL);
 
 	if (ps_sslSett->pgci_rsaMyPrivKey)
 	{
-		cw_rsa_privatekey_free(ps_sslSett->pgci_rsaMyPrivKey);
+		err = gci_key_delete(ps_sslSett->pgci_rsaMyPrivKey);
+		if(err != GCI_OK)
+		{
+			//TODO return error state
+		}
+		//OLD-CW: cw_rsa_privatekey_free(ps_sslSett->pgci_rsaMyPrivKey);
 		free(ps_sslSett->pgci_rsaMyPrivKey);
 	} /* if */
 
@@ -434,7 +442,8 @@ int sslSoc_setRsaPrivKey(s_sslSett_t* ps_sslSett, s_cdbCert_t* pcdt_privKey)
 	assert(pcdt_privKey != NULL);
 
 	/* Memory for my RSA Private Key */
-	ps_sslSett->pgci_rsaMyPrivKey = malloc(sizeof(gci_rsaPrivKey_t));
+	//TODO sw - see what to do ?? I think nothing
+	//OLD-CW: ps_sslSett->pgci_rsaMyPrivKey = malloc(sizeof(gci_rsaPrivKey_t));
 
 	iRet = _sslSoc_sett_import_RSAprivKey(pcdt_privKey, ps_sslSett->pgci_rsaMyPrivKey);
 	if (iRet != E_SSL_OK)
@@ -458,7 +467,8 @@ int sslSoc_setECCPrivKey(s_sslSett_t* ps_sslSett, s_cdbCert_t* pcdt_privKey)
 	assert(pcdt_privKey != NULL);
 
 	/* Memory for my ECC Private Key */
-	ps_sslSett->p_ECCMyPrivKey = malloc(sizeof(ecc_key));
+	//TODO sw - what to do?? I think nothing
+	//OLD-CW : ps_sslSett->p_ECCMyPrivKey = malloc(sizeof(ecc_key));
 
 	iRet = _sslSoc_sett_import_ECCprivKey(pcdt_privKey, ps_sslSett->p_ECCMyPrivKey, &(ps_sslSett->gci_curveName)); //last parameter was ps_sslSett->ltc_ECC_curvesParameters
 	if (iRet != E_SSL_OK)

@@ -374,10 +374,14 @@ char* sslDiag_getExtension (e_tlsExt_t ext)
 char* sslDiag_getHashAlg (uint8_t hash)
 {
     switch (hash) {
-        SSL_DIAG_NAME2CASE(E_SSL_HASH_NONE);
-        SSL_DIAG_NAME2CASE(E_SSL_HASH_MD5);
-        SSL_DIAG_NAME2CASE(E_SSL_HASH_SHA1);
-        SSL_DIAG_NAME2CASE(E_SSL_HASH_SHA256);
+        //OLD-CW: SSL_DIAG_NAME2CASE(E_SSL_HASH_NONE);
+    	SSL_DIAG_NAME2CASE(GCI_HASH_NONE);
+    	//OLD-CW: SSL_DIAG_NAME2CASE(E_SSL_HASH_MD5);
+    	SSL_DIAG_NAME2CASE(GCI_HASH_MD5);
+    	//OLD-CW: SSL_DIAG_NAME2CASE(E_SSL_HASH_SHA1);
+    	SSL_DIAG_NAME2CASE(GCI_HASH_SHA1);
+    	//OLD-CW: SSL_DIAG_NAME2CASE(E_SSL_HASH_SHA256);
+    	SSL_DIAG_NAME2CASE(GCI_HASH_SHA256);
         default: return NULL;
     }
 }
@@ -398,7 +402,8 @@ void sslDiag_printHex(uint8_t *pcData, uint32_t iDataLen)
     sslDiag_printHexData(" ", pcData, iDataLen);
 }
 
-void sslDiag_printHexData(rpcw_str_t descriptor, uint8_t *pcData, uint32_t iDataLen)
+//OLD-CW: void sslDiag_printHexData(rpcw_str_t descriptor, uint8_t *pcData, uint32_t iDataLen)
+void sslDiag_printHexData(const char* descriptor, uint8_t *pcData, uint32_t iDataLen)
 {
     unsigned int i;
     int iMaxLen;
@@ -466,7 +471,8 @@ void sslDiag_printHexData(rpcw_str_t descriptor, uint8_t *pcData, uint32_t iData
 
 }
 
-void sslDiag_printGenericString(s_sslGenStr_t * ps_str, rpcw_str_t p_name)
+//OLD-CW: void sslDiag_printGenericString(s_sslGenStr_t * ps_str, rpcw_str_t p_name)
+void sslDiag_printGenericString(s_sslGenStr_t * ps_str, const char* p_name)
 {
     uint8_t ac_string[DBG_SSL_MAX_DEBUG_STRING_LEN];
     assert(ps_str != NULL);

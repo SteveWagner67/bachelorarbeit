@@ -74,7 +74,8 @@ char* sslDiag_getSignAlg (uint8_t sign);
 void sslDiag_printHex(uint8_t *pcData, uint32_t iDataLen);
 void sslDiag_printInternals(s_sslGut_t* internal, int details);
 //OLD-CW: void sslDiag_printGenericString(s_sslGenStr_t * p_str, rpcw_str_t p_name); const char*
-void sslDiag_printGenericString(s_sslGenStr_t * p_str, const char* p_name);
+//OLD-CW: void sslDiag_printGenericString(s_sslGenStr_t * p_str, const char* p_name);
+void sslDiag_printGenericString(s_sslGenStr_t * ps_str, const char* p_name);
 void sslDiag_printSessHsElem(s_sslHsElem_t* elmt, int details);
 void sslDiag_printSessKeys(s_sslSecParams_t* keys, int details);
 void sslDiag_printSsl(s_sslCtx_t* ctx, int details);

@@ -383,9 +383,7 @@ int cw_ecc_sign_encode(uint8_t* p_inMessage, size_t cwt_inMsgLen,
 /*============================================================================*/
 /*  cw_ecc_hash_verify_ltc()                                            */
 /*============================================================================*/
-//TODO sw gci_sign_new_ctx ECDSA +
-//TODO sw gci_sign_update ECDSA +
-//TODO sw gci_sign_verify_finish ECDSA
+
 int cw_ecc_hash_verify_ltc(uint8_t* pc_sig, size_t cwt_siglen,
         uint8_t* pc_hash, size_t cwt_hashlen, int* res,
         ecc_key * ecc_pubkey)
@@ -409,7 +407,6 @@ int cw_ecc_privatekey_init(unsigned char* p_buffer, size_t l_strlen,
 	 */
 	if (pcwt_privKey->type == PK_PRIVATE)
 	{
-		//TODO sw gci_key_delete
 		cw_ecc_free(pcwt_privKey);
 	}
 
@@ -851,7 +848,6 @@ impMkKeyDone:
 /*============================================================================*/
 /*  cw_dhe_sharedSec()                                                        */
 /*============================================================================*/
-//TODO sw gci_dh_calc_sharedSecret DH
 int cw_dhe_sharedSec(gci_dhKey_t* p_privateKey, gci_dhKey_t* p_publicKey,
         uint8_t* p_outData, size_t* cwp_outLen)
 {
@@ -1024,14 +1020,12 @@ int cw_rsa_verify(gci_bigNum_t * Message, gci_bigNum_t * Signature,
     size_t cwt_size_m;
     int err;
     cwt_size_s = mp_unsigned_bin_size(Signature);
-    //TODO sw ?? RSA Integer2OctetStringPointer
     if (cw_rsa_i2osp(Signature, cwt_size_s, auc_signature) != CW_OK)
         return (CW_ERROR);
     cwt_size_m = sizeof(auc_message);
     if ((err = rsa_exptmod(auc_signature, (unsigned long)cwt_size_s, auc_message,(unsigned long*) &cwt_size_m,
             PK_PUBLIC, (rsa_key*) pPubKey)) != CRYPT_OK)
         return (CW_ERROR);
-    //TODO sw ?? RSA OctetString2IntegerPointer
     if (cw_rsa_os2ip(Message, auc_message, cwt_size_m) != CW_OK)
         return (CW_ERROR);
 
@@ -1235,7 +1229,6 @@ void cw_rsa_privatekey_shrink(gci_rsaPrivKey_t* pcwt_privKey)
     /*
      *  call cw_rsa_publickey_shrink(), since public and private key are equal in LTC
      */
-	//TODO sw ?? public key shrink
     cw_rsa_publickey_shrink((gci_rsaPubKey_t*) pcwt_privKey);
 
 #endif
@@ -1252,7 +1245,6 @@ void cw_rsa_privatekey_free(gci_rsaPrivKey_t* pcwt_privKey)
     /*
      *  call cw_rsa_publickey_free(), since public and private key are equal in LTC
      */
-	//TODO sw gci_key_delete
     cw_rsa_publickey_free(pcwt_privKey);
 #endif
     return;
@@ -1733,19 +1725,15 @@ int cw_oidIdent2HashIDX(int i_oid)
     switch (i_oid)
     {
     case SSL_OID_MD5_WITH_RSA_ENC:
-    	//TODO sw ?? get an index with a string
         hashAlgo = cw_getHashIndex(CR_MD5_NAME);
         break;
     case SSL_OID_SHA1_WITH_RSA_ENC:
-    	//TODO sw ?? get an index with a string
         hashAlgo = cw_getHashIndex(CR_SHA1_NAME);
         break;
     case SSL_OID_SHA256_WITH_RSA_ENC:
-    	//TODO sw ?? get an index with a string
         hashAlgo = cw_getHashIndex(CR_SHA256_NAME);
         break;
     default:
-    	//TODO sw ?? get an index with a string
         hashAlgo = cw_getHashIndex(CR_INVALID);
 #if DBG_CRYPT_WRAP || DBG_SSL
         CW_DBG_PRINTF(DBG_STRING" Signature Algorithm unknown: %s", DBG_FILE_NAME, __LINE__, sslOid_toName(i_oid));

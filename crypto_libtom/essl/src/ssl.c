@@ -8559,7 +8559,7 @@ int ssl_initCtx(s_sslCtx_t * ps_sslCtx, s_sslSett_t *ps_sslSett,
 	rsaGen.algo = GCI_KEY_PAIR_RSA;
 	//TODO sw - how to know the rsa modulus length ??
 	rsaGen.config.rsa.modulusLen = 1024;
-	//TODO sw - rsa private key useless ??
+	//TODO sw - need a private key -> public key uses in protocolResp to encrypt a plaintxt (see ps_sslHsElem->gci_peerPubKey description)
 
 	err = gci_key_pair_gen(&rsaGen, ps_sslHsElem->gci_peerPubKey, NULL);
 	if(err != GCI_OK)
@@ -8567,7 +8567,8 @@ int ssl_initCtx(s_sslCtx_t * ps_sslCtx, s_sslSett_t *ps_sslSett,
 		//TODO return error state
 	}
 
-	//OLD-CW: w_rsa_publickey_init(&ps_sslHsElem->gci_peerPubKey);
+	//TODO sw - this is not a key generate
+	//OLD-CW: cw_rsa_publickey_init(&ps_sslHsElem->gci_peerPubKey);
 
 	ps_sslHsElem->gci_hsBufLen = SSL_HANDSHAKE_BUFFER_SIZE;
 

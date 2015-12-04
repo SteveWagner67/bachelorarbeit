@@ -141,9 +141,11 @@ static uint8_t SSL_OID_NR_2_16_840_1_113730_1_13[]    = { 0x60, 0x86, 0x48, 0x01
 
 typedef struct tagOidInfo
 {
-        rpcw_str_t    strName;        /* short object name                */
-        rpcw_str_t    strOid;         /* dotted-name object identifier    */
-        int           cwt_len;        /* BER OID length                   */
+        //OLD-CW: rpcw_str_t    strName;        /* short object name                */
+		const char* strName;
+		//OLD-CW:rpcw_str_t    strOid;         /* dotted-name object identifier    */
+        const char* strOid;
+		int           cwt_len;        /* BER OID length                   */
 const   uint8_t*      pDerOid;        /* BER encoded OID                  */
         int           iId;            /* internal ID                      */
 } SSL_OID_INFO;
@@ -344,7 +346,8 @@ int sslOid_fromDer (const uint8_t pOid[], int cwt_len)
 /****************************************************************************
  * OID - get ID from LDAP (text) format OID string
  ****************************************************************************/
-int sslOid_fromText (pcw_str_t pOid)
+//OLD-CW: int sslOid_fromText (pcw_str_t pOid)
+int sslOid_fromText (const char* pOid)
 {
     int  res = SSL_OID_UNDEF;
     int  i = 0;
@@ -371,7 +374,8 @@ int sslOid_fromText (pcw_str_t pOid)
 /****************************************************************************
  * OID - get ID-Text description from OID
  ****************************************************************************/
-rpcw_str_t sslOid_toName ( int iOid )
+//OLD-CW: rpcw_str_t sslOid_toName ( int iOid )
+const char* sslOid_toName ( int iOid )
 {
     int      zhl = 0;
 
@@ -407,7 +411,8 @@ const uint8_t *sslOid_toDer ( int16_t iOid , int16_t *piLen)
 /****************************************************************************
  * OID - get text OID from OID
  ****************************************************************************/
-rpcw_str_t sslOid_toText ( int iOid )
+//OLD-CW: rpcw_str_t sslOid_toText ( int iOid )
+const char* sslOid_toText ( int iOid )
 {
     int      zhl = 0;
 

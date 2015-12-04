@@ -413,7 +413,7 @@ s_sslCertList_t * sslConf_cmpCertReqList(s_sslCtx_t* ps_sslCtx,
                 /*
                  * Compare received value to current entry
                  */
-                if (CW_MEMCMP(pc_tmpMsg, pc_subject, cwt_fieldLen) == 0)
+                if (memcmp(pc_tmpMsg, pc_subject, cwt_fieldLen) == 0)
                 {
                     i = 1;
                 }
@@ -461,7 +461,8 @@ uint8_t sslConf_certHook(s_sslCtx_t *ps_sslCtx, s_sslKeyCertInfo_t *ps_cliCertIn
     s_sslGut_t *ps_sslGut;
     s_derdCtx_t s_derdCtx;
     s_sslKeyCertSubj_t certSubject;
-    rpcw_str_t rpcwt_subjName;
+    //OLD-CW: rpcw_str_t rpcwt_subjName;
+    const char* rpcwt_subjName;
     uint32_t l_notBefore;
     uint32_t l_notAfter;
     uint32_t l_actual;
@@ -541,25 +542,25 @@ uint8_t sslConf_certHook(s_sslCtx_t *ps_sslCtx, s_sslKeyCertInfo_t *ps_cliCertIn
                  */
                 if (certSubject.type == SSL_OID_COMMON_NAME)
                 {
-                    if (CW_STRNCMP("root",
+                    if (strncmp("root",
                             (const char *) certSubject.strData.pc_data,
                             certSubject.strData.cwt_len) == 0)
                     {
                         ps_sslGut->l_pendCliAuthId = 4;
                     }
-                    else if (CW_STRNCMP("admin",
+                    else if (strncmp("admin",
                             (const char *) certSubject.strData.pc_data,
                             certSubject.strData.cwt_len) == 0)
                     {
                         ps_sslGut->l_pendCliAuthId = 3;
                     }
-                    else if (CW_STRNCMP("user",
+                    else if (strncmp("user",
                             (const char *) certSubject.strData.pc_data,
                             certSubject.strData.cwt_len) == 0)
                     {
                         ps_sslGut->l_pendCliAuthId = 2;
                     }
-                    else if (CW_STRNCMP("nobody",
+                    else if (strncmp("nobody",
                             (const char *) certSubject.strData.pc_data,
                             certSubject.strData.cwt_len) == 0)
                     {
@@ -703,7 +704,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
 
         /* reset this variable */
-        memset(&cwt_dhKeyCliY, 0x00, sizeof(gci_dhKey_t));
+        //OLD-CW: memset(&cwt_dhKeyCliY, 0x00, sizeof(gci_dhKey_t));
         /* read the Yc of the client that has been transmitted in the ClientKeyExchange */
        // if (cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY) != CW_OK)
        // {
@@ -750,7 +751,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     case E_PENDACT_ASYM_ECDHECALCSHARED:
 
     	/* reset this variable */
-    	memset(&(ps_handshElem->eccPubKeyPeer), 0x00, sizeof(ecc_key));
+    	//OLD-CW: memset(&(ps_handshElem->eccPubKeyPeer), 0x00, sizeof(ecc_key));
 
         /* read the public key of the client that has been transmitted in the ClientKeyExchange */
 //    	OLD-CW: if(cw_ecc_import_public(pc_inData, cwt_inLen, &(ps_handshElem->eccPubKeyPeer))!=CRYPT_OK)
@@ -869,9 +870,12 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
     	} else {
 
-			if (ssl_verifyHash(pc_inData, VERIF_HASHSIZE,
-					pc_inData + VERIF_HASHSIZE, cwt_inLen - VERIF_HASHSIZE,
-					&ps_handshElem->gci_peerPubKey) != CW_OK)
+//			OLD-CW: if (ssl_verifyHash(pc_inData, VERIF_HASHSIZE,
+//					pc_inData + VERIF_HASHSIZE, cwt_inLen - VERIF_HASHSIZE,
+//					&ps_handshElem->gci_peerPubKey) != CW_OK)
+    		if (ssl_verifyHash(pc_inData, VERIF_HASHSIZE,
+    					pc_inData + VERIF_HASHSIZE, cwt_inLen - VERIF_HASHSIZE,
+    					&ps_handshElem->gci_peerPubKey) != GCI_OK)
 			{
 				E_SSL_VERIFRES_FAILED(pc_outData);
 				LOG_ERR("Verification of CertificateVerify failed");

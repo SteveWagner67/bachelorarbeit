@@ -11,6 +11,7 @@
  */
 
 //#include "crypto_wrap.h"
+#include <limits.h>
 #include "netGlobal.h"
 #include "ssl_der.h"
 #include "ssl_derd.h"
