@@ -65,10 +65,9 @@ static s_kmDheKey_t gst_dheKey =
 /*============================================================================*/
 /*  km_dhe_init()                                                             */
 /*============================================================================*/
-int km_dhe_init(void)
+//OLD-CW: int km_dhe_init(void)
+GciResult_t km_dhe_init(void)
 {
-    int i_ret;
-
     GciResult_t err;
 
     GciCtxId_t dhCtx;
@@ -114,7 +113,7 @@ int km_dhe_init(void)
 #endif
     }
 
-    return i_ret;
+    return err;
 } /* km_dhe_init() */
 
 /*============================================================================*/

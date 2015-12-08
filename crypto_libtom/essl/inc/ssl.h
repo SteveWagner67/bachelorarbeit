@@ -520,6 +520,8 @@ typedef enum E_SSL_VERSION
  * used by TLS >= v1.2 for digitally-signed elements
  * (see RFC 5246, p. 46)
  */
+
+//TODO sw - replace this enum with GciSignAlgo_t
 typedef enum {
 	E_SSL_SIGN_ANONY	= 0,
 	E_SSL_SIGN_RSA		= 1,
@@ -541,6 +543,7 @@ typedef enum ssl_psudoRandomFunctionType {
     E_SSL_PRF_UNDEF
 }e_sslPrf_t;
 
+//TODO sw - replace this enum with GciCipherAlgo_t
 typedef enum ssl_cipherTypes
 {
 	UNDEF_SYM            = 0x00,
@@ -550,6 +553,7 @@ typedef enum ssl_cipherTypes
 	INVALID_SYM          = 0xFF
 } SYM_CIPHER;
 
+//TODO sw - replace this enum with GciKeyPairType_t
 typedef enum ssl_keyShareTypes
 {
 	E_SSL_KST_UNDEF           = 0x00,
@@ -562,6 +566,7 @@ typedef enum ssl_keyShareTypes
 	//end vpy
 	E_SSL_KST_INVALID         = 0xFF
 } E_SSL_KST;
+
 
 typedef enum {
 	E_SSL_KEY_RSA,
@@ -586,10 +591,11 @@ typedef enum ssl_verificationResults
 
 /* *********************************************************************** */
 
+
 typedef struct ssl_certificate
 {
    /* Public Key of the certificate */
-   //OLD-CW: gci_rsaPubKey_t        gci_caPubKey;
+	//OLD-CW: gci_rsaPubKey_t        gci_caPubKey;
 	GciKeyId_t 			 gci_caPubKey;
    /* Indicates if the certificate is a CA certificate */
    uint8_t               c_isCa;
@@ -662,17 +668,19 @@ typedef struct ssl_handshakeElements
     * In client mode it's the public key for generation of the ClientKeyExchange
     * In server mode it's the public key to perform the client authentication
     */
+
+   //sw - the DH private key doesn't go out of the context
+   GciCtxId_t			gci_dhCtx;
+   GciCtxId_t			gci_ecdhCtx;
+
+
    //OLD-CW: gci_rsaPubKey_t        gci_peerPubKey;
-   //Generate in sslCtx_init (ssl.c) -> RSA public key
-   //uses in loc_verifySign (ssl.c) to verify a signature
-   //in loc_protocolResp (ssl.c) to encrypt a plaintxt
-   //and loc_protocolHand (ssl.c) to verify a signature
    GciKeyId_t			gci_peerPubKey;
 
    /* TODO adjust memory usage for dhe key exchange
     * the private key if diffie hellman is used and we act as client */
    //OLD-CW: gci_dhKey_t            gci_dheCliPrivKey;
-   GciKeyId_t 			gci_dheCliPrivKey;
+   //OLD-CW: GciKeyId_t 			gci_dheCliPrivKey;
 
    /* the public key if dh is used and we act as server */
    //OLD-CW: gci_dhKey_t            gci_dheSrvPubKey;
@@ -690,7 +698,8 @@ typedef struct ssl_handshakeElements
    //OLD-CW: gci_eccKey_t			eccPubKeyPeer;
    GciKeyId_t			eccPubKeyPeer;
    //Name of the curve which is proposed by peer (server) when acting as a client.
-   uint16_t				eccCurve;
+   //OLD-CW: uint16_t				eccCurve;
+   GciNamedCurve_t		eccCurve;
 
    e_sslVer_t           e_offerVer;
    /* The two random values of Server and Client */
@@ -751,8 +760,8 @@ typedef struct ssl_peerGlobalSettings
 
    /* Pointer to \ref cwt_rsaMyPrivKey */
    //OLD-CW: ecc_key*			        p_ECCMyPrivKey; //vpy
-   GciKeyId_t				p_ECCMyPrivKey;
-   //OLD-CW: ltc_ecc_set_type			ltc_ECC_curvesParameters; //TODO sw - change to GciNamedCurve_t ?
+   GciKeyId_t				p_ECCMyPrivKey; //TODO sw - hierarchy of p_ECCMyPrivKey
+   //OLD-CW: ltc_ecc_set_type			ltc_ECC_curvesParameters;
    GciNamedCurve_t 			gci_curveName;
 
    /* Behaviour of the SSL context pertaining to Client Authentication */
@@ -786,7 +795,7 @@ typedef struct ssl_securityParameters
    //OLD-CW: gci_dhKey_t*       	pgci_dheKey;
    //GciKeyId_t			pgci_dheKey;
    GciCtxId_t			dheCtx;
-   uint8_t             	c_useDheKey; //TODO see where it's used and if is useful
+   uint8_t             	c_useDheKey;
 
    //vpy: the ECC key used when ECDHE is used
    //TODO vpy: change and use a pointer for eccKey;

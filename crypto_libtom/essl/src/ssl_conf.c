@@ -813,8 +813,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
         s_octPeerCert.pc_data = pc_inData;
         s_octPeerCert.cwt_len = cwt_inLen;
 
-        e_ret = sslCert_verifyChain(&s_octPeerCert,
-                &ps_handshElem->gci_peerPubKey, ps_caList);
+        e_ret = sslCert_verifyChain(&s_octPeerCert, &ps_handshElem->gci_peerPubKey, ps_caList);
 
         if (e_ret != E_SSL_CERT_OK)
         {

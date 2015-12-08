@@ -44,7 +44,7 @@ GciResult_t gci_deinit(void);
 
 
 /**
- * \fn						GciResult_t gci_get_info(GciInfo_t infoType, uint8_t* info, size_t* infoLen)
+ * \fn						GciResult_t gci_get_info(GciInfo_t infoType, uint16_t* info, size_t* infoLen)
  * \brief					Get some information
  * \param [in]	infoType	Which information
  * \param [out]	info		Buffer with the information
@@ -52,7 +52,7 @@ GciResult_t gci_deinit(void);
  * @return					GCI_NO_ERR on success
  * @return					GCI_ERR on error
  */
-GciResult_t gci_get_info(GciInfo_t infoType, uint8_t* info, size_t* infoLen);
+GciResult_t gci_get_info(GciInfo_t infoType, uint16_t* info, size_t* infoLen);
 
 
 
@@ -130,7 +130,7 @@ GciResult_t gci_hash_finish(GciCtxId_t ctxID, uint8_t* digest, size_t* digestLen
 /**********************************************************************************************************************/
 
 /**
- * \fn						GciResult_t gci_sign_gen_new_ctx(const GciSignConfig_t* signConfig, GciCtxId_t* ctxID)
+ * \fn						GciResult_t gci_sign_gen_new_ctx(const GciSignConfig_t* signConfig, GciKeyId_t keyID, GciCtxId_t* ctxID)
  * \brief					Create a new signature context and become an ID of it
  * \param [in]  signConfig	Configuration of the signature
  * \param [in]  keyID		Key's ID
@@ -143,7 +143,7 @@ GciResult_t gci_sign_gen_new_ctx(const GciSignConfig_t* signConfig, GciKeyId_t k
 
 
 /**
- * \fn						GciResult_t gci_sign_verify_new_ctx(const GciSignConfig_t* signConfig, GciCtxId_t* ctxID)
+ * \fn						gci_sign_verify_new_ctx(const GciSignConfig_t* signConfig, GciKeyId_t keyID, GciCtxId_t* ctxID)
  * \brief					Create a new signature context and become an ID of it
  * \param [in]  signConfig	Configuration of the signature
  * \param [in]  keyID		Key's ID
@@ -211,17 +211,17 @@ GciResult_t gci_sign_verify_finish(GciCtxId_t ctxID, const uint8_t* sign, size_t
 /*		      											KEY GENERATOR			      							  	  */
 /**********************************************************************************************************************/
 
+//TODO sw new[08/12/2015] - Change GciKeyGenConfig_t to GciKeyPairType_t
 /**
- * \fn						GciResult_t gci_key_pair_gen(const GciKeyGenConfig_t* keyConfig, size_t keyLen, GciKeyId_t* pubKeyID, GciKeyId_t* privKeyID)
+ * \fn						GciResult_t gci_key_pair_gen(const GciKeyPairType_t* keyType, GciKeyId_t* pubKeyID, GciKeyId_t* privKeyID)
  * \brief					Generate a pair of key and get the ID of the public key
- * \param [in]  keyConfig	Configuration of the key
- * \param [in] 	keyLen		Length of the keys in bytes
+ * \param [in]  keyType		Type of key
  * \param [out] pubKeyID	ID of the public key
  * \param [out] privKeyID	ID of the private key
  * @return					GCI_NO_ERR on success
  * @return					GCI_ERR on error
  */
-GciResult_t gci_key_pair_gen(const GciKeyGenConfig_t* keyConfig, GciKeyId_t* pubKeyID, GciKeyId_t* privKeyID);
+GciResult_t gci_key_pair_gen(const GciKeyPairType_t* keyType, GciKeyId_t* pubKeyID, GciKeyId_t* privKeyID);
 
 
 
@@ -259,7 +259,7 @@ GciResult_t gci_cipher_encrypt(GciCtxId_t ctxId, const uint8_t* plaintxt, size_t
 
 
 /**
- * \fn						GciResult_t gci_cipher_decrypt(GciCtxId_t ctxId, const uint8_t* ciphtxt, int cptxtLen, uint8_t* plaintxt, size_t* pltxtLen)
+ * \fn						GciResult_t gci_cipher_decrypt(GciCtxId_t ctxId, const uint8_t* ciphtxt, size_t cptxtLen, uint8_t* plaintxt, size_t* pltxtLen)
  * \brief					Decrypt a ciphertext and get the plaintext
  * \param [in]	ctxId		Context's ID
  * \param [in]  ciphtxt		data to be decrypted
@@ -305,15 +305,16 @@ GciResult_t gci_rng_seed(const uint8_t* sdBuf, size_t sdLen);
 /*		    										 Diffie-Hellmann                 				    			  */
 /**********************************************************************************************************************/
 
+//TODO sw new[08/12/2015] - change GciDhConfig_t to GciDhType_t
 /**
- * \fn						GciResult_t gci_dh_new_ctx(const GciDhConfig_t* dhConfig, GciCtxId_t* ctxID)
+ * \fn						GciResult_t gci_dh_new_ctx(const GciDhType_t* dhType, GciCtxId_t* ctxID)
  * \brief					Create a new Diffie-Hellman context
- * \param [in]  dhConfig	Configuration of the Diffie-Hellman
+ * \param [in]  dhType		Type of the Diffie-Hellman
  * \param [out] ctxID		Context's ID
  * @return					GCI_NO_ERR on success
  * @return					GCI_ERR on error
  */
-GciResult_t gci_dh_new_ctx(const GciDhConfig_t* dhConfig, GciCtxId_t* ctxID);
+GciResult_t gci_dh_new_ctx(const GciDhType_t* dhType, GciCtxId_t* ctxID);
 
 
 

@@ -199,24 +199,19 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
     s_sslCert_t *ps_tmpCaRootCert = NULL;
     s_sslCertList_t *ps_caListElem = NULL;
     //OLD-CW: s_pubKey_t s_pubKey;
+    GciKey_t s_pubKey;
+
     int32_t l_pathLen;
     int16_t i_tmpRet;
 
     GciResult_t err;
-    GciKey_t s_pubKey;
-
-    err = gci_key_get(*pcwt_rsaPubKey, &s_pubKey);
-    if(err != GCI_OK)
-    {
-    	//TODO return error state
-    }
 
 
 
     assert(ps_octStrCert != NULL);
     assert(ps_cert != NULL);
     //OLD-CW: assert(pcwt_rsaPubKey != NULL);
-    assert(s_pubKey.key.rsaPub.e.data != NULL);
+
 
     /*
      * Decode the certificate
@@ -291,6 +286,12 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
          */
         //OLD-CW: cw_rsa_publickey_prep(pcwt_rsaPubKey, &s_pubKey);
 
+    	err = gci_key_get(*pcwt_rsaPubKey, &s_pubKey);
+    	if(err != GCI_OK)
+    	{
+    		//TODO return error state
+    	}
+
 
         i_tmpRet = sslCert_prepPubKey(&s_pubKey, &s_certInfo.s_octPubKey);
         if (i_tmpRet != E_SSL_DER_OK)
@@ -298,6 +299,16 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
             e_ret = E_SSL_CERT_ERR_PUBLIC_KEY;
             goto error;
         }
+
+
+        //Get an ID of this key
+        err = gci_key_put(&s_pubKey, pcwt_rsaPubKey);
+
+        if(err != GCI_OK)
+        {
+        	//TODO return error state
+        }
+
 
         //OLD-CW:cw_rsa_publickey_post(&s_pubKey, pcwt_rsaPubKey);
         i_tmpRet = E_SSL_CERT_ERR;
@@ -307,7 +318,7 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
          */
         if (ps_tmpCaRootCert != NULL)
         {
-            i_tmpRet = ssl_verifyCertSign(&s_certInfo, &ps_tmpCaRootCert->gci_caPubKey);
+            i_tmpRet = ssl_verifyCertSign(&s_certInfo, &ps_tmpCaRootCert->gci_caPubKey); //This public key correspond to CA root (CA0)
         }
         else if ((ps_caRootCert == NULL) && (ps_caListHead == NULL))
         {
@@ -589,21 +600,8 @@ e_sslResult_t sslCert_getSubject(s_sslCertList_t *ps_entry, uint8_t *pc_dest, si
         {
             s_octCert.cwt_len = cwt_bufLen;
 
-            rsaConf.algo = GCI_KEY_PAIR_RSA;
-            //TODO sw - RSA modulus length ??
-            rsaConf.config.rsa.modulusLen = 1024;
-
-            err = gci_key_pair_gen(&rsaConf, &tmp_cert.gci_caPubKey, NULL);
-            if(err != GCI_OK)
-            {
-            	//TODO return error state
-            }
-
-
 
             //OLD-CW: cw_rsa_publickey_init(&tmp_cert.gci_caPubKey);
-            //OLD-CW: i_ret = sslCert_init(&s_octCert, &tmp_cert, &tmp_cert.gci_caPubKey, pc_dest, *pcwt_space, NULL, NULL);
-
             i_ret = sslCert_init(&s_octCert, &tmp_cert, &tmp_cert.gci_caPubKey, pc_dest, *pcwt_space, NULL, NULL);
 
             if (i_ret == E_SSL_CERT_OK)
@@ -714,23 +712,6 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcw
          */
         //OLD-CW: cw_rsa_publickey_init(&ast_tmpCert[0].gci_caPubKey);
 
-        rsaConf.algo = GCI_KEY_PAIR_RSA;
-        //TODO sw - RSA modulus length ??
-        rsaConf.config.rsa.modulusLen = 1024;
-
-        err = gci_key_pair_gen(&rsaConf, &ast_tmpCert[0].gci_caPubKey, NULL);
-        if(err != GCI_OK)
-        {
-        	//TODO return error state
-        }
-
-        //OLD-CW: cw_rsa_publickey_init(&ast_tmpCert[1].gci_caPubKey);
-
-        err = gci_key_pair_gen(&rsaConf, &ast_tmpCert[1].gci_caPubKey, NULL);
-        if(err != GCI_OK)
-        {
-        	//TODO return error state
-        }
 
         /*
          * Init all other pointers
@@ -780,11 +761,6 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcw
                 }
 
                 //OLD-CW: cw_rsa_publickey_init(&ps_rootCert->gci_caPubKey);
-                err = gci_key_pair_gen(&rsaConf, &ps_rootCert->gci_caPubKey, NULL);
-                if(err != GCI_OK)
-                {
-                	//TODO return error state
-                }
             }
 
             /*

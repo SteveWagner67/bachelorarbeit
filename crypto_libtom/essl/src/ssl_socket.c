@@ -108,16 +108,6 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 		 */
 		//OLD-CW: iRet = cw_rsa_privatekey_init(p_buffer, (uint32_t) cwt_len, pcwt_privKey);
 
-		rsaConf.algo = GCI_KEY_PAIR_RSA;
-		//TODO sw - modulus length ?
-		rsaConf.config.rsa.modulusLen = 1024;
-
-		err = gci_key_pair_gen(&rsaConf, NULL, pcwt_privKey);
-		if(err != GCI_OK)
-		{
-			LOG_ERR("Import of the private key was't successful!");
-		}
-
 
 //		if (iRet == CRYPT_OK)
 //		{
@@ -186,16 +176,9 @@ static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
 		 * Import the privatekey
 		 */
 
+		//TODO sw - import the private key - not just ini
+
 //		OLD-CW: iRet = cw_ecc_privatekey_init(p_buffer, (uint32_t) cwt_len, pcwt_privKey, dp);
-		ecdsaConf.algo = GCI_KEY_PAIR_ECDSA;
-		ecdsaConf.config.ecdsaCurveName = *curveName;
-
-		err = gci_key_pair_gen(&ecdsaConf, NULL, pcwt_privKey);
-
-		if(err != GCI_OK)
-		{
-			LOG_ERR("Import of the private key was't successful!");
-		}
 
 
 //		if (iRet == CRYPT_OK)
@@ -962,18 +945,13 @@ int sslSoc_free(s_sslCtx_t* ps_sslCtx)
 	}
 
 	//OLD-cw:	cw_dh_free(&ps_sslCtx->ps_hsElem->gci_dheCliPrivKey);
-	err = gci_key_delete(&ps_sslCtx->ps_hsElem->gci_dheCliPrivKey);
+
+	//OLD-cw:	cw_dh_free(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
+	err = gci_key_delete(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
 	if(err != GCI_OK)
 	{
 		//TODO return error state
 	}
-
-	//OLD-cw:	cw_dh_free(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
-		err = gci_key_delete(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
-		if(err != GCI_OK)
-		{
-			//TODO return error state
-		}
 
 //	OLD-cw: if (ps_sslCtx->ps_hsElem->pgci_dheP.data != NULL)
 //	{

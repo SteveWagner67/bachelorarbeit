@@ -82,7 +82,8 @@ void km_dhe_releaseKey(void);
 
  */
 /*============================================================================*/
-int km_dhe_init(void);
+//OLD-CW: int km_dhe_init(void);
+GciResult_t km_dhe_init(void);
 
 /*============================================================================*/
 #endif /* __KEY_MANAGEMENT_H__ */

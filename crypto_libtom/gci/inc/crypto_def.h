@@ -317,7 +317,7 @@ typedef struct
 
 
 /*!
- * \struct 					GciGFpDhDomainParam_t
+ * \struct 					GciDhDomainParam_t
  * \brief					Structure for the Diffie-Hellman domain parameters
  */
 typedef struct
@@ -326,7 +326,7 @@ typedef struct
 	GciBigInt_t p;
 	/**Generator*/
 	GciBigInt_t g;
-} GciGFpDhDomainParam_t;
+} GciDhDomainParam_t;
 
 
 
@@ -347,67 +347,68 @@ typedef struct
 /*!
  * \enum 					GciNamedCurve_t
  * \brief					Enumeration of the Elliptic Curve
+ * \brief					RFC4492 + RFC7027
  */
 typedef enum
 {
 	/**Invalid Elliptic Curve*/
 	GCI_EC_INVALID,
-	/**SECP112R1 Elliptic Curve*/
-	GCI_EC_SECP112R1,
-	/**SECP112R2 Elliptic Curve*/
-	GCI_EC_SECP112R2,
-	/**SECP128R1 Elliptic Curve*/
-	GCI_EC_SECP128R1,
-	/**SECP128R2 Elliptic Curve*/
-	GCI_EC_SECP128R2,
+	/**SECT163K1 Elliptic Curve*/
+	GCI_EC_SECT163K1,
+	/**SECT163R1 Elliptic Curve*/
+	GCI_EC_SECT163R1,
+	/**SECT163R1 Elliptic Curve*/
+	GCI_EC_SECT163R1,
+	/**SECT163R1 Elliptic Curve*/
+	GCI_EC_SECT163R1,
+	/**SECT163R1 Elliptic Curve*/
+	GCI_EC_SECT163R1,
+	/**SECT233K1 Elliptic Curve*/
+	GCI_EC_SECT233K1,
+	/**SECT233R1 Elliptic Curve*/
+	GCI_EC_SECT233R1,
+	/**SECT239K1 Elliptic Curve*/
+	GCI_EC_SECT239K1,
+	/**SECT283K1 Elliptic Curve*/
+	GCI_EC_SECT283K1,
+	/**SECT283R1 Elliptic Curve*/
+	GCI_EC_SECT283R1,
+	/**SECT409K1 Elliptic Curve*/
+	GCI_EC_SECT409K1,
+	/**SECT409R1 Elliptic Curve*/
+	GCI_EC_SECT409R1,
+	/**SECT571K1 Elliptic Curve*/
+	GCI_EC_SECT571K1,
+	/**SECT571R1 Elliptic Curve*/
+	GCI_EC_SECT571R1,
+	/**SECP160K1 Elliptic Curve*/
+	GCI_EC_SECP160K1,
 	/**SECP160R1 Elliptic Curve*/
 	GCI_EC_SECP160R1,
 	/**SECP160R2 Elliptic Curve*/
 	GCI_EC_SECP160R2,
-	/**SECP160K1 Elliptic Curve*/
-	GCI_EC_SECP160K1,
-	/**BRAINPOOLP160R1 Elliptic Curve*/
-	GCI_EC_BRAINPOOLP160R1,
-	/**SECP192R1 Elliptic Curve*/
-	GCI_EC_SECP192R1,
-	/**PRIME192V2 Elliptic Curve*/
-	GCI_EC_PRIME192V2,
-	/**PRIME192V3 Elliptic Curve*/
-	GCI_EC_PRIME192V3,
 	/**SECP192K1 Elliptic Curve*/
 	GCI_EC_SECP192K1,
-	/**BRAINPOOLP192R1 Elliptic Curve*/
-	GCI_EC_BRAINPOOLP192R1,
-	/**SECP224R1 Elliptic Curve*/
-	GCI_EC_SECP224R1,
+	/**SECP192R1 (SECG) / PRIME192V1 (ANSI X9.62) Elliptic Curve*/
+	GCI_EC_SECP192R1,
 	/**SECP224K1 Elliptic Curve*/
 	GCI_EC_SECP224K1,
-	/**BRAINPOOLP224R1 Elliptic Curve*/
-	GCI_EC_BRAINPOOLP224R1,
-	/**PRIME239V1 Elliptic Curve*/
-	GCI_EC_PRIME239V1,
-	/**PRIME239V2 Elliptic Curve*/
-	GCI_EC_PRIME239V2,
-	/**PRIME239V3 Elliptic Curve*/
-	GCI_EC_PRIME239V3,
-	/**SECP256R1 Elliptic Curve*/
-	GCI_EC_SECP256R1,
+	/**SECP224R1 Elliptic Curve*/
+	GCI_EC_SECP224R1,
 	/**SECP256K1 Elliptic Curve*/
 	GCI_EC_SECP256K1,
-	/**BRAINPOOLP256R1 Elliptic Curve*/
-	GCI_EC_BRAINPOOLP256R1,
-	/**BRAINPOOLP320R1 Elliptic Curve*/
-	GCI_EC_BRAINPOOLP320R1,
+	/**SECP256R1 (SECG) / PRIME256V1 (ANSI X9.62) Elliptic Curve*/
+	GCI_EC_SECP256R1,
 	/**SECP384R1 Elliptic Curve*/
 	GCI_EC_SECP384R1,
-	/**BRAINPOOLP384R1 Elliptic Curve*/
-	GCI_EC_BRAINPOOLP384R1,
-	/**BRAINPOOLP512R1 Elliptic Curve*/
-	GCI_EC_BRAINPOOLP512R1,
 	/**SECP521R1 Elliptic Curve*/
 	GCI_EC_SECP521R1,
-	/**EC_PRIME256V1 Elliptic Curve*/
-	GCI_EC_PRIME256V1
+	/**BRAINPOOLP256R1 Elliptic Curve*/
+	GCI_EC_BRAINPOOLP256R1,
+	/**BRAINPOOLP384R1 Elliptic Curve*/
+	GCI_EC_BRAINPOOLP384R1,
+	/**RAINPOOLP512R1 Elliptic Curve*/
+	GCI_EC_BRAINPOOLP512R1
 } GciNamedCurve_t;
 
 
@@ -521,57 +522,7 @@ typedef struct
 
 
 
-/*!
- * \struct 					GciSignDsaConfig_t
- * \brief					Structure for the configuration of a DSA signature
- */
-typedef struct
-{
-	/**DSA domain parameters*/
-	GciDsaDomainParam_t param;
-} GciSignDsaConfig_t;
-
-
-
-/*!
- * \struct 					GciSignEcdsaConfig_t
- * \brief					Structure for the configuration of an ECDSA signature
- */
-typedef struct
-{
-	/*!
-	 * GCI_EC_INVALID
-	 * GCI_EC_SECP112R1
-	 * GCI_EC_SECP112R2
-	 * GCI_EC_SECP128R1
-	 * GCI_EC_SECP128R2
-	 * GCI_EC_SECP160R1
-	 * GCI_EC_SECP160R2
-	 * GCI_EC_SECP160K1
-	 * GCI_EC_BRAINPOOLP160R1
-	 * GCI_EC_SECP192R1
-	 * GCI_EC_PRIME192V2
-	 * GCI_EC_PRIME192V3
-	 * GCI_EC_SECP192K1
-	 * GCI_EC_BRAINPOOLP192R1
-	 * GCI_EC_SECP224R1
-	 * GCI_EC_SECP224K1
-	 * GCI_EC_BRAINPOOLP224R1
-	 * GCI_EC_PRIME239V1
-	 * GCI_EC_PRIME239V2
-	 * GCI_EC_PRIME239V3
-	 * GCI_EC_SECP256R1
-	 * GCI_EC_SECP256K1
-	 * GCI_EC_BRAINPOOLP256R1
-	 * GCI_EC_BRAINPOOLP320R1
-	 * GCI_EC_SECP384R1
-	 * GCI_EC_BRAINPOOLP384R1
-	 * GCI_EC_BRAINPOOLP512R1
-	 * GCI_EC_SECP521R1
-	 * GCI_EC_PRIME256V1
-	 */
-	GciNamedCurve_t name;
-} GciSignEcdsaConfig_t;
+//TODO sw new[08/12/2015] - Deleting of GciSignDsaConfig_t + GciSignEcdsaConfig_t
 
 
 
@@ -611,7 +562,6 @@ typedef struct
 	 * GCI_HASH_SHA512
 	 * GCI_HASH_NONE = 0xFF
 	 */
-
 	GciHashAlgo_t hash;
 
 	/**
@@ -626,11 +576,7 @@ typedef struct
 		/** CMAC Configuration */
 		GciSignCmacConfig_t cmac;
 
-		/** DSA Configuration */
-		GciSignDsaConfig_t dsa;
-
-		/** EC DSA Configuration */
-		GciSignEcdsaConfig_t ecdsa;
+//TODO sw new[08/12/2015] - Delete GciSignDsaConfig_t and GciSignEcdsaConfig_t
 	} config;
 } GciSignConfig_t;
 
@@ -684,73 +630,7 @@ typedef struct
 
 
 
-/*!
- * \struct 					GciKeyGenConfig_t
- * \brief					Structure for the configuration to generate the key pair
- */
-typedef struct
-{
-	/**
-	 * GCI_KEY_INVALID
-	 * GCI_KEY_RSA
-	 * GCI_KEY_PAIR_DHE_RSA
-	 * GCI_KEY_PAIR_DHE_DSS
-	 * GCI_KEY_PAIR_ECDHE_RSA
-	 * GCI_KEY_PAIR_ECDHE_ECDSA
-	 * GCI_KEY_DSA
-	 * GCI_KEY_ECDSA
-	 * GCI_KEY_PAIR_NONE=0xFF
-	 */
-	GciKeyPairType_t algo;
-
-	/**
-	 * union 				keyConfig
-	 * \brief				Union for all key pair configuration
-	 */
-	union keyConfig
-	{
-        /** RSA key generation parameters */
-        GciRsaKeyGenConfig_t rsa;
-
-		/**Digital Signature Algorithm domain parameters configuration*/
-		GciDsaDomainParam_t dsa;
-
-		/*!
-		 * GCI_EC_INVALID
-		 * GCI_EC_SECP112R1
-		 * GCI_EC_SECP112R2
-		 * GCI_EC_SECP128R1
-		 * GCI_EC_SECP128R2
-		 * GCI_EC_SECP160R1
-		 * GCI_EC_SECP160R2
-		 * GCI_EC_SECP160K1
-		 * GCI_EC_BRAINPOOLP160R1
-		 * GCI_EC_SECP192R1
-		 * GCI_EC_PRIME192V2
-		 * GCI_EC_PRIME192V3
-		 * GCI_EC_SECP192K1
-		 * GCI_EC_BRAINPOOLP192R1
-		 * GCI_EC_SECP224R1
-		 * GCI_EC_SECP224K1
-		 * GCI_EC_BRAINPOOLP224R1
-		 * GCI_EC_PRIME239V1
-		 * GCI_EC_PRIME239V2
-		 * GCI_EC_PRIME239V3
-		 * GCI_EC_SECP256R1
-		 * GCI_EC_SECP256K1
-		 * GCI_EC_BRAINPOOLP256R1
-		 * GCI_EC_BRAINPOOLP320R1
-		 * GCI_EC_SECP384R1
-		 * GCI_EC_BRAINPOOLP384R1
-		 * GCI_EC_BRAINPOOLP512R1
-		 * GCI_EC_SECP521R1
-		 * GCI_EC_PRIME256V1
-		 */
-		GciNamedCurve_t ecdsaCurveName;
-
-	} config;
-} GciKeyGenConfig_t;
-
+//TODO sw new[08/12/2015] - Deleting of GciKeyGenConfig_t
 
 
 /**********************************************************************************************************************/
@@ -773,62 +653,8 @@ typedef enum
 
 
 
-/*!
- * \struct 					GciDhConfig_t
- * \brief					Structure for the configuration of all Diffie-Hellman key pair type
- */
-typedef struct
-{
-	/**
-	 * GCI_DH_INVALID
-	 * GCI_DH
-	 * GCI_ECDH
-	 */
-	GciDhType_t type;
+//TODO new sw[08/12/2015] - Delete GciDhConfig_t
 
-	/*!
-	 * union 				DhConfig
-	 * \brief				Union for all type of Diffie-Hellman configuration
-	 */
-	union DhConfig
-	{
-		/**Diffie-Hellman domain parameters configuration*/
-		GciGFpDhDomainParam_t dhDomain;
-
-		/*!
-		 * GCI_EC_INVALID
-		 * GCI_EC_SECP112R1
-		 * GCI_EC_SECP112R2
-		 * GCI_EC_SECP128R1
-		 * GCI_EC_SECP128R2
-		 * GCI_EC_SECP160R1
-		 * GCI_EC_SECP160R2
-		 * GCI_EC_SECP160K1
-		 * GCI_EC_BRAINPOOLP160R1
-		 * GCI_EC_SECP192R1
-		 * GCI_EC_PRIME192V2
-		 * GCI_EC_PRIME192V3
-		 * GCI_EC_SECP192K1
-		 * GCI_EC_BRAINPOOLP192R1
-		 * GCI_EC_SECP224R1
-		 * GCI_EC_SECP224K1
-		 * GCI_EC_BRAINPOOLP224R1
-		 * GCI_EC_PRIME239V1
-		 * GCI_EC_PRIME239V2
-		 * GCI_EC_PRIME239V3
-		 * GCI_EC_SECP256R1
-		 * GCI_EC_SECP256K1
-		 * GCI_EC_BRAINPOOLP256R1
-		 * GCI_EC_BRAINPOOLP320R1
-		 * GCI_EC_SECP384R1
-		 * GCI_EC_BRAINPOOLP384R1
-		 * GCI_EC_BRAINPOOLP512R1
-		 * GCI_EC_SECP521R1
-		 * GCI_EC_PRIME256V1
-		 */
-		GciNamedCurve_t ecdhCurveName;
-	} config;
-} GciDhConfig_t;
 
 
 /**********************************************************************************************************************/
@@ -837,7 +663,7 @@ typedef struct
 
 /*!
  * \struct 					GciRsaPubKey_t
- * \brief					Structure representing an RSA public key
+ * \brief					Structure representing a RSA public key
  */
 typedef struct
 {
@@ -850,14 +676,19 @@ typedef struct
 
 /*!
  * \struct 					GciRsaCrtPrivKey_t
- * \brief					Structure representing an RSA CRT private key
+ * \brief					Structure representing a RSA CRT private key
  */
 typedef struct
 {
+	/**First prime number p*/
 	GciBigInt_t p;
+	/**Second prime number q*/
 	GciBigInt_t q;
+	/**dP = d mod (p-1)*/
 	GciBigInt_t dP;
+	/**dQ = d mod (q-1)*/
 	GciBigInt_t dQ;
+	/**qInv = q^-1 mod p*/
 	GciBigInt_t qInv;
 } GciRsaCrtPrivKey_t;
 
@@ -865,7 +696,7 @@ typedef struct
 
 /*!
  * \struct 					GciRsaPrivKey_t
- * \brief					Structure representing an RSA private key
+ * \brief					Structure representing a RSA private key
  */
 typedef struct
 {
@@ -876,6 +707,212 @@ typedef struct
 	/**Private CRT*/
 	GciRsaCrtPrivKey_t* crt;
 } GciRsaPrivKey_t;
+
+
+
+//TODO new sw[08/12/2015]
+/*!
+ * \struct 					GciDsaKey_t
+ * \brief					Structure representing a DSA key (public or private)
+ */
+typedef struct
+{
+	/**DSA domain parameters*/
+	GciDsaDomainParam_t* param;
+	/**Big number of the key*/
+	GciBigInt_t key;
+}GciDsaKey_t;
+
+
+
+//TODO new sw[08/12/2015]
+/*!
+ * \struct 					GciDhKey_t
+ * \brief					Structure representing a DH key (public or private)
+ */
+typedef struct
+{
+	/**Diffie-Hellman domain parameters*/
+	GciDhDomainParam_t* param;
+	/**Big number of the key*/
+	GciBigInt_t key;
+}GciDhKey_t;
+
+
+
+//TODO new sw[08/12/2015]
+/*!
+ * \struct 					GciEcdhPubKey_t
+ * \brief					Structure representing a ECDH public key
+ */
+typedef struct
+{
+	/**
+	 * GCI_EC_SECT163K1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT233K1
+	 * GCI_EC_SECT233R1
+	 * GCI_EC_SECT239K1
+	 * GCI_EC_SECT283K1
+	 * GCI_EC_SECT283R1
+	 * GCI_EC_SECT409K1
+	 * GCI_EC_SECT409R1
+	 * GCI_EC_SECT571K1
+	 * GCI_EC_SECT571R1
+	 * GCI_EC_SECP160K1
+	 * GCI_EC_SECP160R1
+	 * GCI_EC_SECP160R2
+	 * GCI_EC_SECP192K1
+	 * GCI_EC_SECP192R1
+	 * GCI_EC_SECP224K1
+	 * GCI_EC_SECP224R1
+	 * GCI_EC_SECP256K1
+	 * GCI_EC_SECP256R1
+	 * GCI_EC_SECP384R1
+	 * GCI_EC_SECP521R1
+	 * GCI_EC_BRAINPOOLP256R1
+	 * GCI_EC_BRAINPOOLP384R1
+	 * GCI_EC_BRAINPOOLP512R1
+	 */
+	GciNamedCurve_t* curve;
+	/**coordinate (x,y) of the curve*/
+	GciEcPoint_t coord;
+}GciEcdhPubKey_t;
+
+
+
+//TODO new sw[08/12/2015]
+/*!
+ * \struct 					GciEcdhPrivKey_t
+ * \brief					Structure representing a ECDH priv key
+ */
+typedef struct
+{
+	/**
+	 * GCI_EC_SECT163K1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT233K1
+	 * GCI_EC_SECT233R1
+	 * GCI_EC_SECT239K1
+	 * GCI_EC_SECT283K1
+	 * GCI_EC_SECT283R1
+	 * GCI_EC_SECT409K1
+	 * GCI_EC_SECT409R1
+	 * GCI_EC_SECT571K1
+	 * GCI_EC_SECT571R1
+	 * GCI_EC_SECP160K1
+	 * GCI_EC_SECP160R1
+	 * GCI_EC_SECP160R2
+	 * GCI_EC_SECP192K1
+	 * GCI_EC_SECP192R1
+	 * GCI_EC_SECP224K1
+	 * GCI_EC_SECP224R1
+	 * GCI_EC_SECP256K1
+	 * GCI_EC_SECP256R1
+	 * GCI_EC_SECP384R1
+	 * GCI_EC_SECP521R1
+	 * GCI_EC_BRAINPOOLP256R1
+	 * GCI_EC_BRAINPOOLP384R1
+	 * GCI_EC_BRAINPOOLP512R1
+	 */
+	GciNamedCurve_t* curve;
+	/**Big number of the key*/
+	GciBigInt_t key;
+}GciEcdhPrivKey_t;
+
+
+
+//TODO new sw[08/12/2015]
+/*!
+ * \struct 					GciEcdsaPubKey_t
+ * \brief					Structure representing a ECDSA public key
+ */
+typedef struct
+{
+	/**
+	 * GCI_EC_SECT163K1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT233K1
+	 * GCI_EC_SECT233R1
+	 * GCI_EC_SECT239K1
+	 * GCI_EC_SECT283K1
+	 * GCI_EC_SECT283R1
+	 * GCI_EC_SECT409K1
+	 * GCI_EC_SECT409R1
+	 * GCI_EC_SECT571K1
+	 * GCI_EC_SECT571R1
+	 * GCI_EC_SECP160K1
+	 * GCI_EC_SECP160R1
+	 * GCI_EC_SECP160R2
+	 * GCI_EC_SECP192K1
+	 * GCI_EC_SECP192R1
+	 * GCI_EC_SECP224K1
+	 * GCI_EC_SECP224R1
+	 * GCI_EC_SECP256K1
+	 * GCI_EC_SECP256R1
+	 * GCI_EC_SECP384R1
+	 * GCI_EC_SECP521R1
+	 * GCI_EC_BRAINPOOLP256R1
+	 * GCI_EC_BRAINPOOLP384R1
+	 * GCI_EC_BRAINPOOLP512R1
+	 */
+	GciNamedCurve_t* curve;
+	/**coordinate (x,y) of the curve*/
+	GciEcPoint_t coord;
+}GciEcdsaPubKey_t;
+
+
+
+//TODO new sw[08/12/2015]
+/*!
+ * \struct 					GciEcdsaPrivKey_t
+ * \brief					Structure representing a ECDSA private key
+ */
+typedef struct
+{
+	/**
+	 * GCI_EC_SECT163K1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT233K1
+	 * GCI_EC_SECT233R1
+	 * GCI_EC_SECT239K1
+	 * GCI_EC_SECT283K1
+	 * GCI_EC_SECT283R1
+	 * GCI_EC_SECT409K1
+	 * GCI_EC_SECT409R1
+	 * GCI_EC_SECT571K1
+	 * GCI_EC_SECT571R1
+	 * GCI_EC_SECP160K1
+	 * GCI_EC_SECP160R1
+	 * GCI_EC_SECP160R2
+	 * GCI_EC_SECP192K1
+	 * GCI_EC_SECP192R1
+	 * GCI_EC_SECP224K1
+	 * GCI_EC_SECP224R1
+	 * GCI_EC_SECP256K1
+	 * GCI_EC_SECP256R1
+	 * GCI_EC_SECP384R1
+	 * GCI_EC_SECP521R1
+	 * GCI_EC_BRAINPOOLP256R1
+	 * GCI_EC_BRAINPOOLP384R1
+	 * GCI_EC_BRAINPOOLP512R1
+	 */
+	GciNamedCurve_t* curve;
+	/**Big number of the key*/
+	GciBigInt_t key;
+}GciEcdsaPrivKey_t;
 
 
 
@@ -963,31 +1000,33 @@ typedef struct
 		/**Symmetric key*/
 		GciBuffer_t sym;
 		/**Diffie-Hellman Public Key*/
-		GciBigInt_t dhPub;
+		GciDhKey_t dhPub;
 		/**Diffie-Hellman Private Key*/
-		GciBigInt_t dhPriv;
+		GciDhKey_t dhPriv;
 		/**Diffie-Hellman Secret Key*/
 		GciBuffer_t dhSecret;
 		/**Elliptic Curve Diffie-Hellman Public Key*/
-		GciEcPoint_t ecdhPub;
+		GciEcdhPubKey_t ecdhPub;
 		/**Elliptic Curve Diffie-Hellman Private Key*/
-		GciBigInt_t ecdhPriv;
+		GciEcdhPrivKey_t ecdhPriv;
 		/**Elliptic Curve Diffie-Hellman Secret Key*/
 		GciBuffer_t ecdhSecret;
 		/**DSA Public Key*/
-		GciBigInt_t dsaPub;
+		GciDsaKey_t dsaPub;
 		/**DSA Private Key*/
-		GciBigInt_t dsaPriv;
+		GciDsaKey_t dsaPriv;
 		/**Elliptic Curve DSA Public Key*/
-		GciEcPoint_t ecdsaPub;
+		GciEcdsaPubKey_t ecdsaPub;
 		/**Elliptic Curve DSA Private Key*/
-		GciBigInt_t ecdsaPriv;
+		GciEcdsaPrivKey_t ecdsaPriv;
 		/**RSA Public Key*/
 		GciRsaPubKey_t rsaPub;
 		/**RSA Private Key*/
 		GciRsaPrivKey_t rsaPriv;
 	} key;
 } GciKey_t;
+
+
 
 
 #endif

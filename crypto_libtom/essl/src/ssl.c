@@ -4408,7 +4408,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 
 			break;
 
-			case E_SSL_SM_SEND_SERVER_HELLO:
+		case E_SSL_SM_SEND_SERVER_HELLO:
 
 				switch (ps_sslGut->e_asmCtrl)
 				{
@@ -4582,6 +4582,8 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 								- ((size_t) pc_write
 										-  (size_t) ps_sslCtx->ac_socBuf));
 
+						//TODO sw - export the public key of the ecdhe!
+
 						/* export the formerly generated public ECDHE values */
 						/*OLD-CW: if(cw_ecc_export_public((pc_write+4), &cwt_exportLen, &(ps_secPar->eccKey))!=CRYPT_OK)
 						{
@@ -4606,6 +4608,8 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 						//Generate DH key
 						dhConfig.type = GCI_DH;
 						//TODO sw - How to choose the domain parameters ??
+
+						//TODO sw - export the public key of the dhe!
 
 						err = gci_dh_new_ctx(&dhConfig, &dhCtx);
 						if(err != GCI_OK)
@@ -4792,7 +4796,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 				}
 				break; /* End of E_SSL_SM_SEND_SERVER_HELLO */
 
-				case E_SSL_SM_SEND_CLIENT_FINISH:
+			case E_SSL_SM_SEND_CLIENT_FINISH:
 
 					switch (ps_sslGut->e_asmCtrl)
 					{
@@ -4897,9 +4901,10 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							//No config used for an asymmetric cipher
 							err = gci_cipher_new_ctx(NULL, ps_hsElem->gci_peerPubKey, &rsaCtx);
 							if(err != GCI_OK)
-														{
-															//TODO return error state
-														}
+							{
+								//TODO return error state
+							}
+
 							err = gci_cipher_encrypt(rsaCtx, ps_hsElem->s_sessElem.ac_msSec, PREMSSEC_SIZE, pc_write + IFSSL30_LENOFF(ps_sslCtx->e_ver), &cwt_hashLen);
 							if(err != GCI_OK)
 							{
@@ -4932,8 +4937,8 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							memcpy(dhConfig.config.dhDomain.p.data, ps_hsElem->pgci_dheP.data, ps_hsElem->pgci_dheP.len);
 							//TODO sw - how to know the generator ??
 
-
-							err = gci_dh_calc_sharedSecret(dhCtx, ps_hsElem->gci_dheSrvPubKey, pc_write);
+							//Context which contains the public and private key of the client
+							err = gci_dh_calc_sharedSecret(ps_hsElem->gci_dhCtx, ps_hsElem->gci_dheSrvPubKey, pc_write);
 
 
 							//if (cw_dhe_sharedSec_with_p(&ps_hsElem->gci_dheCliPrivKey, &ps_hsElem->gci_dheSrvPubKey, &ps_hsElem->pgci_dheP, pc_write, &cwt_hashLen) != CW_OK)
@@ -5013,6 +5018,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							GciKey_t secret;
 
 							/* calculate ecdhe shared secret */
+							//Case client finish
 							err = gci_dh_calc_sharedSecret(eccCtx, ps_hsElem->eccPubKeyPeer, &secretID);
 
 
@@ -6703,7 +6709,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 
 						//get supported curves
 						size_t numberOfCurves;
-						uint8_t supportedCurves[25]; //RFC4492, 5.1.1 Max 25 curves
+						uint16_t supportedCurves[25]; //RFC4492, 5.1.1 Max 25 curves
 
 						//OLD-CW: numberOfCurves = cw_ecc_getSupportedCurves(supportedCurves);
 						err = gci_get_info(GCI_INFO_ECNAME, supportedCurves, &numberOfCurves);
@@ -6740,35 +6746,48 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						GciKey_t   eccPub;
 
 
-						//read/import pubkey
-						err = gci_key_get(ps_hsElem->eccPubKeyPeer, &eccPub);
-						if(err !=GCI_OK)
+						//read/import pubkey from the buffer (ANSI x9.63)
+						//TODO sw - not sure it works -> compare with wireshark
+
+						//Read the first byte to be sure he has the value 4, 6 or 7 (to be valid)
+						if((*pc_hsBuff != 4) && (*pc_hsBuff != 6) && (*pc_hsBuff != 7))
 						{
-							//TODO return state
+							//TODO return error state
 						}
 
+						pc_hsBuff++;
 
-						memcpy(pc_hsBuff, eccPub.key.ecdhPub.x.data, eccPub.key.ecdhPub.x.len);
-						memcpy(pc_hsBuff, eccPub.key.ecdhPub.y.data, eccPub.key.ecdhPub.y.len);
+						//the x-coordinate has a length of the half of the public key's length
+						eccPub.key.ecdhPub.x.len = cwt_len >> 1;
+						memcpy(eccPub.key.ecdhPub.x.data, pc_hsBuff, eccPub.key.ecdhPub.x.len);
 
-						cwt_len = eccPub.key.ecdhPub.x.len + eccPub.key.ecdhPub.y.len;
-						//if(cw_ecc_import_public(pc_hsBuff, cwt_len, &(ps_hsElem->eccPubKeyPeer)) != CRYPT_OK)
+						pc_hsBuff+=eccPub.key.ecdhPub.x.len;
+
+						//the y-coordinate has a length of the rest of the half of the public key's length
+						eccPub.key.ecdhPub.y.len = cwt_len - eccPub.key.ecdhPub.x.len;
+						memcpy(eccPub.key.ecdhPub.y.data, pc_hsBuff, eccPub.key.ecdhPub.y.len);
+
+						pc_hsBuff+=eccPub.key.ecdhPub.y.len;
+
+						//store the key to become an ID of it
+						err = gci_key_put(&eccPub, ps_hsElem->eccPubKeyPeer);
 						if(err != GCI_OK)
 						{
-							LOG_ERR("Unable to import ECC PubKey of the peer");
-
-							ps_sslCtx->e_lastError = E_SSL_ERROR_CRYPTO;
-							return (E_PENDACT_PROTOERR);
+							//TODO return error state
 						}
 
-						//test
-						/*
-						uint8_t test[255];
-						uint8_t testSize = 255;
-						uint8_t ret=0;
-						ret = cw_ecc_makeKey(&(ps_secPar->eccKey), ps_hsElem->eccCurve);
-						ret = cw_ecc_sharedSecret(&(ps_secPar->eccKey), &(ps_hsElem->eccPubKeyPeer), test, &testSize);
-						 */
+
+//						OLD-CW: if(cw_ecc_import_public(pc_hsBuff, cwt_len, &(ps_hsElem->eccPubKeyPeer)) != CRYPT_OK)
+//						if(err != GCI_OK)
+//						{
+//							LOG_ERR("Unable to import ECC PubKey of the peer");
+//
+//							ps_sslCtx->e_lastError = E_SSL_ERROR_CRYPTO;
+//							return (E_PENDACT_PROTOERR);
+//						}
+
+						//TODO sw - verify the datas by verifying the signature from the buffer ??
+
 						break;
 
 						//NOT ECC (Diffie-Hellman)
@@ -6776,6 +6795,9 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						pc_pqy = pc_hsBuff;
 						LOG_INFO("cwt_len = %zu",cwt_len);
 
+						GciDhConfig_t dhCOnf;
+						GciKey_t	srvPub;
+						//TODO sw - reception of the public key of the server + generate of a dh key pair like below
 //						OLD-CW: if (cw_dhe_import_make_privKey(pc_hsBuff, cwt_len,
 //								&ps_hsElem->gci_dheCliPrivKey,
 //								&ps_hsElem->gci_dheSrvPubKey,
@@ -6787,12 +6809,59 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 //							return (E_PENDACT_PROTOERR);
 //						}
 
-						/* jump over p */
-						pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
-						/* jump over q */
-						pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
-						/* jump over Ys */
-						pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
+
+						//import the datas
+						//TODO sw - not sure it works -> compare with wireshark
+
+						GciDhConfig_t dhConf;
+
+						dhConf.type = GCI_DH;
+
+						//Read the length of the prime
+						dhConf.config.dhDomain.p.len = pc_hsBuff;
+						pc_hsBuff++;
+
+						//Copy the prime data
+						memcpy(dhConf.config.dhDomain.p.data, pc_hsBuff, dhConf.config.dhDomain.p.len);
+						pc_hsBuff+= dhConf.config.dhDomain.p.len;
+
+						//Read the length of the generator
+						dhConf.config.dhDomain.g.len = pc_hsBuff;
+
+						//Copy the generator data
+						memcpy(dhConf.config.dhDomain.g.data, pc_hsBuff, dhConf.config.dhDomain.g.len);
+						pc_hsBuff+= dhConf.config.dhDomain.g.len;
+
+						//Read the server public key length
+						srvPub.key.dhPub.len = pc_hsBuff;
+						pc_hsBuff++;
+
+						//Copy the server public key
+						memcpy(srvPub.key.dhPub.data, pc_hsBuff, srvPub.key.dhPub.len);
+
+						pc_hsBuff+=srvPub.key.dhPub.len;
+
+
+						err = gci_dh_new_ctx(&dhConf, &ps_hsElem->gci_dhCtx);
+						if(err != GCI_OK)
+						{
+							//TODO return error state
+						}
+
+						//TODO sw - client isn't used ??
+						err = gci_dh_gen_key(ps_hsElem->gci_dhCtx, NULL);
+						if(err != GCI_OK)
+						{
+							//TODO return error state
+						}
+
+
+//						OLD-CW: /* jump over p */
+//						OLD-CW: pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
+//						OLD-CW: /* jump over q */
+//						OLD-CW: pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
+//						OLD-CW: /* jump over Ys */
+//						OLD-CW: pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
 
 						/* this is the length of (p, q, Ys) for now */
 						cwt_len = pc_hsBuff - pc_pqy;
@@ -7971,7 +8040,6 @@ static e_sslPendAct_t loc_smLenVerCheck(s_sslCtx_t * ps_sslCtx)
 /* Must be solved in an other way in the future: This prototype is
  * taken from pkcs1.c .... */
 
-//TODO BEGIN HERE
 
 
 /*int ssl_verifyHash(const uint8_t rac_verHash[], size_t cwt_verHashLen,
@@ -8554,20 +8622,8 @@ int ssl_initCtx(s_sslCtx_t * ps_sslCtx, s_sslSett_t *ps_sslSett,
 	 */
 	ps_sslHsElem->s_sessElem.s_desc = sslSesCache_getNewSessId(ps_sslSett->ps_sessCache);
 
-	GciKeyGenConfig_t rsaGen;
 
-	rsaGen.algo = GCI_KEY_PAIR_RSA;
-	//TODO sw - how to know the rsa modulus length ??
-	rsaGen.config.rsa.modulusLen = 1024;
-	//TODO sw - need a private key -> public key uses in protocolResp to encrypt a plaintxt (see ps_sslHsElem->gci_peerPubKey description)
-
-	err = gci_key_pair_gen(&rsaGen, ps_sslHsElem->gci_peerPubKey, NULL);
-	if(err != GCI_OK)
-	{
-		//TODO return error state
-	}
-
-	//TODO sw - this is not a key generate
+	//sw - this is not a function to generate a key
 	//OLD-CW: cw_rsa_publickey_init(&ps_sslHsElem->gci_peerPubKey);
 
 	ps_sslHsElem->gci_hsBufLen = SSL_HANDSHAKE_BUFFER_SIZE;

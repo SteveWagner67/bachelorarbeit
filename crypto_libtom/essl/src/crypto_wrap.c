@@ -451,11 +451,11 @@ int cw_ecc_getSupportedCurves(uint16_t* p_outData)
 /*============================================================================*/
 /*  cw_dhe_makeKey()                                                          */
 /*============================================================================*/
-int cw_dhe_makeKey(gci_dhKey_t* p_privKey)
+int cw_dhe_makeKey(cw_dhKey_t* p_privKey)
 {
     int8_t          err = CW_ERROR;
-    gci_bigNum_t     cwt_dheG;
-    gci_bigNum_t     cwt_dheP;
+    cw_bigNum_t     cwt_dheG;
+    cw_bigNum_t     cwt_dheP;
     uint8_t         c_kIdx = 0;
     size_t       	cwt_len = SSL_DEFAULT_DHE_KEYSIZE;
     uint8_t			buf[SSL_DEFAULT_DHE_KEYSIZE];
@@ -539,7 +539,7 @@ mkKeyDone:
 /*============================================================================*/
 /*  cw_dhe_export_Y()                                                         */
 /*============================================================================*/
-int cw_dhe_export_Y(uint8_t* p_dest, size_t* pcwt_destLen, gci_dhKey_t* p_key)
+int cw_dhe_export_Y(uint8_t* p_dest, size_t* pcwt_destLen, cw_dhKey_t* p_key)
 {
     int8_t      err = 0;
     size_t   l_destLen = 0;
@@ -589,7 +589,7 @@ int cw_dhe_export_Y(uint8_t* p_dest, size_t* pcwt_destLen, gci_dhKey_t* p_key)
 /*  cw_dhe_export_pqY()                                                       */
 /*============================================================================*/
 int cw_dhe_export_pgY(uint8_t* p_dest, size_t* pcwt_destLen,
-                      gci_dhKey_t* p_key, gci_bigNum_t** pcwt_dheP)
+                      cw_dhKey_t* p_key, cw_bigNum_t** pcwt_dheP)
 {
     int8_t          err = 0;
     /* As we use statically allocated arrays of p and g
@@ -597,7 +597,7 @@ int cw_dhe_export_pgY(uint8_t* p_dest, size_t* pcwt_destLen,
      * dh_make_key() function */
     size_t       	l_tmpLen = SSL_DEFAULT_DHE_KEYSIZE;
     int8_t          c_kIdx = 0;
-    gci_bigNum_t     cwt_dheG;
+    cw_bigNum_t     cwt_dheG;
     uint16_t        i_pckOff = 0;
 
     assert(p_dest != NULL);
@@ -744,7 +744,7 @@ static uint16_t loc_cw_bnRead(uint8_t* pc_in, void* pcwt_bn)
 /*============================================================================*/
 /*  cw_dhe_import_Y()                                                         */
 /*============================================================================*/
-int cw_dhe_import_Y(uint8_t* pc_in, size_t cwt_inLen, gci_dhKey_t* p_dheKey)
+int cw_dhe_import_Y(uint8_t* pc_in, size_t cwt_inLen, cw_dhKey_t* p_dheKey)
 {
     int8_t             err;
 
@@ -768,12 +768,12 @@ int cw_dhe_import_Y(uint8_t* pc_in, size_t cwt_inLen, gci_dhKey_t* p_dheKey)
 /*  cw_dhe_import_pqY_make_privKey()                                          */
 /*============================================================================*/
 int cw_dhe_import_make_privKey(uint8_t* pc_input, size_t cwt_inLen,
-                               gci_dhKey_t* p_cliPrivKey, gci_dhKey_t* p_srvPubKey,
-                               gci_bigNum_t** pp_dheP)
+                               cw_dhKey_t* p_cliPrivKey, cw_dhKey_t* p_srvPubKey,
+                               cw_bigNum_t** pp_dheP)
 {
     int8_t      err;
     uint16_t    i_len = 0;
-    gci_bigNum_t p_dheG;
+    cw_bigNum_t p_dheG;
     uint8_t*    buf;
 
     assert(pc_input != NULL);
@@ -848,7 +848,7 @@ impMkKeyDone:
 /*============================================================================*/
 /*  cw_dhe_sharedSec()                                                        */
 /*============================================================================*/
-int cw_dhe_sharedSec(gci_dhKey_t* p_privateKey, gci_dhKey_t* p_publicKey,
+int cw_dhe_sharedSec(cw_dhKey_t* p_privateKey, cw_dhKey_t* p_publicKey,
         uint8_t* p_outData, size_t* cwp_outLen)
 {
 #ifdef ASCOM_CRYPTO
@@ -877,11 +877,11 @@ int cw_dhe_sharedSec(gci_dhKey_t* p_privateKey, gci_dhKey_t* p_publicKey,
 /*============================================================================*/
 /*  cw_dhe_sharedSec_with_p()                                                 */
 /*============================================================================*/
-int cw_dhe_sharedSec_with_p(gci_dhKey_t* p_privateKey, gci_dhKey_t* p_publicKey,
-        gci_bigNum_t** pp_dheP, uint8_t* p_outData, size_t* cwp_outLen)
+int cw_dhe_sharedSec_with_p(cw_dhKey_t* p_privateKey, cw_dhKey_t* p_publicKey,
+        cw_bigNum_t** pp_dheP, uint8_t* p_outData, size_t* cwp_outLen)
 {
     int8_t       err = CW_ERROR;;
-    gci_bigNum_t tmp;
+    cw_bigNum_t tmp;
     size_t    cwt_resLen = 0;
 
 
@@ -927,7 +927,7 @@ shSecError:
 /*============================================================================*/
 /*  cw_dh_free()                                                              */
 /*============================================================================*/
-void cw_dh_free(gci_dhKey_t* pdh_key)
+void cw_dh_free(cw_dhKey_t* pdh_key)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -943,7 +943,7 @@ void cw_dh_free(gci_dhKey_t* pdh_key)
 /*============================================================================*/
 /*  cw_bn_free()                                                              */
 /*============================================================================*/
-void cw_bn_free(gci_bigNum_t* pcwt_bn)
+void cw_bn_free(cw_bigNum_t* pcwt_bn)
 {
 
     if (pcwt_bn) {
@@ -956,7 +956,7 @@ void cw_bn_free(gci_bigNum_t* pcwt_bn)
 /*============================================================================*/
 /*  cw_rsa_os2ip()                                                            */
 /*============================================================================*/
-int cw_rsa_os2ip(gci_bigNum_t * pbn_num, uint8_t* p_raw, size_t cwt_rawLen)
+int cw_rsa_os2ip(cw_bigNum_t * pbn_num, uint8_t* p_raw, size_t cwt_rawLen)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -979,7 +979,7 @@ int cw_rsa_os2ip(gci_bigNum_t * pbn_num, uint8_t* p_raw, size_t cwt_rawLen)
 /*============================================================================*/
 /*  cw_rsa_i2osp()                                                            */
 /*============================================================================*/
-int cw_rsa_i2osp(gci_bigNum_t * pbn_num, size_t cwt_numLen,
+int cw_rsa_i2osp(cw_bigNum_t * pbn_num, size_t cwt_numLen,
         uint8_t* p_outData)
 {
 #ifdef ASCOM_CRYPTO
@@ -1004,8 +1004,8 @@ int cw_rsa_i2osp(gci_bigNum_t * pbn_num, size_t cwt_numLen,
 /*============================================================================*/
 /*  cw_rsa_verify()                                                           */
 /*============================================================================*/
-int cw_rsa_verify(gci_bigNum_t * Message, gci_bigNum_t * Signature,
-        rpgci_rsaPubKey_t pPubKey)
+int cw_rsa_verify(cw_bigNum_t * Message, cw_bigNum_t * Signature,
+        rpcw_rsaPubKey_t pPubKey)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1014,8 +1014,8 @@ int cw_rsa_verify(gci_bigNum_t * Message, gci_bigNum_t * Signature,
 
 #elif defined(TOMLIB_CRYPTO)
 
-    static uint8_t auc_message[GCI_PKCS1_MAX_KEYSIZE],
-            auc_signature[GCI_PKCS1_MAX_KEYSIZE];
+    static uint8_t auc_message[CW_PKCS1_MAX_KEYSIZE],
+            auc_signature[CW_PKCS1_MAX_KEYSIZE];
     size_t cwt_size_s;
     size_t cwt_size_m;
     int err;
@@ -1038,7 +1038,7 @@ int cw_rsa_verify(gci_bigNum_t * Message, gci_bigNum_t * Signature,
 /*============================================================================*/
 int cw_pkcs1_v15_decrypt(uint8_t* p_inData, size_t cwt_inDataLen,
         uint8_t* p_outData, size_t* cwt_outDataLen,
-        gci_rsaPrivKey_t * p_privkey)
+        cw_rsaPrivKey_t * p_privkey)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1070,7 +1070,7 @@ int cw_pkcs1_v15_decrypt(uint8_t* p_inData, size_t cwt_inDataLen,
 /*============================================================================*/
 int cw_rsa_encrypt(uint8_t* p_inData, size_t cwt_inDataLen,
         uint8_t* p_outData, size_t* cwt_outDataLen,
-        gci_rsaPubKey_t * p_pubkey)
+        cw_rsaPubKey_t * p_pubkey)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1100,7 +1100,7 @@ int cw_rsa_encrypt(uint8_t* p_inData, size_t cwt_inDataLen,
 /*============================================================================*/
 int cw_rsa_sign_decode(uint8_t* pc_encSign, size_t sz_encSignLen,
                        uint8_t* pc_decSign, size_t* sz_decSignLen,
-                       gci_rsaPubKey_t * p_pubkey)
+                       cw_rsaPubKey_t * p_pubkey)
 {
     assert(p_pubkey != NULL);
 
@@ -1132,7 +1132,7 @@ int cw_rsa_sign_decode(uint8_t* pc_encSign, size_t sz_encSignLen,
 /*============================================================================*/
 int cw_rsa_hash_verify_ltc(uint8_t* pc_sig, size_t cwt_siglen,
         uint8_t* pc_hash, size_t cwt_hashlen, int hash_idx, int* res,
-        gci_rsaPubKey_t * rsa_pubkey)
+        cw_rsaPubKey_t * rsa_pubkey)
 {
 
     if (rsa_verify_hash_ex(pc_sig, cwt_siglen, pc_hash, cwt_hashlen,
@@ -1149,7 +1149,7 @@ int cw_rsa_hash_verify_ltc(uint8_t* pc_sig, size_t cwt_siglen,
 /*============================================================================*/
 /* p_signature = outdata */
 int cw_rsa_sign_encode(uint8_t* p_inMessage, size_t cwt_inMsgLen,
-        uint8_t* p_signature, size_t* cwt_sigLen, gci_rsaPubKey_t * p_pubkey)
+        uint8_t* p_signature, size_t* cwt_sigLen, cw_rsaPubKey_t * p_pubkey)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1192,7 +1192,7 @@ int cw_rsa_sign_encode(uint8_t* p_inMessage, size_t cwt_inMsgLen,
 /*  cw_rsa_privatekey_init()                                                  */
 /*============================================================================*/
 int cw_rsa_privatekey_init(unsigned char* p_buffer, size_t l_strlen,
-        gci_rsaPrivKey_t* pcwt_privKey)
+        cw_rsaPrivKey_t* pcwt_privKey)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1223,13 +1223,13 @@ int cw_rsa_privatekey_init(unsigned char* p_buffer, size_t l_strlen,
 /*============================================================================*/
 /*  cw_rsa_privatekey_shrink()                                                */
 /*============================================================================*/
-void cw_rsa_privatekey_shrink(gci_rsaPrivKey_t* pcwt_privKey)
+void cw_rsa_privatekey_shrink(cw_rsaPrivKey_t* pcwt_privKey)
 {
 #if defined(TOMLIB_CRYPTO)
     /*
      *  call cw_rsa_publickey_shrink(), since public and private key are equal in LTC
      */
-    cw_rsa_publickey_shrink((gci_rsaPubKey_t*) pcwt_privKey);
+    cw_rsa_publickey_shrink((cw_rsaPubKey_t*) pcwt_privKey);
 
 #endif
 } /* cw_rsa_privatekey_shrink() */
@@ -1237,7 +1237,7 @@ void cw_rsa_privatekey_shrink(gci_rsaPrivKey_t* pcwt_privKey)
 /*============================================================================*/
 /*  cw_rsa_privatekey_free()                                                  */
 /*============================================================================*/
-void cw_rsa_privatekey_free(gci_rsaPrivKey_t* pcwt_privKey)
+void cw_rsa_privatekey_free(cw_rsaPrivKey_t* pcwt_privKey)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1253,7 +1253,7 @@ void cw_rsa_privatekey_free(gci_rsaPrivKey_t* pcwt_privKey)
 /*============================================================================*/
 /*  cw_rsa_publickey_init()                                                   */
 /*============================================================================*/
-int cw_rsa_publickey_init(gci_rsaPubKey_t* pcwt_pubKey)
+int cw_rsa_publickey_init(cw_rsaPubKey_t* pcwt_pubKey)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1277,7 +1277,7 @@ int cw_rsa_publickey_init(gci_rsaPubKey_t* pcwt_pubKey)
 /*============================================================================*/
 /*  cw_rsa_publickey_shrink()                                                 */
 /*============================================================================*/
-void cw_rsa_publickey_shrink(gci_rsaPubKey_t* pcwt_pubKey)
+void cw_rsa_publickey_shrink(cw_rsaPubKey_t* pcwt_pubKey)
 {
 #if defined(TOMLIB_CRYPTO)
     assert(pcwt_pubKey != NULL);
@@ -1307,7 +1307,7 @@ void cw_rsa_publickey_shrink(gci_rsaPubKey_t* pcwt_pubKey)
 /*============================================================================*/
 /*  cw_rsa_publickey_free()                                                   */
 /*============================================================================*/
-void cw_rsa_publickey_free(gci_rsaPubKey_t* pcwt_pubKey)
+void cw_rsa_publickey_free(cw_rsaPubKey_t* pcwt_pubKey)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1336,7 +1336,7 @@ void cw_rsa_publickey_free(gci_rsaPubKey_t* pcwt_pubKey)
 /*============================================================================*/
 /*  cw_rsa_publickey_prep()                                                   */
 /*============================================================================*/
-void cw_rsa_publickey_prep(gci_rsaPubKey_t * pcwt_pubKey,
+void cw_rsa_publickey_prep(cw_rsaPubKey_t * pcwt_pubKey,
         s_pubKey_t * pwsslt_pubKey)
 {
 #ifdef ASCOM_CRYPTO
@@ -1357,7 +1357,7 @@ void cw_rsa_publickey_prep(gci_rsaPubKey_t * pcwt_pubKey,
 /*  cw_rsa_publickey_post()                                                    */
 /*============================================================================*/
 void cw_rsa_publickey_post(s_pubKey_t * pwsslt_pubKey,
-        gci_rsaPubKey_t * pcwt_pubKey)
+        cw_rsaPubKey_t * pcwt_pubKey)
 {
 #ifdef ASCOM_CRYPTO
     pcwt_pubKey->pE= pwsslt_pubKey->pE;
@@ -1390,7 +1390,7 @@ void cw_bn_init(uint8_t* p_bnBuffer, size_t cwt_bufLen)
 /*============================================================================*/
 /*  cw_bn_create()                                                            */
 /*============================================================================*/
-gci_bigNum_t * cw_bn_create(gci_bigNum_t * pbn_number, size_t cwt_size)
+cw_bigNum_t * cw_bn_create(cw_bigNum_t * pbn_number, size_t cwt_size)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1432,7 +1432,7 @@ void cw_bn_freefree(void* pbn_number)
 /*============================================================================*/
 /*  cw_bn_set()                                                               */
 /*============================================================================*/
-void cw_bn_set(gci_bigNum_t * pbn_number, void* p_data, size_t cwt_dataSize)
+void cw_bn_set(cw_bigNum_t * pbn_number, void* p_data, size_t cwt_dataSize)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1456,8 +1456,8 @@ void cw_bn_set(gci_bigNum_t * pbn_number, void* p_data, size_t cwt_dataSize)
 /*============================================================================*/
 /*  cw_bn_add()                                                               */
 /*============================================================================*/
-int cw_bn_add(gci_bigNum_t * pbn_dest, gci_bigNum_t * pbn_number1,
-        gci_bigNum_t * pbn_number2)
+int cw_bn_add(cw_bigNum_t * pbn_dest, cw_bigNum_t * pbn_number1,
+        cw_bigNum_t * pbn_number2)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1483,8 +1483,8 @@ int cw_bn_add(gci_bigNum_t * pbn_dest, gci_bigNum_t * pbn_number1,
 /*============================================================================*/
 /*  cw_bn_sub()                                                               */
 /*============================================================================*/
-int cw_bn_sub(gci_bigNum_t * pbn_dest, gci_bigNum_t * pbn_number1,
-        gci_bigNum_t * pbn_number2)
+int cw_bn_sub(cw_bigNum_t * pbn_dest, cw_bigNum_t * pbn_number1,
+        cw_bigNum_t * pbn_number2)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1510,8 +1510,8 @@ int cw_bn_sub(gci_bigNum_t * pbn_dest, gci_bigNum_t * pbn_number1,
 /*============================================================================*/
 /*  cw_bn_mul()                                                               */
 /*============================================================================*/
-int cw_bn_mul(gci_bigNum_t * pbn_dest, gci_bigNum_t * pbn_number1,
-        gci_bigNum_t * pbn_number2)
+int cw_bn_mul(cw_bigNum_t * pbn_dest, cw_bigNum_t * pbn_number1,
+        cw_bigNum_t * pbn_number2)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1537,8 +1537,8 @@ int cw_bn_mul(gci_bigNum_t * pbn_dest, gci_bigNum_t * pbn_number1,
 /*============================================================================*/
 /*  cw_bn_div()                                                               */
 /*============================================================================*/
-int cw_bn_div(gci_bigNum_t * pbn_quotient, gci_bigNum_t * pbn_remainder,
-        gci_bigNum_t * pbn_numerator, gci_bigNum_t * pbn_denominator)
+int cw_bn_div(cw_bigNum_t * pbn_quotient, cw_bigNum_t * pbn_remainder,
+        cw_bigNum_t * pbn_numerator, cw_bigNum_t * pbn_denominator)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -1863,7 +1863,7 @@ int8_t cr_digestInit( void*     p_ctx, const uint8_t*   pc_key,
         /* No key  presented, so calculate pure hash*/
         if (!pc_key)
         {
-            if (( err = hash_descriptor[c_hashId].init((gci_hashCtx_t * )p_ctx)) != CRYPT_OK)
+            if (( err = hash_descriptor[c_hashId].init((cw_hashCtx_t * )p_ctx)) != CRYPT_OK)
             {
                 LOG_ERR("digest init failed. Reason %s", error_to_string(err));
                 err =  CW_ERROR;
@@ -1872,7 +1872,7 @@ int8_t cr_digestInit( void*     p_ctx, const uint8_t*   pc_key,
 
         else
         {
-            gci_hmacCtx_t*   p_hmac = (gci_hmacCtx_t * )p_ctx;
+            cw_hmacCtx_t*   p_hmac = (cw_hmacCtx_t * )p_ctx;
 
             p_hmac->hash    = c_hashId;
             cwt_hSize       = hash_descriptor[c_hashId].hashsize;
@@ -2001,13 +2001,13 @@ int8_t cr_digestFinish(void* p_ctx, uint8_t* pc_out, size_t* pc_outLen,
 
         if (!pc_outLen) {
             /* Try to calculate pure hash */
-            if ((err = hash_descriptor[c_hashId].done((gci_hashCtx_t * )p_ctx, pc_out)) != CRYPT_OK)
+            if ((err = hash_descriptor[c_hashId].done((cw_hashCtx_t * )p_ctx, pc_out)) != CRYPT_OK)
             {
                 LOG_ERR(" digest_done error: %s", error_to_string(err));
                 err = CW_ERROR;
             }
         } else {
-            gci_hmacCtx_t*   p_hmac = (gci_hmacCtx_t * )p_ctx;
+            cw_hmacCtx_t*   p_hmac = (cw_hmacCtx_t * )p_ctx;
 
             cwt_hSize       = hash_descriptor[c_hashId].hashsize;
             c_bSize         = hash_descriptor[c_hashId].blocksize;
@@ -2133,7 +2133,7 @@ int cw_hmac(e_sslHashAlg_t     e_hashType,
 /*============================================================================*/
 /*  cw_rc4_init()                                                             */
 /*============================================================================*/
-int cw_rc4_init(gci_rc4Ctx_t* p_ctx, uint8_t* p_key, size_t cwt_keyLength)
+int cw_rc4_init(cw_rc4Ctx_t* p_ctx, uint8_t* p_key, size_t cwt_keyLength)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -2173,7 +2173,7 @@ int cw_rc4_init(gci_rc4Ctx_t* p_ctx, uint8_t* p_key, size_t cwt_keyLength)
 /*============================================================================*/
 /*  cw_rc4()                                                                  */
 /*============================================================================*/
-int cw_rc4(gci_rc4Ctx_t* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer,
+int cw_rc4(cw_rc4Ctx_t* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer,
         size_t cwt_bufLength)
 {
 #ifdef ASCOM_CRYPTO
@@ -2204,7 +2204,7 @@ int cw_rc4(gci_rc4Ctx_t* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer,
 /*============================================================================*/
 /*  cw_3des_init()                                                            */
 /*============================================================================*/
-int cw_3des_init(gci_3desCtx* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
+int cw_3des_init(cw_3desCtx* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
         uint8_t* p_initVect, size_t cwt_IVLen, uint8_t c_direction)
 {
 #ifdef ASCOM_CRYPTO
@@ -2228,7 +2228,7 @@ int cw_3des_init(gci_3desCtx* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
 /*============================================================================*/
 /*  cw_aes_init()                                                             */
 /*============================================================================*/
-int cw_aes_init(gci_aesCtx_t* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
+int cw_aes_init(cw_aesCtx_t* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
         uint8_t* p_initVect, size_t cwt_IVLen, uint8_t c_direction)
 {
 #ifdef ASCOM_CRYPTO
@@ -2252,7 +2252,7 @@ int cw_aes_init(gci_aesCtx_t* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
 /*============================================================================*/
 /*  cw_cbc_setiv()                                                          */
 /*============================================================================*/
-int cw_cbc_setiv(gci_cbcCtx* p_cbc, const uint8_t* IV, size_t len)
+int cw_cbc_setiv(cw_cbcCtx* p_cbc, const uint8_t* IV, size_t len)
 {
 #ifdef ASCOM_CRYPTO
 
@@ -2272,7 +2272,7 @@ int cw_cbc_setiv(gci_cbcCtx* p_cbc, const uint8_t* IV, size_t len)
 /*============================================================================*/
 /*  cw_cbc_encrypt()                                                          */
 /*============================================================================*/
-int cw_cbc_encrypt(gci_cbcCtx* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer,
+int cw_cbc_encrypt(cw_cbcCtx* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer,
         size_t cwt_bufLength)
 {
 #ifdef ASCOM_CRYPTO
@@ -2294,7 +2294,7 @@ int cw_cbc_encrypt(gci_cbcCtx* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer,
 /*============================================================================*/
 /*  cw_cbc_decrypt()                                                          */
 /*============================================================================*/
-int cw_cbc_decrypt(gci_cbcCtx* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer,
+int cw_cbc_decrypt(cw_cbcCtx* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer,
         size_t cwt_bufLength)
 {
 #ifdef ASCOM_CRYPTO
@@ -2589,7 +2589,7 @@ void _aes_test(void)
 {
     char ac_buffer[16], *pc_buffer;
 
-    gci_aesCtx_t cw_ctx;
+    cw_aesCtx_t cw_ctx;
 
     pc_buffer = ac_buffer;
 

@@ -60,7 +60,7 @@ GciResult_t gci_deinit(void)
 /********************************/
 /*	gci_get_info				*/
 //********************************/
-GciResult_t gci_get_info(GciInfo_t infoType, uint8_t* info, size_t* infoLen)
+GciResult_t gci_get_info(GciInfo_t infoType, uint16_t* info, size_t* infoLen)
 {
 	GciResult_t err = GCI_OK;
 #ifdef LIB_TOMCRYPT

@@ -28,45 +28,43 @@
 #include "drv_hw.h"
 #endif
 
-#include "crypto_iface.h"
+//#include "crypto_iface.h"
 
 ltc_math_descriptor ltc_mp;
 
 
-//TODO sw new[13/11/2015] - delete - constants
-
 /*==============================================================================
                                    CONSTANTS
 ==============================================================================*/
-///*! Size in bits for md5 digest */
-//#define     CW_MD5_DSIZE_BITS             128
-///*! Size in bytes for sha1 digest */
-//#define     CW_MD5_DSIZE                  (CW_MD5_DSIZE_BITS / 8)
-//
-///*! Size in bits for sha1 digest */
-//#define     CW_SHA1_DSIZE_BITS            160
-///*! Size in bytes for sha1 digest */
-//#define     CW_SHA1_DSIZE                 (CW_SHA1_DSIZE_BITS / 8)
-//
-///*! Size in bits for sha1 digest */
-//#define     CW_SHA224_DSIZE_BITS          224
-///*! Size in bytes for sha1 digest */
-//#define     CW_SHA224_DSIZE               (CW_SHA224_DSIZE_BITS / 8)
-//
-///*! Size in bits for sha1 digest */
-//#define     CW_SHA256_DSIZE_BITS          256
-///*! Size in bytes for sha1 digest */
-//#define     CW_SHA256_DSIZE               (CW_SHA256_DSIZE_BITS / 8)
-//
-///*! Size in bytes for md5+sha1 digest */
-//#define     CW_MD5_SHA1_DSIZE             CW_SHA1_DSIZE + CW_MD5_DSIZE
-//
-///*! Maximum size in bits for a digest */
-//#define     CW_MAX_HASHSIZE               CW_SHA256_DSIZE
-//
-//#define     CW_PKCS1_MAX_KEYSIZE          4096
-//#define     SSL_RSA_MAX_KEY_SIZE          CW_PKCS1_MAX_KEYSIZE
-//#define     MAX_MSG_SIZE                  (CW_PKCS1_MAX_KEYSIZE / 8)
+/*! Size in bits for md5 digest */
+#define     CW_MD5_DSIZE_BITS             128
+/*! Size in bytes for sha1 digest */
+#define     CW_MD5_DSIZE                  (CW_MD5_DSIZE_BITS / 8)
+
+/*! Size in bits for sha1 digest */
+#define     CW_SHA1_DSIZE_BITS            160
+/*! Size in bytes for sha1 digest */
+#define     CW_SHA1_DSIZE                 (CW_SHA1_DSIZE_BITS / 8)
+
+/*! Size in bits for sha1 digest */
+#define     CW_SHA224_DSIZE_BITS          224
+/*! Size in bytes for sha1 digest */
+#define     CW_SHA224_DSIZE               (CW_SHA224_DSIZE_BITS / 8)
+
+/*! Size in bits for sha1 digest */
+#define     CW_SHA256_DSIZE_BITS          256
+/*! Size in bytes for sha1 digest */
+#define     CW_SHA256_DSIZE               (CW_SHA256_DSIZE_BITS / 8)
+
+/*! Size in bytes for md5+sha1 digest */
+#define     CW_MD5_SHA1_DSIZE             CW_SHA1_DSIZE + CW_MD5_DSIZE
+
+/*! Maximum size in bits for a digest */
+#define     CW_MAX_HASHSIZE               CW_SHA256_DSIZE
+
+#define     CW_PKCS1_MAX_KEYSIZE          4096
+#define     SSL_RSA_MAX_KEY_SIZE          CW_PKCS1_MAX_KEYSIZE
+#define     MAX_MSG_SIZE                  (CW_PKCS1_MAX_KEYSIZE / 8)
 
 /*==============================================================================
                                     MACROS
@@ -130,20 +128,20 @@ typedef     const char*       rpcw_str_t;                          /* Pointer to
 /*============= RETURN =============*/
 typedef     CL_RSA_RV         cw_rsaRet_t;
 /*=============  PKI   =============*/
-typedef     CL_RSAPRIVKEY     gci_rsaPrivKey_t;
-typedef     CL_PRSAPRIVKEY    gci_rsaPrivKey_t *;
-typedef     CL_RSAPUBKEY      gci_rsaPubKey_t;
-typedef     CL_PRSAPUBKEY     gci_rsaPubKey_t *;
-typedef     CL_PCRSAPUBKEY    rpgci_rsaPubKey_t;
+typedef     CL_RSAPRIVKEY     cw_rsaPrivKey_t;
+typedef     CL_PRSAPRIVKEY    cw_rsaPrivKey_t *;
+typedef     CL_RSAPUBKEY      cw_rsaPubKey_t;
+typedef     CL_PRSAPUBKEY     cw_rsaPubKey_t *;
+typedef     CL_PCRSAPUBKEY    rpcw_rsaPubKey_t;
 /*=============  MATH  =============*/
-typedef     CL_BIGNUM         gci_bigNum_t;
-typedef     CL_PBIGNUM        gci_bigNum_t *;
+typedef     CL_BIGNUM         cw_bigNum_t;
+typedef     CL_PBIGNUM        cw_bigNum_t *;
 /*============= HASHES =============*/
 typedef     CL_SHA1CTX        cw_sha1Ctx_t;
 typedef     CL_MD5CTX         cw_md5Ctx_t;
 /*============= CRYPTO =============*/
-typedef     CL_WRC4CTX        gci_rc4Ctx_t;
-typedef     CL_AESCTX         gci_aesCtx_t;
+typedef     CL_WRC4CTX        cw_rc4Ctx_t;
+typedef     CL_AESCTX         cw_aesCtx_t;
 
 #elif defined(TOMLIB_CRYPTO)
 /* we define an own type for the RC4 context to save memory */
@@ -153,38 +151,38 @@ typedef struct rc4_prng_state {
 } prng_state_rc4;
 
 /*============= RETURN =============*/
-typedef     int               gci_rsaRet_t;
+typedef     int               cw_rsaRet_t;
 /*=============  PKI   =============*/
-typedef     dh_key            gci_dhKey_t;
-typedef     rsa_key           gci_rsaPrivKey_t;
-typedef     rsa_key           gci_rsaPubKey_t;
-typedef const rsa_key*        rpgci_rsaPubKey_t;
+typedef     dh_key            cw_dhKey_t;
+typedef     rsa_key           cw_rsaPrivKey_t;
+typedef     rsa_key           cw_rsaPubKey_t;
+typedef const rsa_key*        rpcw_rsaPubKey_t;
 /*=============  MATH  =============*/
-typedef     mp_int            gci_bigNum_t;
+typedef     mp_int            cw_bigNum_t;
 /*============= HASHES =============*/
-typedef     hash_state        gci_sha1Ctx_t;
-typedef     hash_state        gci_md5Ctx_t;
-typedef     hash_state        gci_hashCtx_t;
+typedef     hash_state        cw_sha1Ctx_t;
+typedef     hash_state        cw_md5Ctx_t;
+typedef     hash_state        cw_hashCtx_t;
 /*=============  HMAC  =============*/
-typedef     hmac_state        gci_sha1HmacCtx_t;
-typedef     hmac_state        gci_md5HmacCtx_t;
-typedef     hmac_state        gci_hmacCtx_t;
+typedef     hmac_state        cw_sha1HmacCtx_t;
+typedef     hmac_state        cw_md5HmacCtx_t;
+typedef     hmac_state        cw_hmacCtx_t;
 /*============= CRYPTO =============*/
-typedef     prng_state_rc4    gci_rc4Ctx_t;
-typedef     symmetric_CBC     gci_aesCtx_t;
-typedef     symmetric_CBC     gci_3desCtx;
-typedef     symmetric_CBC     gci_cbcCtx;
-typedef     symmetric_CBC     gci_symCbcCtx;
+typedef     prng_state_rc4    cw_rc4Ctx_t;
+typedef     symmetric_CBC     cw_aesCtx_t;
+typedef     symmetric_CBC     cw_3desCtx;
+typedef     symmetric_CBC     cw_cbcCtx;
+typedef     symmetric_CBC     cw_symCbcCtx;
 ///*============= ECC =============*/
-typedef		ecc_key			  gci_eccKey_t;
+typedef		ecc_key			  cw_eccKey_t;
 #endif
 
 typedef struct tagPublicKey
 {
     int     iAlgorithm;
     uint32_t    uiKeyLen;
-    gci_bigNum_t * pE;      /* ptr to public exponent   */
-    gci_bigNum_t * pM;      /* ptr to modulus           */
+    cw_bigNum_t * pE;      /* ptr to public exponent   */
+    cw_bigNum_t * pM;      /* ptr to modulus           */
 } s_pubKey_t;
 
 /* This holds the key settings.  ***MUST*** be organized by size from smallest to largest. */
@@ -482,9 +480,7 @@ int cw_ecc_sign_encode(uint8_t* p_inMessage, size_t cwt_inMsgLen,
 
 */
 /*============================================================================*/
-//TODO sw gci_sign_new_ctx ECDSA NOT USED +
-//TODO sw gci_sign_update ECDSA  NOT USED +
-//TODO sw gci_sign_verify_finish ECDSA NOT USED
+//TODO sw unused in the new interface
 int cw_ecc_hash_verify_ltc(uint8_t* pc_sig, size_t cwt_siglen,
         uint8_t* pc_hash, size_t cwt_hashlen, int* res,
         ecc_key * ecc_pubkey);
@@ -537,7 +533,7 @@ int cw_ecc_privatekey_init(unsigned char* p_buffer, size_t l_strlen,
 */
 //TODO sw gci_dh_gen_key DH
 /*============================================================================*/
-int cw_dhe_makeKey(gci_dhKey_t* p_privKey);
+int cw_dhe_makeKey(cw_dhKey_t* p_privKey);
 
 /*============================================================================*/
 /*!
@@ -556,8 +552,8 @@ int cw_dhe_makeKey(gci_dhKey_t* p_privKey);
 
 */
 /*============================================================================*/
-//TODO sw gci_key_put DH PRIV
-int cw_dhe_export_Y(uint8_t* p_dest, size_t* pcwt_destLen, gci_dhKey_t* p_privKey);
+//TODO sw unused in the new interface
+int cw_dhe_export_Y(uint8_t* p_dest, size_t* pcwt_destLen, cw_dhKey_t* p_privKey);
 
 /*============================================================================*/
 /*!
@@ -576,9 +572,9 @@ int cw_dhe_export_Y(uint8_t* p_dest, size_t* pcwt_destLen, gci_dhKey_t* p_privKe
 
 */
 /*============================================================================*/
-//TODO sw gci_key_put DH PUB
+//TODO sw unused in the new interface
 int cw_dhe_export_pgY(uint8_t*      p_dest,    size_t*       pcwt_destLen,
-                      gci_dhKey_t*   p_privKey, gci_bigNum_t**     pcwt_dheP);
+                      cw_dhKey_t*   p_privKey, cw_bigNum_t**     pcwt_dheP);
 
 /*============================================================================*/
 /*!
@@ -598,8 +594,8 @@ int cw_dhe_export_pgY(uint8_t*      p_dest,    size_t*       pcwt_destLen,
 
 */
 /*============================================================================*/
-//TODO sw gci_key_get DH PRIV
-int cw_dhe_import_Y(uint8_t* p_input, size_t cwt_inLen, gci_dhKey_t* p_dheKey);
+//TODO sw unused in the new interface
+int cw_dhe_import_Y(uint8_t* p_input, size_t cwt_inLen, cw_dhKey_t* p_dheKey);
 
 /*============================================================================*/
 /*!
@@ -621,10 +617,10 @@ int cw_dhe_import_Y(uint8_t* p_input, size_t cwt_inLen, gci_dhKey_t* p_dheKey);
 
 */
 /*============================================================================*/
-//TODO sw gci_key_get DH PUB
+//TODO sw unused in the new interface
 int cw_dhe_import_make_privKey(uint8_t* pc_input, size_t cwt_inLen,
-                               gci_dhKey_t* p_privateKey, gci_dhKey_t* p_publicKey,
-                               gci_bigNum_t** pp_dh_p);
+                               cw_dhKey_t* p_privateKey, cw_dhKey_t* p_publicKey,
+                               cw_bigNum_t** pp_dh_p);
 
 /*============================================================================*/
 /*!
@@ -645,8 +641,8 @@ int cw_dhe_import_make_privKey(uint8_t* pc_input, size_t cwt_inLen,
 
 */
 /*============================================================================*/
-//TODO sw gci_dh_calc_sharedSecret DH NOT USED
-int cw_dhe_sharedSec(gci_dhKey_t* p_privateKey, gci_dhKey_t* p_publicKey, uint8_t* p_outData, size_t* pcwt_outLen);
+//TODO sw unused in the new interface
+int cw_dhe_sharedSec(cw_dhKey_t* p_privateKey, cw_dhKey_t* p_publicKey, uint8_t* p_outData, size_t* pcwt_outLen);
 
 /*============================================================================*/
 /*!
@@ -670,7 +666,7 @@ int cw_dhe_sharedSec(gci_dhKey_t* p_privateKey, gci_dhKey_t* p_publicKey, uint8_
 */
 /*============================================================================*/
 //TODO sw gci_dh_calc_sharedSecret DH
-int cw_dhe_sharedSec_with_p(gci_dhKey_t* p_privateKey, gci_dhKey_t* p_publicKey, gci_bigNum_t** pp_dheP, uint8_t* p_outData, size_t* pcwt_outLen);
+int cw_dhe_sharedSec_with_p(cw_dhKey_t* p_privateKey, cw_dhKey_t* p_publicKey, cw_bigNum_t** pp_dheP, uint8_t* p_outData, size_t* pcwt_outLen);
 
 /*============================================================================*/
 /*!
@@ -682,7 +678,7 @@ int cw_dhe_sharedSec_with_p(gci_dhKey_t* p_privateKey, gci_dhKey_t* p_publicKey,
 */
 /*============================================================================*/
 //TODO sw gci_key_delete
-void cw_dh_free(gci_dhKey_t* pdh_key);
+void cw_dh_free(cw_dhKey_t* pdh_key);
 
 /*============================================================================*/
 /*!
@@ -692,9 +688,9 @@ void cw_dh_free(gci_dhKey_t* pdh_key);
    \param     pointer to the bignumber
 
 */
-//TODO sw ?? gci_ctx_release
+//TODO sw unused in the new interface
 /*============================================================================*/
-void cw_bn_free(gci_bigNum_t* pcwt_bn);
+void cw_bn_free(cw_bigNum_t* pcwt_bn);
 /*============================================================================*/
 /*!
 
@@ -711,9 +707,9 @@ void cw_bn_free(gci_bigNum_t* pcwt_bn);
 
 */
 
-//TODO sw ?? RSA OctetString2IntegerPointer
+//TODO sw unused in the new interface
 /*============================================================================*/
-int cw_rsa_os2ip(gci_bigNum_t * pbn_num, uint8_t* p_raw, size_t cwt_rawLen);
+int cw_rsa_os2ip(cw_bigNum_t * pbn_num, uint8_t* p_raw, size_t cwt_rawLen);
 
 /*============================================================================*/
 /*!
@@ -733,9 +729,9 @@ int cw_rsa_os2ip(gci_bigNum_t * pbn_num, uint8_t* p_raw, size_t cwt_rawLen);
    \return    CW_ERROR    an error occurred while export
 
 */
-//TODO sw ?? RSA Integer2OctetStringPointer
+//TODO sw unused in the new interface
 /*============================================================================*/
-int cw_rsa_i2osp(gci_bigNum_t * pbn_num, size_t cwt_numLen, uint8_t* p_outData);
+int cw_rsa_i2osp(cw_bigNum_t * pbn_num, size_t cwt_numLen, uint8_t* p_outData);
 
 /*============================================================================*/
 /*!
@@ -754,7 +750,7 @@ int cw_rsa_i2osp(gci_bigNum_t * pbn_num, size_t cwt_numLen, uint8_t* p_outData);
 //TODO sw gci_sign_update RSA +
 //TODO sw gci_sign_verify_finish RSA
 /*============================================================================*/
-int cw_rsa_verify (gci_bigNum_t * Message, gci_bigNum_t * Signature, rpgci_rsaPubKey_t pPubKey);
+int cw_rsa_verify (cw_bigNum_t * Message, cw_bigNum_t * Signature, rpcw_rsaPubKey_t pPubKey);
 
 /*============================================================================*/
 /*!
@@ -775,7 +771,7 @@ int cw_rsa_verify (gci_bigNum_t * Message, gci_bigNum_t * Signature, rpgci_rsaPu
 //TODO sw gci_decrypt
 /*============================================================================*/
 int cw_pkcs1_v15_decrypt(uint8_t* p_inData, size_t cwt_inDataLen,
-        uint8_t* p_outData, size_t* cwt_outDataLen, gci_rsaPrivKey_t * p_privkey);
+        uint8_t* p_outData, size_t* cwt_outDataLen, cw_rsaPrivKey_t * p_privkey);
 
 
 
@@ -796,10 +792,9 @@ int cw_pkcs1_v15_decrypt(uint8_t* p_inData, size_t cwt_inDataLen,
 
 */
 //TODO sw gci_encrypt
-//TODO sw new[13/11/2015] - modif - gci_rsaPubKey_t
 /*============================================================================*/
 int cw_rsa_encrypt(uint8_t* p_inData, size_t cwt_inDataLen,
-        uint8_t* p_outData, size_t* cwt_outDataLen, gci_rsaPubKey_t * p_pubkey);
+        uint8_t* p_outData, size_t* cwt_outDataLen, cw_rsaPubKey_t * p_pubkey);
 
 
 /*============================================================================*/
@@ -818,9 +813,12 @@ int cw_rsa_encrypt(uint8_t* p_inData, size_t cwt_inDataLen,
 
 */
 /*============================================================================*/
+//TODO sw gci_sign_verify_new_ctx RSA +
+//TODO sw gci_sign_update +
+//TODO sw gci_verify_finish
 int cw_rsa_sign_decode(uint8_t* pc_encSign, size_t sz_encSignLen,
                        uint8_t* pc_decSign, size_t* sz_decSignLen,
-                       gci_rsaPubKey_t * p_pubkey);
+                       cw_rsaPubKey_t * p_pubkey);
 
 /*============================================================================*/
 /*!
@@ -839,12 +837,12 @@ int cw_rsa_sign_decode(uint8_t* pc_encSign, size_t sz_encSignLen,
    \return    CW_ERROR          an error occurred while decoding
 
 */
-//TODO sw gci_sign_new_ctx HMAC +
+//TODO sw gci_sign_verify_new_ctx HMAC +
 //TODO sw gci_sign_update HMAC +
 //TODO sw gci_sign_verify_finish HMAC
 /*============================================================================*/
 int cw_rsa_hash_verify_ltc(uint8_t* pc_sig, size_t cwt_siglen,
-          uint8_t* pc_hash, size_t cwt_hashlen, int hash_idx, int* res, gci_rsaPubKey_t * rsa_pubkey);
+          uint8_t* pc_hash, size_t cwt_hashlen, int hash_idx, int* res, cw_rsaPubKey_t * rsa_pubkey);
 
 /*============================================================================*/
 /*!
@@ -864,11 +862,11 @@ int cw_rsa_hash_verify_ltc(uint8_t* pc_sig, size_t cwt_siglen,
 
 */
 /*============================================================================*/
-//TODO sw gci_sign_new_ctx RSA +
+//TODO sw gci_sign_gen_new_ctx RSA +
 //TODO sw gci_sign_update RSA +
 //TODO sw gci_sign_gen_finish RSA
 int cw_rsa_sign_encode(uint8_t* p_inMessage, size_t cwt_inMsgLen,
-          uint8_t* p_signature, size_t* cwt_sigLen, gci_rsaPubKey_t * p_pubkey);
+          uint8_t* p_signature, size_t* cwt_sigLen, cw_rsaPubKey_t * p_pubkey);
 
 /*============================================================================*/
 /*!
@@ -885,9 +883,9 @@ int cw_rsa_sign_encode(uint8_t* p_inMessage, size_t cwt_inMsgLen,
    \return    CRYPT_OK is fine, the rest can be analysed by cw_error2string(err)
 
 */
-//TODO sw gci_key_pair_gen RSA
+//TODO sw unused in the new interface
 /*============================================================================*/
-int cw_rsa_privatekey_init(unsigned char* p_buffer, size_t l_strlen, gci_rsaPrivKey_t* pcwt_privKey);
+int cw_rsa_privatekey_init(unsigned char* p_buffer, size_t l_strlen, cw_rsaPrivKey_t* pcwt_privKey);
 
 /*============================================================================*/
 /*!
@@ -898,9 +896,9 @@ int cw_rsa_privatekey_init(unsigned char* p_buffer, size_t l_strlen, gci_rsaPriv
 
 */
 
-//TODO sw ?? private key shrink
+//TODO sw unused in the new interface
 /*============================================================================*/
-void cw_rsa_privatekey_shrink(gci_rsaPrivKey_t* pcwt_privKey);
+void cw_rsa_privatekey_shrink(cw_rsaPrivKey_t* pcwt_privKey);
 
 /*============================================================================*/
 /*!
@@ -913,7 +911,7 @@ void cw_rsa_privatekey_shrink(gci_rsaPrivKey_t* pcwt_privKey);
 
 //TODO sw gci_key_delete
 /*============================================================================*/
-void cw_rsa_privatekey_free(gci_rsaPubKey_t* pcwt_privKey);
+void cw_rsa_privatekey_free(cw_rsaPubKey_t* pcwt_privKey);
 
 /*============================================================================*/
 /*!
@@ -925,9 +923,9 @@ void cw_rsa_privatekey_free(gci_rsaPubKey_t* pcwt_privKey);
    \return    ERROR_TYPES from libtomcrypt
 
 */
-//TODO sw gci_key_pair_gen RSA
+//TODO sw unused in the new interface
 /*============================================================================*/
-int cw_rsa_publickey_init(gci_rsaPubKey_t* pcwt_pubKey);
+int cw_rsa_publickey_init(cw_rsaPubKey_t* pcwt_pubKey);
 
 /*============================================================================*/
 /*!
@@ -937,9 +935,9 @@ int cw_rsa_publickey_init(gci_rsaPubKey_t* pcwt_pubKey);
    \param     pcwt_pubKey       Pointer to the rsa public key
 
 */
-//TODO sw ?? public key shrink
+//TODO sw unused in the new interface
 /*============================================================================*/
-void cw_rsa_publickey_shrink(gci_rsaPubKey_t* pcwt_pubKey);
+void cw_rsa_publickey_shrink(cw_rsaPubKey_t* pcwt_pubKey);
 
 /*============================================================================*/
 /*!
@@ -951,7 +949,7 @@ void cw_rsa_publickey_shrink(gci_rsaPubKey_t* pcwt_pubKey);
 */
 //TODO sw gci_key_delete
 /*============================================================================*/
-void cw_rsa_publickey_free(gci_rsaPubKey_t* pcwt_pubKey);
+void cw_rsa_publickey_free(cw_rsaPubKey_t* pcwt_pubKey);
 
 /*============================================================================*/
 /*!
@@ -962,9 +960,9 @@ void cw_rsa_publickey_free(gci_rsaPubKey_t* pcwt_pubKey);
    \param     pwsslt_pubKey     Pointer to the SSL key that will be modified
 
 */
-//TODO sw ?? rsa copy parameters from rsa tomcrypt to a intern structure
+//TODO sw gci_key_get
 /*============================================================================*/
-void cw_rsa_publickey_prep(gci_rsaPubKey_t * pcwt_pubKey, s_pubKey_t * pwsslt_pubKey);
+void cw_rsa_publickey_prep(cw_rsaPubKey_t * pcwt_pubKey, s_pubKey_t * pwsslt_pubKey);
 
 /*============================================================================*/
 /*!
@@ -975,9 +973,9 @@ void cw_rsa_publickey_prep(gci_rsaPubKey_t * pcwt_pubKey, s_pubKey_t * pwsslt_pu
    \param     pcwt_pubKey       Pointer to the rsa key that should have been modified
 
 */
-//TODO sw ?? rsa copy parameters from intern structure to rsa tomcrypt
+//TODO sw gci_key_post
 /*============================================================================*/
-void cw_rsa_publickey_post(s_pubKey_t * pwsslt_pubKey, gci_rsaPubKey_t * pcwt_pubKey);
+void cw_rsa_publickey_post(s_pubKey_t * pwsslt_pubKey, cw_rsaPubKey_t * pcwt_pubKey);
 
 /*==================================  MATH  ==================================*/
 /*============================================================================*/
@@ -991,7 +989,7 @@ void cw_rsa_publickey_post(s_pubKey_t * pwsslt_pubKey, gci_rsaPubKey_t * pcwt_pu
    \return    nothing
 
 */
-//TODO sw not used
+//TODO sw unused in the new interface
 /*============================================================================*/
 void cw_bn_init(uint8_t* p_bnBuffer, size_t cwt_bufLen);
 
@@ -1006,9 +1004,9 @@ void cw_bn_init(uint8_t* p_bnBuffer, size_t cwt_bufLen);
    \return    Pointer to the initialized BN/MPI
    \return    NULL  if the initialization crashed
 */
-//TODO sw ?? create BigNumber
+//TODO sw unused in the new interface
 /*============================================================================*/
-gci_bigNum_t * cw_bn_create(gci_bigNum_t * pbn_number, size_t cwt_size);
+cw_bigNum_t * cw_bn_create(cw_bigNum_t * pbn_number, size_t cwt_size);
 
 /*============================================================================*/
 /*!
@@ -1020,7 +1018,7 @@ gci_bigNum_t * cw_bn_create(gci_bigNum_t * pbn_number, size_t cwt_size);
    \return    nothing
 
 */
-//TODO sw ?? delete a BigNumber
+//TODO sw unused in the new interface
 /*============================================================================*/
 void cw_bn_freefree(void* pbn_number);
 
@@ -1039,9 +1037,9 @@ void cw_bn_freefree(void* pbn_number);
    \return    nothing
 
 */
-//TODO sw ?? set a value of a BigNumber
+//TODO sw unused in the new interface
 /*============================================================================*/
-void cw_bn_set(gci_bigNum_t * pbn_number, void* p_data, size_t cwt_dataSize);
+void cw_bn_set(cw_bigNum_t * pbn_number, void* p_data, size_t cwt_dataSize);
 
 /*============================================================================*/
 /*!
@@ -1058,9 +1056,9 @@ void cw_bn_set(gci_bigNum_t * pbn_number, void* p_data, size_t cwt_dataSize);
    \return    CW_ERROR      an error occured
 
 */
-//TODO sw not used
+//TODO sw unused in the new interface
 /*============================================================================*/
-int cw_bn_add(gci_bigNum_t * pbn_dest, gci_bigNum_t * pbn_number1, gci_bigNum_t * pbn_number2);
+int cw_bn_add(cw_bigNum_t * pbn_dest, cw_bigNum_t * pbn_number1, cw_bigNum_t * pbn_number2);
 
 
 /*============================================================================*/
@@ -1078,9 +1076,9 @@ int cw_bn_add(gci_bigNum_t * pbn_dest, gci_bigNum_t * pbn_number1, gci_bigNum_t 
    \return    CW_ERROR      an error occured
 
 */
-//TODO sw not used
+//TODO sw unused in the new interface
 /*============================================================================*/
-int cw_bn_sub(gci_bigNum_t * pbn_dest, gci_bigNum_t * pbn_number1, gci_bigNum_t * pbn_number2);
+int cw_bn_sub(cw_bigNum_t * pbn_dest, cw_bigNum_t * pbn_number1, cw_bigNum_t * pbn_number2);
 
 
 /*============================================================================*/
@@ -1098,9 +1096,9 @@ int cw_bn_sub(gci_bigNum_t * pbn_dest, gci_bigNum_t * pbn_number1, gci_bigNum_t 
    \return    CW_ERROR      an error occured
 
 */
-//TODO sw not used
+//TODO sw unused in the new interface
 /*============================================================================*/
-int cw_bn_mul(gci_bigNum_t * pbn_dest, gci_bigNum_t * pbn_number1, gci_bigNum_t * pbn_number2);
+int cw_bn_mul(cw_bigNum_t * pbn_dest, cw_bigNum_t * pbn_number1, cw_bigNum_t * pbn_number2);
 
 
 /*============================================================================*/
@@ -1120,10 +1118,10 @@ int cw_bn_mul(gci_bigNum_t * pbn_dest, gci_bigNum_t * pbn_number1, gci_bigNum_t 
    \return    CW_ERROR          an error occured
 
 */
-//TODO sw not used
+//TODO sw unused in the new interface
 /*============================================================================*/
-int cw_bn_div(gci_bigNum_t * pbn_quotient, gci_bigNum_t * pbn_remainder,
-              gci_bigNum_t * pbn_numerator, gci_bigNum_t * pbn_denominator);
+int cw_bn_div(cw_bigNum_t * pbn_quotient, cw_bigNum_t * pbn_remainder,
+              cw_bigNum_t * pbn_numerator, cw_bigNum_t * pbn_denominator);
 
 
 /*==================================  PRNG  ==================================*/
@@ -1139,7 +1137,7 @@ int cw_bn_div(gci_bigNum_t * pbn_quotient, gci_bigNum_t * pbn_remainder,
    \return    CW_ERROR          an error occured
 
 */
-//TODO sw not used
+//TODO sw unused in the new interface
 /*============================================================================*/
 int cw_prng_init(uint8_t* p_seed, size_t cwt_seedLen);
 
@@ -1187,7 +1185,7 @@ void cw_prng_seed(uint8_t* p_src, size_t cwt_len);
    \return    CW_OK on success
 
 */
-//TODO sw not used
+//TODO sw unused in the new interface
 /*============================================================================*/
 int cw_prng_export(uint8_t* pc_out, size_t* pcwt_outlen);
 
@@ -1204,7 +1202,7 @@ int cw_prng_export(uint8_t* pc_out, size_t* pcwt_outlen);
 */
 
 
-//TODO sw not used
+//TODO sw unused in the new interface
 /*============================================================================*/
 int cw_prng_import(uint8_t* pc_in, size_t cwt_inlen);
 
@@ -1221,7 +1219,7 @@ int cw_prng_import(uint8_t* pc_in, size_t cwt_inlen);
    \return    >-1        hash index of the oid
 
 */
-//TODO sw ?? get an index with an ID
+//TODO sw unused in the new interface
 /*============================================================================*/
 int cw_oidIdent2HashIDX(int i_oid);
 
@@ -1239,7 +1237,7 @@ int cw_oidIdent2HashIDX(int i_oid);
    \return    >-1        hash index of the hash algorithm
 
 */
-//TODO sw ?? get an index with a string
+//TODO sw unused in the new interface
 /*============================================================================*/
 int cw_getHashIndex(const char* pc_name);
 
@@ -1259,7 +1257,9 @@ int cw_getHashIndex(const char* pc_name);
    \return    CW_ERROR      an error occured
 
 */
-//TODO sw ?? save a hash data in multiple hash
+//TODO sw gci_hash_new_ctx +
+//TODO sw gci_hash_update +
+//TODO sw gci_hash_finish
 /*============================================================================*/
 int cw_hash_memory(int hash_idx, uint8_t* pc_in, size_t cwt_inLen, uint8_t* pc_out, size_t* pcwt_outlen);
 
@@ -1279,7 +1279,7 @@ int cw_hash_memory(int hash_idx, uint8_t* pc_in, size_t cwt_inLen, uint8_t* pc_o
    \return    CW_ERROR      an error occured
 
 */
-//TODO sw not used
+//TODO sw unused in the new interface
 /*============================================================================*/
 int cw_hash_memory_multi(int hash_idx, uint8_t* pc_out, size_t* pcwt_outlen,
                           uint8_t* pc_in1, size_t cwt_in1len,
@@ -1366,7 +1366,7 @@ int cw_hmac(e_sslHashAlg_t e_hashType,
 */
 //TODO sw  gci_cipher_sym_new_ctx RC4
 /*============================================================================*/
-int cw_rc4_init(gci_rc4Ctx_t* p_ctx, uint8_t* p_key, size_t cwt_keyLength);
+int cw_rc4_init(cw_rc4Ctx_t* p_ctx, uint8_t* p_key, size_t cwt_keyLength);
 
 
 /*============================================================================*/
@@ -1383,9 +1383,9 @@ int cw_rc4_init(gci_rc4Ctx_t* p_ctx, uint8_t* p_key, size_t cwt_keyLength);
    \return    CW_ERROR        an error occured
 
 */
-//TODO sw gci_encrypt + gci_decrypt
+//TODO sw gci_cipher_encrypt
 /*============================================================================*/
-int cw_rc4(gci_rc4Ctx_t* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer, size_t cwt_bufLength);
+int cw_rc4(cw_rc4Ctx_t* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer, size_t cwt_bufLength);
 
 /*============================================================================*/
 /*!
@@ -1403,9 +1403,9 @@ int cw_rc4(gci_rc4Ctx_t* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer, size_
    \return    CW_ERROR      an error occured
 
 */
-//TODO sw  gci_cipher_sym_new_ctx 3DES
+//TODO sw  gci_cipher_new_ctx 3DES
 /*============================================================================*/
-int cw_3des_init(gci_3desCtx* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
+int cw_3des_init(cw_3desCtx* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
                 uint8_t* p_initVect, size_t cwt_IVLen, uint8_t c_direction);
 
 /*============================================================================*/
@@ -1424,9 +1424,9 @@ int cw_3des_init(gci_3desCtx* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
    \return    CW_ERROR      an error occured
 
 */
-//TODO sw  gci_cipher_sym_new_ctx AES
+//TODO sw  gci_cipher_new_ctx AES
 /*============================================================================*/
-int cw_aes_init(gci_aesCtx_t* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
+int cw_aes_init(cw_aesCtx_t* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
                 uint8_t* p_initVect, size_t cwt_IVLen, uint8_t c_direction);
 
 /*============================================================================*/
@@ -1438,9 +1438,9 @@ int cw_aes_init(gci_aesCtx_t* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
    \return    CW_ERROR        an error occured
 
 */
-//TODO sw  gci_cipher_sym_new_ctx
+//TODO sw  gci_cipher_new_ctx
 /*============================================================================*/
-int cw_cbc_setiv(gci_cbcCtx* p_cbc, const uint8_t* IV, size_t len);
+int cw_cbc_setiv(cw_cbcCtx* p_cbc, const uint8_t* IV, size_t len);
 
 /*============================================================================*/
 /*!
@@ -1458,7 +1458,7 @@ int cw_cbc_setiv(gci_cbcCtx* p_cbc, const uint8_t* IV, size_t len);
 */
 //TODO sw gci_encrypt
 /*============================================================================*/
-int cw_cbc_encrypt(gci_cbcCtx* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer, size_t cwt_bufLength);
+int cw_cbc_encrypt(cw_cbcCtx* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer, size_t cwt_bufLength);
 
 /*============================================================================*/
 /*!
@@ -1476,7 +1476,7 @@ int cw_cbc_encrypt(gci_cbcCtx* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer,
 */
 //TODO sw gci_decrypt
 /*============================================================================*/
-int cw_cbc_decrypt(gci_cbcCtx* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer, size_t cwt_bufLength);
+int cw_cbc_decrypt(cw_cbcCtx* p_ctx, uint8_t* p_inBuffer, uint8_t* p_outBuffer, size_t cwt_bufLength);
 
 
 #if _CW_TEST_
