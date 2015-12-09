@@ -564,8 +564,6 @@ e_sslResult_t sslCert_getSubject(s_sslCertList_t *ps_entry, uint8_t *pc_dest, si
 
     GciResult_t err;
 
-    GciKeyGenConfig_t rsaConf;
-
     assert(ps_entry != NULL);
     assert(pc_dest != NULL);
     assert(pcwt_space != NULL);
@@ -683,7 +681,6 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcw
     s_sslCert_t *ps_tbvCert;
 
     GciResult_t err;
-    GciKeyGenConfig_t rsaConf;
 
     /* Allocate some memory for a subject name */
     ps_octTbvStor  = &ast_tmpOctStor[1];

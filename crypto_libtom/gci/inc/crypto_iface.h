@@ -211,7 +211,6 @@ GciResult_t gci_sign_verify_finish(GciCtxId_t ctxID, const uint8_t* sign, size_t
 /*		      											KEY GENERATOR			      							  	  */
 /**********************************************************************************************************************/
 
-//TODO sw new[08/12/2015] - Change GciKeyGenConfig_t to GciKeyPairType_t
 /**
  * \fn						GciResult_t gci_key_pair_gen(const GciKeyPairType_t* keyType, GciKeyId_t* pubKeyID, GciKeyId_t* privKeyID)
  * \brief					Generate a pair of key and get the ID of the public key
@@ -305,7 +304,6 @@ GciResult_t gci_rng_seed(const uint8_t* sdBuf, size_t sdLen);
 /*		    										 Diffie-Hellmann                 				    			  */
 /**********************************************************************************************************************/
 
-//TODO sw new[08/12/2015] - change GciDhConfig_t to GciDhType_t
 /**
  * \fn						GciResult_t gci_dh_new_ctx(const GciDhType_t* dhType, GciCtxId_t* ctxID)
  * \brief					Create a new Diffie-Hellman context

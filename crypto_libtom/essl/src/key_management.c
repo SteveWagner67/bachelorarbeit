@@ -71,7 +71,7 @@ GciResult_t km_dhe_init(void)
     GciResult_t err;
 
     GciCtxId_t dhCtx;
-    GciDhConfig_t dhConf;
+    GciDhType_t dhType;
 
     //OLD-CW: cw_dh_free(&gst_dheKey.cwt_dheKey);
 
@@ -87,11 +87,11 @@ GciResult_t km_dhe_init(void)
 
     gst_dheKey.l_inUse = 0;
 
-    dhConf.type = GCI_DH;
+    dhType = GCI_DH;
     //TODO sw - what for domain parameters ??
     //dhConf.config.dhDomain
 
-    err = gci_dh_new_ctx(&dhConf, &dhCtx);
+    err = gci_dh_new_ctx(&dhType, &dhCtx);
     if(err != GCI_OK)
     {
     	//TODO return error state

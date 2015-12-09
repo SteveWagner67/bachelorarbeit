@@ -357,12 +357,12 @@ typedef enum
 	GCI_EC_SECT163K1,
 	/**SECT163R1 Elliptic Curve*/
 	GCI_EC_SECT163R1,
-	/**SECT163R1 Elliptic Curve*/
-	GCI_EC_SECT163R1,
-	/**SECT163R1 Elliptic Curve*/
-	GCI_EC_SECT163R1,
-	/**SECT163R1 Elliptic Curve*/
-	GCI_EC_SECT163R1,
+	/**SECT163R2 Elliptic Curve*/
+	GCI_EC_SECT163R2,
+	/**SECT193R1 Elliptic Curve*/
+	GCI_EC_SECT193R1,
+	/**SECT193R2 Elliptic Curve*/
+	GCI_EC_SECT193R2,
 	/**SECT233K1 Elliptic Curve*/
 	GCI_EC_SECT233K1,
 	/**SECT233R1 Elliptic Curve*/
@@ -522,10 +522,6 @@ typedef struct
 
 
 
-//TODO sw new[08/12/2015] - Deleting of GciSignDsaConfig_t + GciSignEcdsaConfig_t
-
-
-
 /*!
  * \struct 					GciSignConfig_t
  * \brief					Structure for the configuration of a signature
@@ -575,8 +571,6 @@ typedef struct
 
 		/** CMAC Configuration */
 		GciSignCmacConfig_t cmac;
-
-//TODO sw new[08/12/2015] - Delete GciSignDsaConfig_t and GciSignEcdsaConfig_t
 	} config;
 } GciSignConfig_t;
 
@@ -600,14 +594,10 @@ typedef enum
 	GCI_KEY_PAIR_RSA_SSA,
 	/**RSA key pair - encrypt*/
 	GCI_KEY_PAIR_RSA_ES,
-	/**DHE RSA key pair */
-	GCI_KEY_PAIR_DHE_RSA,
-	/**DHE DSS key pair */
-	GCI_KEY_PAIR_DHE_DSS,
-	/**ECDHE RSA */
-	GCI_KEY_PAIR_ECDHE_RSA,
-	/**ECDHE ECDSA */
-	GCI_KEY_PAIR_ECDHE_ECDSA,
+	/**DH key pair */
+	GCI_KEY_PAIR_DH,
+	/**ECDH key pair */
+	GCI_KEY_PAIR_ECDH,
 	/**DSA key pair*/
 	GCI_KEY_PAIR_DSA,
 	/**EC DSA key pair*/
@@ -630,9 +620,6 @@ typedef struct
 
 
 
-//TODO sw new[08/12/2015] - Deleting of GciKeyGenConfig_t
-
-
 /**********************************************************************************************************************/
 /*		      										Diffie-Hellman	Key Generator     							  	  */
 /**********************************************************************************************************************/
@@ -650,10 +637,6 @@ typedef enum
 	/**Elliptic curve Diffie-Helmann*/
 	GCI_ECDH
 } GciDhType_t;
-
-
-
-//TODO new sw[08/12/2015] - Delete GciDhConfig_t
 
 
 
@@ -710,7 +693,6 @@ typedef struct
 
 
 
-//TODO new sw[08/12/2015]
 /*!
  * \struct 					GciDsaKey_t
  * \brief					Structure representing a DSA key (public or private)
@@ -725,7 +707,6 @@ typedef struct
 
 
 
-//TODO new sw[08/12/2015]
 /*!
  * \struct 					GciDhKey_t
  * \brief					Structure representing a DH key (public or private)
@@ -740,7 +721,6 @@ typedef struct
 
 
 
-//TODO new sw[08/12/2015]
 /*!
  * \struct 					GciEcdhPubKey_t
  * \brief					Structure representing a ECDH public key
@@ -784,7 +764,6 @@ typedef struct
 
 
 
-//TODO new sw[08/12/2015]
 /*!
  * \struct 					GciEcdhPrivKey_t
  * \brief					Structure representing a ECDH priv key
@@ -828,7 +807,6 @@ typedef struct
 
 
 
-//TODO new sw[08/12/2015]
 /*!
  * \struct 					GciEcdsaPubKey_t
  * \brief					Structure representing a ECDSA public key
@@ -872,7 +850,6 @@ typedef struct
 
 
 
-//TODO new sw[08/12/2015]
 /*!
  * \struct 					GciEcdsaPrivKey_t
  * \brief					Structure representing a ECDSA private key
@@ -958,7 +935,7 @@ typedef enum
 	GCI_KEY_RSA_PUB_ES,
 	/**RSA private key - encrypt*/
 	GCI_KEY_RSA_PRIV_ES,
-	/**HMAC*/
+	/**HMAC key*/
 	GCI_KEY_HMAC,
 	/**No key*/
 	GCI_KEY_NONE=0xFF
@@ -987,6 +964,11 @@ typedef struct
 	 * GCI_KEY_ECDSA_PRIV
 	 * GCI_KEY_RSA_PUB
 	 * GCI_KEY_RSA_PRIV
+	 * GCI_KEY_RSA_PRIV_SSA
+	 * GCI_KEY_RSA_PUB_SSA
+	 * GCI_KEY_RSA_PUB_ES
+	 * GCI_KEY_RSA_PRIV_ES
+	 * GCI_KEY_HMAC
 	 * GCI_KEY_NONE=0xFF
 	 */
 	GciKeyType_t type;

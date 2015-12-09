@@ -669,11 +669,6 @@ typedef struct ssl_handshakeElements
     * In server mode it's the public key to perform the client authentication
     */
 
-   //sw - the DH private key doesn't go out of the context
-   GciCtxId_t			gci_dhCtx;
-   GciCtxId_t			gci_ecdhCtx;
-
-
    //OLD-CW: gci_rsaPubKey_t        gci_peerPubKey;
    GciKeyId_t			gci_peerPubKey;
 
@@ -684,12 +679,19 @@ typedef struct ssl_handshakeElements
 
    /* the public key if dh is used and we act as server */
    //OLD-CW: gci_dhKey_t            gci_dheSrvPubKey;
+
    GciKeyId_t			gci_dheSrvPubKey;
+   GciKeyId_t			gci_dheCliPubKey;
 
 
+   //TODO sw - shared secret key?
    /* pointer to memory address where p will be stored when we act as client */
    //OLD-CW: gci_bigNum_t*          pgci_dheP;
-   GciBigInt_t			pgci_dheP;
+   //GciBigInt_t*			pgci_dheP;
+   //Shared secret key
+   GciKeyId_t			gci_dheSecKey;
+   GciKeyId_t			gci_ecdheSecKey;
+
    /* We've to save the offered version of the Client Hello to verify the
     * PreMasterSecret
     */
@@ -803,7 +805,8 @@ typedef struct ssl_securityParameters
    //OLD-CW: uint16_t				eccChoosenCurve;
    GciNamedCurve_t		eccChoosenCurve;
    //OLD-CW: ecc_key				eccKey;
-   //GciKeyId_t			eccKey;
+   GciKeyId_t			ecdhCliPubKey;
+   GciKeyId_t			ecdhSecKey;
    GciCtxId_t			eccCtx;
 
 

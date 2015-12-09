@@ -94,7 +94,7 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 	unsigned char* p_buffer;
 
 	GciResult_t err;
-	GciKeyGenConfig_t rsaConf;
+	GciKey_t rsaPrivKey = {.type = GCI_KEY_RSA_PRIV};
 
 	/*
 	 * Read the cert into the cert_db buffer
@@ -102,12 +102,12 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 	p_buffer = cdb_read2buf(pcdt_privKey, &cwt_len);
 	if (p_buffer != NULL)
 	{
-		int iRet;
 		/*
 		 * Import the privatekey
 		 */
 		//OLD-CW: iRet = cw_rsa_privatekey_init(p_buffer, (uint32_t) cwt_len, pcwt_privKey);
 
+		//TODO sw - import the private by using a ASN1 Sequence
 
 //		if (iRet == CRYPT_OK)
 //		{
@@ -163,7 +163,6 @@ static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
 	unsigned char* p_buffer;
 
 	GciResult_t err;
-	GciKeyGenConfig_t ecdsaConf;
 
 	/*
 	 * Read the cert into the cert_db buffer
