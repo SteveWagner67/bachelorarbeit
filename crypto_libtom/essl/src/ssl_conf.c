@@ -624,7 +624,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
 
     //OLD-CW: cw_rsa_publickey_prep(&ps_handshElem->gci_peerPubKey, &s_pubKeyInfo);
-    err = gci_key_get(ps_handshElem->gci_peerPubKey, &s_pubKeyInfo);
+    err = gci_key_get(ps_handshElem->gci_rsaSrvPubKey, &s_pubKeyInfo);
     if(err != GCI_OK)
     {
     	//TODO return error state
@@ -813,7 +813,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
         s_octPeerCert.pc_data = pc_inData;
         s_octPeerCert.cwt_len = cwt_inLen;
 
-        e_ret = sslCert_verifyChain(&s_octPeerCert, &ps_handshElem->gci_peerPubKey, ps_caList);
+        e_ret = sslCert_verifyChain(&s_octPeerCert, &ps_handshElem->gci_rsaSrvPubKey, ps_caList);
 
         if (e_ret != E_SSL_CERT_OK)
         {
@@ -874,7 +874,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 //					&ps_handshElem->gci_peerPubKey) != CW_OK)
     		if (ssl_verifyHash(pc_inData, VERIF_HASHSIZE,
     					pc_inData + VERIF_HASHSIZE, cwt_inLen - VERIF_HASHSIZE,
-    					&ps_handshElem->gci_peerPubKey) != GCI_OK)
+    					&ps_handshElem->gci_rsaSrvPubKey) != GCI_OK)
 			{
 				E_SSL_VERIFRES_FAILED(pc_outData);
 				LOG_ERR("Verification of CertificateVerify failed");

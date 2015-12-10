@@ -66,7 +66,7 @@ static s_kmDheKey_t gst_dheKey =
 /*  km_dhe_init()                                                             */
 /*============================================================================*/
 //OLD-CW: int km_dhe_init(void)
-GciResult_t km_dhe_init(void)
+GciResult_t km_dhe_init(GciKeyId_t* dhKeyID)
 {
     GciResult_t err;
 
@@ -119,53 +119,54 @@ GciResult_t km_dhe_init(void)
 /*============================================================================*/
 /*  km_dhe_getKey()                                                           */
 /*============================================================================*/
-//gci_dhKey_t* km_dhe_getKey(void)
-//{
-//    gci_dhKey_t* p_ret = NULL;
-//
-//    LOG_INFO("km_dhe_getKey() Valid: %i, Count: %i, inUse: %i",
-//            gst_dheKey.b_isValid, gst_dheKey.l_count, gst_dheKey.l_inUse);
-//
-//    /*! check if the key is initialized  */
-//    if (gst_dheKey.b_isValid)
-//    {
-//        /* we reused too often? */
-//        if (gst_dheKey.l_count > SSL_KM_DHE_MAX_REUSE)
-//        {
-//            /* is the key still in use? */
-//            if (gst_dheKey.l_inUse == 0)
-//            {
-//                /* no, so we can renew the key */
-//                if (km_dhe_init() == CW_OK)
-//                {
-//                    gst_dheKey.l_count++;
-//                    gst_dheKey.l_inUse++;
-//                    p_ret = &gst_dheKey.cwt_dheKey;
-//                } /* if(km_dhe_init() == CW_OK) */
-//
-//            } /* if(l_inUse == 0) */
-//
-//        } /* if(l_count > SSL_KM_DHE_MAX_REUSE) */
-//        else
-//        {
-//            gst_dheKey.l_count++;
-//            gst_dheKey.l_inUse++;
-//            p_ret = &gst_dheKey.cwt_dheKey;
-//        }
-//
-//    } /* if(gst_dheKey.b_isValid) */
-//    else
-//    {
-//        if (km_dhe_init() == CW_OK)
-//        {
-//            gst_dheKey.l_count++;
-//            gst_dheKey.l_inUse++;
-//            p_ret = &gst_dheKey.cwt_dheKey;
-//        } /* if(km_dhe_init() == CW_OK) */
-//    }
-//
-//    return p_ret;
-//} /* km_dhe_getKey() */
+// OLD-CW: gci_dhKey_t* km_dhe_getKey(void)
+GciResult_t km_dhe_getKey(void)
+{
+    gci_dhKey_t* p_ret = NULL;
+
+    LOG_INFO("km_dhe_getKey() Valid: %i, Count: %i, inUse: %i",
+            gst_dheKey.b_isValid, gst_dheKey.l_count, gst_dheKey.l_inUse);
+
+    /*! check if the key is initialized  */
+    if (gst_dheKey.b_isValid)
+    {
+        /* we reused too often? */
+        if (gst_dheKey.l_count > SSL_KM_DHE_MAX_REUSE)
+        {
+            /* is the key still in use? */
+            if (gst_dheKey.l_inUse == 0)
+            {
+                /* no, so we can renew the key */
+                if (km_dhe_init() == CW_OK)
+                {
+                    gst_dheKey.l_count++;
+                    gst_dheKey.l_inUse++;
+                    p_ret = &gst_dheKey.cwt_dheKey;
+                } /* if(km_dhe_init() == CW_OK) */
+
+            } /* if(l_inUse == 0) */
+
+        } /* if(l_count > SSL_KM_DHE_MAX_REUSE) */
+        else
+        {
+            gst_dheKey.l_count++;
+            gst_dheKey.l_inUse++;
+            p_ret = &gst_dheKey.cwt_dheKey;
+        }
+
+    } /* if(gst_dheKey.b_isValid) */
+    else
+    {
+        if (km_dhe_init() == CW_OK)
+        {
+            gst_dheKey.l_count++;
+            gst_dheKey.l_inUse++;
+            p_ret = &gst_dheKey.cwt_dheKey;
+        } /* if(km_dhe_init() == CW_OK) */
+    }
+
+    return p_ret;
+} /* km_dhe_getKey() */
 
 /*============================================================================*/
 /*  km_dhe_releaseKey()                                                       */

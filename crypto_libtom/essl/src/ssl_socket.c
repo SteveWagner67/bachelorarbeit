@@ -937,7 +937,7 @@ int sslSoc_free(s_sslCtx_t* ps_sslCtx)
 
 
 	//OLD-cw:	cw_rsa_publickey_free(&ps_sslCtx->ps_hsElem->gci_peerPubKey);
-	err = gci_key_delete(&ps_sslCtx->ps_hsElem->gci_peerPubKey);
+	err = gci_key_delete(&ps_sslCtx->ps_hsElem->gci_rsaSrvPubKey);
 	if(err != GCI_OK)
 	{
 		//TODO return error state
