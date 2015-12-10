@@ -26,7 +26,7 @@
 /* ===== application specific headers ===== */
 #include "netGlobal.h"
 #include "ssl_client.h"
-#include "ssl_server.h"
+#include "ssl_server.h"a
 #include "timeout.h"
 #include "tools.h"
 
@@ -768,7 +768,7 @@ int main(int argc , char *argv[])
 					if ((pc_tmp[0] >= 'a' 	&& *pc_tmp <= 'z')   ||
 							(*pc_tmp >= 'A' && *pc_tmp <= 'Z') ||
 							(*pc_tmp >= '0' && *pc_tmp <= '9') ||
-							 *pc_tmp == '/' || *pc_tmp == '+'  || *pc_tmp == '=')
+							*pc_tmp == '/' || *pc_tmp == '+'  || *pc_tmp == '=')
 					{
 						*pc_keyParameters = *pc_tmp;
 						pc_keyParameters++;
@@ -912,89 +912,89 @@ int main(int argc , char *argv[])
 #else
 
 #define testOther 0
-int main(int argc , char *argv[])
-{
+	int main(int argc , char *argv[])
+	{
 
 #if testOther
-	GciCtxConfig_t p[10];
-	int i=0;
+		GciCtxConfig_t p[10];
+		int i=0;
 
-	p[4].data.sign.config.cmac.iv = (uint8_t*)malloc(sizeof(uint8_t));
+		p[4].data.sign.config.cmac.iv = (uint8_t*)malloc(sizeof(uint8_t));
 
-	if(NULL != p[4].data.sign.config.cmac.iv)
-	{
-		puts("Done.");
-	}
+		if(NULL != p[4].data.sign.config.cmac.iv)
+		{
+			puts("Done.");
+		}
 
-	else
-	{
-		puts("Error.");
-	}
+		else
+		{
+			puts("Error.");
+		}
 
-	uint8_t array[5];
-	array[0]=1;
-	array[1]=2;
-	array[2]=3;
-	array[3]=4;
-	array[4]=5;
+		uint8_t array[5];
+		array[0]=1;
+		array[1]=2;
+		array[2]=3;
+		array[3]=4;
+		array[4]=5;
 
-	uint8_t* test;
-
-
-	printf("\r\nfor copy without malloc:");
-	for(i=0;i<5;i++)
-	{
-		printf("%d", test[i]);
-	}
-
-	test = (uint8_t*)malloc(sizeof(*test)*5);
+		uint8_t* test;
 
 
-	printf("\r\nfor copy with malloc:");
-	for(i=0;i<5;i++)
-	{
-		printf("%d", test[i]);
-	}
+		printf("\r\nfor copy without malloc:");
+		for(i=0;i<5;i++)
+		{
+			printf("%d", test[i]);
+		}
 
-	memcpy(test, array, sizeof(array));
-	printf("\r\nafter copy:");
-	for(i=0;i<5;i++)
-	{
-		printf("%d", test[i]);
-	}
+		test = (uint8_t*)malloc(sizeof(*test)*5);
 
-	free(test);
+
+		printf("\r\nfor copy with malloc:");
+		for(i=0;i<5;i++)
+		{
+			printf("%d", test[i]);
+		}
+
+		memcpy(test, array, sizeof(array));
+		printf("\r\nafter copy:");
+		for(i=0;i<5;i++)
+		{
+			printf("%d", test[i]);
+		}
+
+		free(test);
+		printf("\r\nafter free memory:");
+		for(i=0;i<5;i++)
+		{
+			printf("%d", test[i]);
+		}
+
+		memcpy(test, array, sizeof(array));
+		printf("\r\nmemcopy after free memory:");
+		for(i=0;i<5;i++)
+		{
+			printf("%d", test[i]+1);
+		}
+
+		/*	free(test);
 	printf("\r\nafter free memory:");
 	for(i=0;i<5;i++)
 	{
 		printf("%d", test[i]);
 	}
-
-	memcpy(test, array, sizeof(array));
-	printf("\r\nmemcopy after free memory:");
-	for(i=0;i<5;i++)
-	{
-		printf("%d", test[i]+1);
-	}
-
-/*	free(test);
-	printf("\r\nafter free memory:");
-	for(i=0;i<5;i++)
-	{
-		printf("%d", test[i]);
-	}
-*/
-	printf("\r\n");
+		 */
+		printf("\r\n");
 
 
 #else
 
-//Used for test
+		//Used for test
 
 
 
 #endif
-	return 0;
-}
+		return 0;
+	}
 
 #endif

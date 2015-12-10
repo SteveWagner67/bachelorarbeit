@@ -177,6 +177,8 @@ E_SERVER_FSM_RESULT ssl_server_entry(SSL_SERVER_PARS parameters)
 
 	char	c_mode = 1;
 
+	GciResult_t err;
+
 	/* Check the state of the server */
 	switch (i_state) {
 	case SSL_SERVER_INIT:
@@ -189,21 +191,23 @@ E_SERVER_FSM_RESULT ssl_server_entry(SSL_SERVER_PARS parameters)
 		SSL_init();
 
 		/* Initialises the crypto */
-		//TODO sw gci_init
-		cw_crypto_init();
-		{
-			/*
-			 * Use some "random" bytes to init the PRNG
-			 */
-			uint8_t c_rand[] = { 0x42, 0x72, 0x75, 0x63, 0x65, 0x20, 0x53, 0x63, 0x68,
-					0x6E, 0x65, 0x69, 0x65, 0x72, 0x21, 0x0D, 0x0A, 0x00 };
-			cw_prng_init(c_rand, sizeof(c_rand));
-		}
+		//TODO sw - where to become the user name + password ??
+		err = gci_init(NULL, 0, NULL, 0);
+
+		//OLD-CW: cw_crypto_init();
+//		{
+//			/*
+//			 * Use some "random" bytes to init the PRNG
+//			 */
+//			uint8_t c_rand[] = { 0x42, 0x72, 0x75, 0x63, 0x65, 0x20, 0x53, 0x63, 0x68, //TODO sw - this step in gci_init
+//					0x6E, 0x65, 0x69, 0x65, 0x72, 0x21, 0x0D, 0x0A, 0x00 };
+//			cw_prng_init(c_rand, sizeof(c_rand));
+//		}
 
 		/*
 		 * Initialisation of keymanager for DHE and DHE private key generation
 		 */
-		km_dhe_init();
+		//OLD-CW: km_dhe_init(); //TODO sw - this step in gci_init
 
 		/*============================================================================*/
 		/*
@@ -659,6 +663,8 @@ int init_server_CA_certs(char ** ppc_CAcerts) {
 
 	int8_t c_ret = 0;
 
+	GciResult_t err;
+
 	/* loop over CA certificates in ppc_CAcerts (assuming it is NULL-terminated) */
 	while (i < SSL_SERVER_CA_CERTS_NUM && (pc_CAcert = ppc_CAcerts[i]) != NULL) {
 
@@ -677,6 +683,7 @@ int init_server_CA_certs(char ** ppc_CAcerts) {
 		s_sslOctetStr_t so_caCert;
 		size_t sz_bufLen;
 
+
 		/* Try to init the CA certificate */
 		so_caCert.pc_data = cdb_read2buf(&s_cdbCert, &sz_bufLen);
 		if (so_caCert.pc_data == NULL) {
@@ -686,8 +693,9 @@ int init_server_CA_certs(char ** ppc_CAcerts) {
 			so_caCert.cwt_len = sz_bufLen;
 
 			/* Give pointer to a public key to generate a new one */
-			//TODO sw gci_key_pair_gen RSA
-			cw_rsa_publickey_init(&as_caCert[i].gci_caPubKey);
+			//OLD-CW: cw_rsa_publickey_init(&as_caCert[i].gci_caPubKey);
+
+
 			c_ret = sslCert_init(	&so_caCert,
 					&as_caCert[i],
 					&as_caCert[i].gci_caPubKey,
@@ -700,8 +708,7 @@ int init_server_CA_certs(char ** ppc_CAcerts) {
 			if (c_ret == E_SSL_CERT_OK) {
 
 				/* Shrink the memory of the initialised public key to save memory */
-				//TODO sw ??
-				cw_rsa_publickey_shrink(&as_caCert[i].gci_caPubKey);
+				//OLD-CW: cw_rsa_publickey_shrink(&as_caCert[i].gci_caPubKey);
 				ps_listHead = sslCert_addToList(ps_listHead,
 						&s_caCertList[i],
 						&as_caCert[i],
@@ -717,8 +724,15 @@ int init_server_CA_certs(char ** ppc_CAcerts) {
 						&& (c_ret == E_SSL_CERT_ERR_PATHLENCONSTRAINT)) {
 					LOG_ERR("CA in the chain defined a maximal path length");
 				}
-				//TODO sw gci_key_delete
-				cw_rsa_publickey_free(&as_caCert[i].gci_caPubKey);
+
+				//OLD-CW: cw_rsa_publickey_free(&as_caCert[i].gci_caPubKey);
+
+				err = gci_key_delete(&as_caCert[i].gci_caPubKey);
+				if(err != GCI_OK)
+				{
+					//TODO return error state
+				}
+
 				c_ret = -1;
 			} /* if ... else */
 
