@@ -175,10 +175,9 @@ static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
 		 * Import the privatekey
 		 */
 
-		//TODO sw - import the private key - not just ini
-
 //		OLD-CW: iRet = cw_ecc_privatekey_init(p_buffer, (uint32_t) cwt_len, pcwt_privKey, dp);
 
+		//TODO sw - import the private by using a ASN1 Sequence
 
 //		if (iRet == CRYPT_OK)
 //		{
@@ -424,7 +423,6 @@ int sslSoc_setRsaPrivKey(s_sslSett_t* ps_sslSett, s_cdbCert_t* pcdt_privKey)
 	assert(pcdt_privKey != NULL);
 
 	/* Memory for my RSA Private Key */
-	//TODO sw - see what to do ?? I think nothing
 	//OLD-CW: ps_sslSett->pgci_rsaMyPrivKey = malloc(sizeof(gci_rsaPrivKey_t));
 
 	iRet = _sslSoc_sett_import_RSAprivKey(pcdt_privKey, ps_sslSett->pgci_rsaMyPrivKey);
@@ -449,7 +447,6 @@ int sslSoc_setECCPrivKey(s_sslSett_t* ps_sslSett, s_cdbCert_t* pcdt_privKey)
 	assert(pcdt_privKey != NULL);
 
 	/* Memory for my ECC Private Key */
-	//TODO sw - what to do?? I think nothing
 	//OLD-CW : ps_sslSett->p_ECCMyPrivKey = malloc(sizeof(ecc_key));
 
 	iRet = _sslSoc_sett_import_ECCprivKey(pcdt_privKey, ps_sslSett->p_ECCMyPrivKey, &(ps_sslSett->gci_curveName)); //last parameter was ps_sslSett->ltc_ECC_curvesParameters
@@ -937,7 +934,7 @@ int sslSoc_free(s_sslCtx_t* ps_sslCtx)
 
 
 	//OLD-cw:	cw_rsa_publickey_free(&ps_sslCtx->ps_hsElem->gci_peerPubKey);
-	err = gci_key_delete(&ps_sslCtx->ps_hsElem->gci_rsaSrvPubKey);
+	err = gci_key_delete(&ps_sslCtx->ps_hsElem->gci_rsaCliPubKey);
 	if(err != GCI_OK)
 	{
 		//TODO return error state

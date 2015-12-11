@@ -305,14 +305,14 @@ GciResult_t gci_rng_seed(const uint8_t* sdBuf, size_t sdLen);
 /**********************************************************************************************************************/
 
 /**
- * \fn						GciResult_t gci_dh_new_ctx(const GciDhType_t* dhType, GciCtxId_t* ctxID)
+ * \fn						GciResult_t gci_dh_new_ctx(const GciDhConfig_t* dhConfig, GciCtxId_t* ctxID)
  * \brief					Create a new Diffie-Hellman context
- * \param [in]  dhType		Type of the Diffie-Hellman
+ * \param [in]  dhConfig	Configuration of the Diffie-Hellman
  * \param [out] ctxID		Context's ID
  * @return					GCI_NO_ERR on success
  * @return					GCI_ERR on error
  */
-GciResult_t gci_dh_new_ctx(const GciDhType_t* dhType, GciCtxId_t* ctxID);
+GciResult_t gci_dh_new_ctx(const GciDhConfig_t* dhConfig, GciCtxId_t* ctxID);
 
 
 

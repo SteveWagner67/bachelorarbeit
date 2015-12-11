@@ -1,0 +1,21 @@
+*************************************************
+Modification of embetterSSL
+crypto_wrap to the  new Generic Crypto Interface
+
+Author: Steve Wagner
+Date: 11/12/2015
+*************************************************
+
+***************************************
+File: ssl.c
+***************************************
+
+
+-------------------------
+Function: loc_verifySign
+-------------------------
+
+-> Modif of the hash function (new context, update and finish)
+-> Modif of the verify of the signature algorithm (new verify )
+
+

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cp -r /home/steve/Bachelorarbeit/crypto_prov_libtom/essl/ /home/steve/Bachelorarbeit/crypto_prov_libtom/gci/ /home/steve/Bachelorarbeit/bachelorarbeit/crypto_libtom/
+echo "DONE"
+cp /home/steve/Bachelorarbeit/crypto_prov_libtom/test/inc/* /home/steve/Bachelorarbeit/bachelorarbeit/crypto_libtom/test/inc/
+echo "DONE"
+cp /home/steve/Bachelorarbeit/crypto_prov_libtom/test/src/* /home/steve/Bachelorarbeit/bachelorarbeit/crypto_libtom/test/src/
+echo "DONE"
+

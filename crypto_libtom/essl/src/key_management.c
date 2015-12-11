@@ -66,12 +66,12 @@ static s_kmDheKey_t gst_dheKey =
 /*  km_dhe_init()                                                             */
 /*============================================================================*/
 //OLD-CW: int km_dhe_init(void)
-GciResult_t km_dhe_init(GciKeyId_t* dhKeyID)
+GciResult_t km_dhe_init()
 {
     GciResult_t err;
 
     GciCtxId_t dhCtx;
-    GciDhType_t dhType;
+    GciDhConfig_t dhConf;
 
     //OLD-CW: cw_dh_free(&gst_dheKey.cwt_dheKey);
 
@@ -87,11 +87,10 @@ GciResult_t km_dhe_init(GciKeyId_t* dhKeyID)
 
     gst_dheKey.l_inUse = 0;
 
-    dhType = GCI_DH;
-    //TODO sw - what for domain parameters ??
-    //dhConf.config.dhDomain
+    dhConf.type = GCI_DH;
 
-    err = gci_dh_new_ctx(&dhType, &dhCtx);
+    //fix the domain parameter inside
+    err = gci_dh_new_ctx(&dhConf, &dhCtx);
     if(err != GCI_OK)
     {
     	//TODO return error state
@@ -120,9 +119,9 @@ GciResult_t km_dhe_init(GciKeyId_t* dhKeyID)
 /*  km_dhe_getKey()                                                           */
 /*============================================================================*/
 // OLD-CW: gci_dhKey_t* km_dhe_getKey(void)
-GciResult_t km_dhe_getKey(void)
+GciResult_t km_dhe_getKey(GciKeyId_t* dhKeyID)
 {
-    gci_dhKey_t* p_ret = NULL;
+    GciResult_t err = GCI_OK;
 
     LOG_INFO("km_dhe_getKey() Valid: %i, Count: %i, inUse: %i",
             gst_dheKey.b_isValid, gst_dheKey.l_count, gst_dheKey.l_inUse);
@@ -137,35 +136,52 @@ GciResult_t km_dhe_getKey(void)
             if (gst_dheKey.l_inUse == 0)
             {
                 /* no, so we can renew the key */
-                if (km_dhe_init() == CW_OK)
+                if (km_dhe_init() == GCI_OK)
                 {
                     gst_dheKey.l_count++;
                     gst_dheKey.l_inUse++;
-                    p_ret = &gst_dheKey.cwt_dheKey;
+                    dhKeyID = &gst_dheKey.cwt_dheKey;
+
                 } /* if(km_dhe_init() == CW_OK) */
 
+
+                else
+                {
+                	//TODO return error from state
+                }
+
             } /* if(l_inUse == 0) */
+
+            else
+            {
+            	//TODO return error from state
+            }
 
         } /* if(l_count > SSL_KM_DHE_MAX_REUSE) */
         else
         {
             gst_dheKey.l_count++;
             gst_dheKey.l_inUse++;
-            p_ret = &gst_dheKey.cwt_dheKey;
+            dhKeyID = &gst_dheKey.cwt_dheKey;
         }
 
     } /* if(gst_dheKey.b_isValid) */
     else
     {
-        if (km_dhe_init() == CW_OK)
+        if (km_dhe_init() == GCI_OK)
         {
             gst_dheKey.l_count++;
             gst_dheKey.l_inUse++;
-            p_ret = &gst_dheKey.cwt_dheKey;
+            dhKeyID = &gst_dheKey.cwt_dheKey;
         } /* if(km_dhe_init() == CW_OK) */
+
+        else
+        {
+        	//TODO return error from state
+        }
     }
 
-    return p_ret;
+    return err;
 } /* km_dhe_getKey() */
 
 /*============================================================================*/

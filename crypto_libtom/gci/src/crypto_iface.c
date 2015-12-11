@@ -339,7 +339,7 @@ GciResult_t gci_rng_seed(const uint8_t* sdBuf, size_t sdLen)
 /********************************/
 /*	gci_dh_new_ctx				*/
 /********************************/
-GciResult_t gci_dh_new_ctx(const GciDhType_t* dhType, GciCtxId_t* ctxID)
+GciResult_t gci_dh_new_ctx(const GciDhConfig_t* dhConfig, GciCtxId_t* ctxID)
 {
 	GciResult_t err = GCI_OK;
 #ifdef LIB_TOMCRYPT

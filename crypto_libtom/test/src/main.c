@@ -990,6 +990,23 @@ int main(int argc , char *argv[])
 #else
 
 		//Used for test
+		uint8_t buf[5] = {0,1,2,3,4};
+		uint8_t* p;
+
+		int i;
+
+		//p = &buf;
+
+		memcpy(p, buf, sizeof(buf));
+
+		for(i=0;i<sizeof(p)+1;i++)
+		{
+			printf("%d\r\n", p[i]);
+		}
+
+
+
+
 
 
 

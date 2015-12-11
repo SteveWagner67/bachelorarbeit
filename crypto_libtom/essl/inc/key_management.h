@@ -84,7 +84,7 @@ GciResult_t km_dhe_getKey(GciKeyId_t* dhKeyID);
  */
 /*============================================================================*/
 //OLD-CW: int km_dhe_init(void);
-GciResult_t km_dhe_init(GciKeyId_t* dhKeyID);
+GciResult_t km_dhe_init();
 
 /*============================================================================*/
 #endif /* __KEY_MANAGEMENT_H__ */

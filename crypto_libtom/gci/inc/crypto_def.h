@@ -640,6 +640,66 @@ typedef enum
 
 
 
+/*!
+ * \struct 					GciDhConfig_t
+ * \brief					Structure for the configuration of all Diffie-Hellman key pair type
+ */
+typedef struct
+{
+	/**
+	 * GCI_DH_INVALID
+	 * GCI_DH
+	 * GCI_ECDH
+	 */
+	GciDhType_t type;
+
+
+	/*!
+	 * union 				DhConfig
+	 * \brief				Union for all type of Diffie-Hellman configuration
+	 */
+	union DhConfig
+	{
+		/**Diffie-Hellman domain parameters configuration*/
+		GciDhDomainParam_t* dhDomain;
+
+		/**
+		 * GCI_EC_INVALID
+		 * GCI_EC_SECT163K1
+		 * GCI_EC_SECT163R1
+		 * GCI_EC_SECT163R2
+		 * GCI_EC_SECT193R1
+		 * GCI_EC_SECT193R2
+		 * GCI_EC_SECT233K1
+		 * GCI_EC_SECT233R1
+		 * GCI_EC_SECT239K1
+		 * GCI_EC_SECT283K1
+		 * GCI_EC_SECT283R1
+		 * GCI_EC_SECT409K1
+		 * GCI_EC_SECT409R1
+		 * GCI_EC_SECT571K1
+		 * GCI_EC_SECT571R1
+		 * GCI_EC_SECP160K1
+		 * GCI_EC_SECP160R1
+		 * GCI_EC_SECP160R2
+		 * GCI_EC_SECP192K1
+		 * GCI_EC_SECP192R1
+		 * GCI_EC_SECP224K1
+		 * GCI_EC_SECP224R1
+		 * GCI_EC_SECP256K1
+		 * GCI_EC_SECP256R1
+		 * GCI_EC_SECP384R1
+		 * GCI_EC_SECP521R1
+		 * GCI_EC_BRAINPOOLP256R1
+		 * GCI_EC_BRAINPOOLP384R1
+		 * GCI_EC_BRAINPOOLP512R1
+		 */
+		GciNamedCurve_t* ecdhCurveName;
+	} config;
+} GciDhConfig_t;
+
+
+
 /**********************************************************************************************************************/
 /*		      										KEYS						      							  	  */
 /**********************************************************************************************************************/
@@ -728,11 +788,12 @@ typedef struct
 typedef struct
 {
 	/**
+	 * GCI_EC_INVALID
 	 * GCI_EC_SECT163K1
 	 * GCI_EC_SECT163R1
-	 * GCI_EC_SECT163R1
-	 * GCI_EC_SECT163R1
-	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R2
+	 * GCI_EC_SECT193R1
+	 * GCI_EC_SECT193R2
 	 * GCI_EC_SECT233K1
 	 * GCI_EC_SECT233R1
 	 * GCI_EC_SECT239K1
@@ -771,11 +832,12 @@ typedef struct
 typedef struct
 {
 	/**
+	 * GCI_EC_INVALID
 	 * GCI_EC_SECT163K1
 	 * GCI_EC_SECT163R1
-	 * GCI_EC_SECT163R1
-	 * GCI_EC_SECT163R1
-	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R2
+	 * GCI_EC_SECT193R1
+	 * GCI_EC_SECT193R2
 	 * GCI_EC_SECT233K1
 	 * GCI_EC_SECT233R1
 	 * GCI_EC_SECT239K1
@@ -814,11 +876,12 @@ typedef struct
 typedef struct
 {
 	/**
+	 * GCI_EC_INVALID
 	 * GCI_EC_SECT163K1
 	 * GCI_EC_SECT163R1
-	 * GCI_EC_SECT163R1
-	 * GCI_EC_SECT163R1
-	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R2
+	 * GCI_EC_SECT193R1
+	 * GCI_EC_SECT193R2
 	 * GCI_EC_SECT233K1
 	 * GCI_EC_SECT233R1
 	 * GCI_EC_SECT239K1
@@ -857,11 +920,12 @@ typedef struct
 typedef struct
 {
 	/**
+	 * GCI_EC_INVALID
 	 * GCI_EC_SECT163K1
 	 * GCI_EC_SECT163R1
-	 * GCI_EC_SECT163R1
-	 * GCI_EC_SECT163R1
-	 * GCI_EC_SECT163R1
+	 * GCI_EC_SECT163R2
+	 * GCI_EC_SECT193R1
+	 * GCI_EC_SECT193R2
 	 * GCI_EC_SECT233K1
 	 * GCI_EC_SECT233R1
 	 * GCI_EC_SECT239K1

@@ -607,13 +607,18 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     int32_t l_result;
     uint8_t ac_rndBuf[46];
     //OLD-CW: gci_dhKey_t cwt_dhKeyCliY;
-    GciKeyId_t cwt_dhKeyCliY;
+    //OLD-CW: GciKeyId_t cwt_dhKeyCliY;
     s_sslCertList_t *ps_caList = NULL;
     e_sslCertErr_t e_ret;
 
     GciResult_t err;
 
     GciCtxId_t decCtx;
+
+    GciKey_t ecdhPeerPubKey = {.type = GCI_KEY_ECDH_PUB};
+    GciKey_t dhePeerPubKey 	= {.type = GCI_KEY_DH_PUB};
+
+    GciCipherConfig_t rsaConf = {.padding = GCI_PADDING_PKCS1};
 
     assert(ps_sslCtx != NULL);
     assert(pc_inData != NULL);
@@ -624,7 +629,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
 
     //OLD-CW: cw_rsa_publickey_prep(&ps_handshElem->gci_peerPubKey, &s_pubKeyInfo);
-    err = gci_key_get(ps_handshElem->gci_rsaSrvPubKey, &s_pubKeyInfo);
+    err = gci_key_get(ps_handshElem->gci_rsaCliPubKey, &s_pubKeyInfo);
     if(err != GCI_OK)
     {
     	//TODO return error state
@@ -643,7 +648,8 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
        //OLD-CW: l_result = cw_pkcs1_v15_decrypt(pc_inData, cwt_inLen, pc_outData, pcwt_outLen, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey);
 
 
-       err = gci_cipher_new_ctx(NULL, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &decCtx);
+       //TODO sw - in the implementation -> if no type  of cipher, see type of the key and take the padding if RSA (like in this case)
+       err = gci_cipher_new_ctx(&rsaConf, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &decCtx);
        if(err != GCI_OK)
        {
     	   //TODO return error state
@@ -701,27 +707,39 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     case E_PENDACT_ASYM_DHECALCSHARED:
     {
 
-
-
         /* reset this variable */
         //OLD-CW: memset(&cwt_dhKeyCliY, 0x00, sizeof(gci_dhKey_t));
-        /* read the Yc of the client that has been transmitted in the ClientKeyExchange */
-       // if (cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY) != CW_OK)
-       // {
-       //     LOG_ERR("DHE import error");
-       // }
-       // else {
 
-        cwt_dhKeyCliY = *(pc_inData-2);
+
+        /* read the Yc of the client that has been transmitted in the ClientKeyExchange */
+
+    	//Read the length of the key
+    	dhePeerPubKey.key.dhPub.key.len = pc_inData;
+
+    	pc_inData++;
+
+    	memcpy(dhePeerPubKey.key.dhPub.key.data, pc_inData, dhePeerPubKey.key.dhPub.key.len);
+
+    	pc_inData+=dhePeerPubKey.key.dhPub.key.len;
+
+    	//Store the key and become an ID
+    	err = gci_key_put(dhePeerPubKey.key.dhPub.key.data, ps_sslCtx->s_secParams.dhePeerPubKey);
+
+       // if (cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY) != CW_OK)
+    	if(err != GCI_OK)
+        {
+            LOG_ERR("DHE import error");
+        }
+        else
+        {
+
+        	//OLD-CW: cwt_dhKeyCliY = *(pc_inData-2);
 
         	TIME_STAMP(TS_DHE_CALC_SHARED_SEC_BEGIN);
 
-        	//TODO BEGIN HERE
-
             /* now calculate the shared secret that will be used as PreMasterSecret */
 
-        	err = gci_dh_calc_sharedSecret(ps_sslCtx->s_secParams.dheCtx, cwt_dhKeyCliY, pc_outData);
-
+        	err = gci_dh_calc_sharedSecret(ps_sslCtx->s_secParams.dheCtx, ps_sslCtx->s_secParams.dhePeerPubKey, pc_outData);
 //            if (cw_dhe_sharedSec_with_p(ps_sslCtx->s_secParams.pgci_dheKey,
 //                                        &cwt_dhKeyCliY,
 //                                        &ps_sslCtx->ps_hsElem->pgci_dheP,
@@ -732,11 +750,11 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
             }
 
         	TIME_STAMP(TS_DHE_CALC_SHARED_SEC_END);
-        //}
+        }
         /* we have to free what we malloc'ed before */
 
         //OLD-CW: cw_dh_free(&cwt_dhKeyCliY);
-        err = gci_key_delete(cwt_dhKeyCliY);
+        err = gci_key_delete(ps_sslCtx->s_secParams.dhePeerPubKey);
         if(err != GCI_OK)
         {
         	//TODO return error state
@@ -753,13 +771,46 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     	/* reset this variable */
     	//OLD-CW: memset(&(ps_handshElem->eccPubKeyPeer), 0x00, sizeof(ecc_key));
 
+    	//read/import pubkey from the buffer (ANSI x9.63)
+
+    	//Read the first byte to be sure he has the value 4, 6 or 7 (to be valid)
+    	if((*pc_inData != 4) && (*pc_inData != 6) && (*pc_inData != 7))
+    	{
+    		//TODO return error state
+    	}
+
+    	pc_inData++;
+
+    	//the x-coordinate has a length of the half of the public key's length
+    	ecdhPeerPubKey.key.ecdhPub.coord.x.len = pc_inData;
+
+    	pc_inData++;
+
+    	memcpy(ecdhPeerPubKey.key.ecdhPub.coord.x.data, pc_inData, ecdhPeerPubKey.key.ecdhPub.coord.x.len);
+
+    	pc_inData+=ecdhPeerPubKey.key.ecdhPub.coord.x.len;
+
+    	//the y-coordinate has a length of the rest of the half of the public key's length
+    	ecdhPeerPubKey.key.ecdhPub.coord.y.len = pc_inData;
+
+    	pc_inData++;
+
+    	memcpy(ecdhPeerPubKey.key.ecdhPub.coord.y.data, pc_inData, ecdhPeerPubKey.key.ecdhPub.coord.y.len);
+
+    	pc_inData+=ecdhPeerPubKey.key.ecdhPub.coord.y.len;
+
+    	//store the key to become an ID of it
+    	err = gci_key_put(&ecdhPeerPubKey, ps_handshElem->eccPubKeyPeer);
+
+
         /* read the public key of the client that has been transmitted in the ClientKeyExchange */
 //    	OLD-CW: if(cw_ecc_import_public(pc_inData, cwt_inLen, &(ps_handshElem->eccPubKeyPeer))!=CRYPT_OK)
-//    	{
-//            LOG_ERR("ECDHE import error");
-//    	}
-//    	else
-//    	{
+    	if(err != GCI_OK)
+    	{
+            LOG_ERR("ECDHE import error");
+    	}
+    	else
+    	{
     		TIME_STAMP(TS_ECDHE_CALC_SHARED_SEC_BEGIN);
 
     		/* now calculate the shared secret that will be used as PreMasterSecret */
@@ -775,7 +826,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     		}
 
     		TIME_STAMP(TS_ECDHE_CALC_SHARED_SEC_END);
-//    	}
+    	}
 
     	/* we have to free what we malloc'ed before */
 
@@ -813,7 +864,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
         s_octPeerCert.pc_data = pc_inData;
         s_octPeerCert.cwt_len = cwt_inLen;
 
-        e_ret = sslCert_verifyChain(&s_octPeerCert, &ps_handshElem->gci_rsaSrvPubKey, ps_caList);
+        e_ret = sslCert_verifyChain(&s_octPeerCert, &ps_handshElem->gci_rsaCliPubKey, ps_caList);
 
         if (e_ret != E_SSL_CERT_OK)
         {
@@ -874,7 +925,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 //					&ps_handshElem->gci_peerPubKey) != CW_OK)
     		if (ssl_verifyHash(pc_inData, VERIF_HASHSIZE,
     					pc_inData + VERIF_HASHSIZE, cwt_inLen - VERIF_HASHSIZE,
-    					&ps_handshElem->gci_rsaSrvPubKey) != GCI_OK)
+    					&ps_handshElem->gci_rsaCliPubKey) != GCI_OK)
 			{
 				E_SSL_VERIFRES_FAILED(pc_outData);
 				LOG_ERR("Verification of CertificateVerify failed");

@@ -447,6 +447,11 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 	size_t              sz_decSignLen = GCI_MAX_HASHSIZE_BYTES + SSL_DER_ASN1_OID_HASH_MAX_LEN;
 	uint8_t             ac_decSign[sz_decSignLen];
 
+	//OLD-CW: gci_sha1Ctx_t  cwt_sha1Ctx;
+	GciCtxId_t sha1Ctx;
+	//OLD-CW: gci_md5Ctx_t  cwt_md5Ctx;
+	GciCtxId_t md5Ctx;
+
 
 	GciResult_t err;
 
@@ -478,11 +483,6 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 	if (ps_sslCtx->s_secParams.s_signAlg.c_hash == GCI_HASH_INVALID)
 	{
 		/* message digest contexts will be used to verify DH server parameter */
-
-		//OLD-CW: gci_sha1Ctx_t  cwt_sha1Ctx;
-		GciCtxId_t sha1Ctx;
-		//OLD-CW: gci_md5Ctx_t  cwt_md5Ctx;
-		GciCtxId_t md5Ctx;
 
 		//OLD-CW: cr_digestInit(&cwt_md5Ctx, NULL, 0, E_SSL_HASH_MD5);
 		if (gci_hash_new_ctx(GCI_HASH_MD5, &md5Ctx) != GCI_OK) {
@@ -628,9 +628,6 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 
 	}
 
-
-
-
 	else
 	{
 		/* pc_hsBuff now pointing to the signature data */
@@ -653,13 +650,13 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 //			}
 
 
-
 			rsaConf.algo = GCI_SIGN_RSA;
 			rsaConf.hash = GCI_HASH_NONE;
 			rsaConf.config.rsa.padding = GCI_PADDING_NONE;
 
 
-			err = gci_sign_verify_new_ctx(&rsaConf, ps_hsElem->gci_rsaSrvPubKey, &rsaCtx);
+			//RSA public key coming from a Certificate -> see sslCert_verifyChain in ssl_certHelper.c
+			err = gci_sign_verify_new_ctx(&rsaConf, ps_hsElem->gci_rsaCliPubKey, &rsaCtx);
 			if (err != GCI_OK)
 			{
 				//TODO: return from error state
@@ -670,7 +667,6 @@ static e_sslError_t loc_verifySign(s_sslCtx_t*  ps_sslCtx,
 			{
 				//TODO: return from error state
 			}
-
 
 
 			err = gci_sign_verify_finish(rsaCtx, pc_encSign, i_signLen);
@@ -763,6 +759,12 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 	uint8_t             c_signType;
 	size_t              sz_signLen;
 
+	//OLD-CW: gci_md5Ctx_t    cwt_md5Ctx;
+	//OLD-CW: gci_sha1Ctx_t   cwt_sha1Ctx;
+
+	GciCtxId_t md5Ctx;
+	GciCtxId_t shaCtx;
+
 
 	GciResult_t err;
 	size_t ac_hash_len;
@@ -784,11 +786,6 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 	if (c_hashType == GCI_HASH_INVALID)
 	{
-
-		//OLD-CW: gci_md5Ctx_t    cwt_md5Ctx;
-		//OLD-CW: gci_sha1Ctx_t   cwt_sha1Ctx;
-
-		GciCtxId_t md5Ctx;
 
 		c_hashLen = GCI_MD5_SHA1_SIZE_BYTES;
 
@@ -834,7 +831,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		/*! SHA1(ClientRandom, ServerRandom, DiffieHellmanParamaeters) */
 
-		GciCtxId_t shaCtx;
+
 
 		//OLD-CW: cr_digestInit(&cwt_sha1Ctx, NULL, 0, E_SSL_HASH_SHA1);
 		err = gci_hash_new_ctx(GCI_HASH_SHA1, &shaCtx);
@@ -892,7 +889,6 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 		{
 			//TODO: return from error state
 		}
-
 
 
 		//OLD-CW: err|=cr_digestUpdate(&cwt_hashCtx, ps_hsElem->ac_cliRand, CLI_RANDSIZE, c_hashType);
@@ -980,20 +976,18 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 		LOG_INFO("signature before encryption");
 		LOG_HEX(ac_hash,c_hashLen);
 
+		//Encryption means using a padding a not cipher encrypt
 
 		//OLD-CW: e_result = cw_rsa_sign_encode(ac_hash, c_hashLen, pc_out + c_signOff + 2, &sz_signLen, ps_sslCtx->ps_sslSett->pgci_rsaMyprivKeyID);
 
 
 		signConf.algo = GCI_SIGN_RSA;
 		signConf.hash = GCI_HASH_NONE;
+		signConf.config.rsa.padding = GCI_PADDING_PKCS1;
 
+
+		//Private key coming from a PEM file with the Certificates -> see _sslSoc_sett_import_RSAprivKey in ssl_socket.c
 		err = gci_sign_gen_new_ctx(&signConf, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &signCtx);
-		if (err != GCI_OK)
-		{
-			//TODO: return from error state
-		}
-
-		err = gci_cipher_encrypt(signCtx, ac_hash, c_hashLen, pc_out + c_signOff + 2, &sz_signLen);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -1031,13 +1025,8 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 		signConf.algo = GCI_SIGN_ECDSA;
 		signConf.hash = GCI_HASH_NONE;
 
+		//Private key coming from a PEM file with the Certificates -> see _sslSoc_sett_import_ECCprivKey in ssl_socket.c
 		err = gci_sign_gen_new_ctx(&signConf, ps_sslCtx->ps_sslSett->p_ECCMyPrivKey, &signCtx);
-		if (err != GCI_OK)
-		{
-			//TODO: return from error state
-		}
-
-		err = gci_cipher_encrypt(signCtx, ac_hash, c_hashLen, pc_out + c_signOff + 2, &sz_signLen);
 		if (err != GCI_OK)
 		{
 			//TODO: return from error state
@@ -1058,12 +1047,6 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx,
 
 		LOG_INFO("Signature after encryption");
 		LOG_HEX(pc_out + c_signOff + 2, sz_signLen);
-
-		//debug vpy
-		unsigned char out[512];
-		unsigned long int outLen=512;
-		//OLD-CW: ecc_export_full(out, &outLen, PK_PUBLIC, ps_sslCtx->ps_sslSett->p_ECCMyPrivKey);
-		LOG_HEX(out, outLen);
 
 		break;
 
@@ -1147,7 +1130,7 @@ static void loc_setDefPrf(s_sslCtx_t *ps_sslCtx)
 }
 
 
-//TODO see here to implement other hash algorithm
+
 static void loc_hash(e_hashOp_t e_hashOp, s_sslCtx_t* ps_sslCtx, uint8_t* pc_in, size_t sz_inLen)
 {
 	GciResult_t err;
@@ -2423,7 +2406,7 @@ static void loc_prfTLS(e_sslPrf_t  e_prf,
 				pc_seed2, c_seed2Len,
 				c_prf1Res,sz_outLen);
 
-		/*loc_pHash(E_SSL_HASH_SHA1,
+		/*OLD-CW: loc_pHash(E_SSL_HASH_SHA1,
 				pc_sec2,  sz_len,
 				pc_label, c_labelLen,
 				pc_seed1, c_seed1Len,
@@ -2788,11 +2771,16 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 	} /* else */
 
 
+	//Save the key and get an ID of it
 	symKey.type = GCI_KEY_SYM;
 	symKey.key.sym.len = ps_secPar->c_keyLen;
 	memcpy(symKey.key.sym.data, ac_keyBlk, ps_secPar->c_keyLen);
 
 	err = gci_key_put(&symKey, &keyID);
+	if(err != GCI_OK)
+	{
+		//return error state
+	}
 
 	//add new ciphers here
 	switch (ps_sslCtx->s_sslGut.e_pendCipSpec)
@@ -2802,16 +2790,16 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 	{
 		//OLD-CW: cw_rc4_init(cwt_rc4Ctx, &(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen);
 
+		//No padding and block mode available for the RC4
 		ciphConf.algo = GCI_CIPH_RC4;
-		ciphConf.blockMode = GCI_BLOCK_MODE_NONE;
-		ciphConf.padding = GCI_PADDING_NONE;
-		//TODO sw - See later the use of the IV: ciphConf.iv.len = c_ivOff;
-
-		//TODO sw - See later the use of the IV:
-		//memset(ciphConf.iv.data, 0, ciphConf.iv.len);
+		ciphConf.blockMode = GCI_BLOCK_MODE_INVALID;
+		ciphConf.padding = GCI_PADDING_INVALID;
 
 		err = gci_cipher_new_ctx(&ciphConf, keyID, &rc4Ctx);
-
+		if(err != GCI_OK)
+		{
+			//return error state
+		}
 
 		LOG2_INFO("Key");
 		LOG2_HEX(&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen);
@@ -2828,12 +2816,11 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 		ciphConf.blockMode = GCI_BLOCK_MODE_CBC;
 		ciphConf.padding = GCI_PADDING_NONE;
 
-		//TODO See later the use of the IV: ciphConf.iv.len = c_ivOff;
-
-		//TODO See later the use of the IV:
-		//memset(ciphConf.iv.data, 0, ciphConf.iv.len);
-
 		err = gci_cipher_new_ctx(&ciphConf, keyID, &tdesCtx);
+		if(err != GCI_OK)
+		{
+			//return error state
+		}
 
 		LOG2_INFO("Key");
 		LOG2_HEX(&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen);
@@ -2859,12 +2846,11 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey)
 		ciphConf.blockMode = GCI_BLOCK_MODE_CBC;
 		ciphConf.padding = GCI_PADDING_NONE;
 
-		//TODO See later the use of the IV: ciphConf.iv.len = c_ivOff;
-
-		//TODO See later the use of the IV:
-		//memset(ciphConf.iv.data, 0, ciphConf.iv.len);
-
 		err = gci_cipher_new_ctx(&ciphConf, keyID, &aesCtx);
+		if(err != GCI_OK)
+		{
+			//return error state
+		}
 
 
 		LOG2_INFO("Key");
@@ -3186,7 +3172,7 @@ static void loc_setSecParams(s_sslCtx_t*        ps_sslCtx,
 			/* By default TLS 1.2 specify to use SHA1 as a hash for all
 			 * supported signatures */
 			switch (ps_secPar->e_kst) {
-//			OLD: case GCI_KEY_PAIR_DHE_RSA:
+//			OLD-CW: case GCI_KEY_PAIR_DHE_RSA:
 //			case GCI_KEY_PAIR_RSA:
 //			case GCI_KEY_PAIR_ECDHE_RSA: //vpy
 //				ps_secPar->s_signAlg.c_sign = GCI_SIGN_RSA;
@@ -3581,7 +3567,7 @@ static int32_t loc_processExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_extsStart,
 
 				//get locally supported curves
 				size_t numberOfCurves;
-				uint8_t supportedCurves[25]; //RFC 4492 5.1.1: Officially 25 curves are supported - It was an uint16_t
+				uint16_t supportedCurves[25]; //RFC 4492 5.1.1: Officially 25 curves are supported - It was an uint16_t
 
 				//OLD-CW: numberOfCurves = cw_ecc_getSupportedCurves(supportedCurves);
 				err = gci_get_info(GCI_INFO_ECNAME, supportedCurves, &numberOfCurves);
@@ -3963,7 +3949,7 @@ static uint8_t* loc_appendExtens(s_sslCtx_t* ps_sslCtx, uint8_t* pc_in)
 				//Reset extension length
 				l_outLen = 0;
 
-				uint8_t supportedCurves[25]; //RFC 4492, 5.1.1: Officially supported: 25 curves uint16_t
+				uint16_t supportedCurves[25]; //RFC 4492, 5.1.1: Officially supported: 25 curves uint16_t
 				//OLD-CW: uint8_t numberOfCurves = cw_ecc_getSupportedCurves(supportedCurves);
 				size_t numberOfCurves;
 				err = gci_get_info(GCI_INFO_ECNAME, supportedCurves, &numberOfCurves);
@@ -4233,9 +4219,12 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 	e_sslResult_t           e_ret = E_SSL_OK;
 
 	GciResult_t				err;
-	GciCtxId_t				ecdhCtx;
-	GciDhType_t				dhType;
+	GciDhConfig_t			dhConf;
 	GciCtxId_t				dhCtx;
+
+	GciDhConfig_t 			ecdhConf;
+	GciCtxId_t 				ecdhCtx;
+
 
 	GciKey_t 				dhCliPubKey 		= {.type = GCI_KEY_DH_PUB};
 	GciKey_t				dhSrvPubKey			= {.type = GCI_KEY_DH_PUB};
@@ -4552,14 +4541,17 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 					/*! adjust write pointer */
 					pc_write = pc_rec + sizeof(rac_srvKeyExch);
 
+
+					//Server "chooses" the domain parameters
 					switch(ps_secPar->e_kst)
 					{
 					case GCI_KEY_PAIR_ECDH:
 
-						dhType = GCI_ECDH;
+						dhConf.type = GCI_ECDH;
+						//TODO sw - fix a curve intern
 
-						//TODO sw - fix the curve intern ??
-						err = gci_dh_new_ctx(&dhType, &ps_secPar->eccCtx);
+
+						err = gci_dh_new_ctx(&dhConf, &ps_secPar->eccCtx);
 						if(err != GCI_OK)
 						{
 							//TODO return an error
@@ -4634,33 +4626,24 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 						/* Try to get a Diffie Hellman Ephemeral Key
 						 * forward secrecy */
 
-						//Generate DH key
-						dhType = GCI_DH;
-
-						err = gci_dh_new_ctx(&dhType, ps_secPar->dheCtx);
-						if(err != GCI_OK)
-						{
-							//TODO return error state
-						}
-
-						//TODO sw - domain parameters generated inside ??
-						err = gci_dh_gen_key(ps_secPar->dheCtx, ps_secPar->dheSrvPubKey);
-
-						if(err != GCI_OK)
-						{
-							//TODO return error state
-						}
-
-						err = gci_key_get(ps_secPar->dheSrvPubKey, dhSrvPubKey);
-
 
 						//OLD-CW: if ((ps_secPar->pgci_dheKey = km_dhe_getKey()) == NULL) - like generate key
+
+						err = km_dhe_getKey(ps_secPar->dhePeerPubKey);
 
 						if(err != GCI_OK)
 						{
 							LOG_INFO("%p| Couldn't fetch the DHE key", ps_sslCtx);
 							return (E_PENDACT_COM_CIPHER_CLOSE);
 						}
+
+						err = gci_key_get(ps_secPar->dhePeerPubKey, &dhSrvPubKey);
+						if(err != GCI_OK)
+						{
+							//TODO return error from state
+						}
+
+
 						ps_secPar->c_useDheKey = TRUE;
 						/*! calc bytes left in socketbuffer */
 						cwt_exportLen = (sizeof(ps_sslCtx->ac_socBuf)
@@ -4921,7 +4904,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							err = gci_rng_gen(46, &pc_write[2]);
 							if(err != GCI_OK)
 							{
-								//TODO return error state
+								//TODO return state from error
 							}
 
 
@@ -4948,10 +4931,10 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							GciCtxId_t  rsaCtx;
 							//No config used for an asymmetric cipher
 							//Public key coming from the certificate from the server
-							err = gci_cipher_new_ctx(NULL, ps_hsElem->gci_rsaSrvPubKey, &rsaCtx);
+							err = gci_cipher_new_ctx(NULL, ps_hsElem->gci_rsaCliPubKey, &rsaCtx);
 							if(err != GCI_OK)
 							{
-								//TODO return error state
+								//TODO return state from error
 							}
 
 							err = gci_cipher_encrypt(rsaCtx, ps_hsElem->s_sessElem.ac_msSec, PREMSSEC_SIZE, pc_write + IFSSL30_LENOFF(ps_sslCtx->e_ver), &cwt_hashLen);
@@ -4981,20 +4964,44 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 
 							TIME_STAMP(TS_DHE_CALC_SHARED_SEC_BEGIN);
 
-							/* calculate dh shared secret */
-
-							//TODO sw - need to take the domain parameters coming from the Server ??
-							err = gci_dh_new_ctx(GCI_DH, &dhCtx);
+							//Get the big number of the Server public key
+							err = gci_key_get(ps_hsElem->gci_dheSrvPubKey, &dhSrvPubKey);
 							if(err != GCI_OK)
 							{
-								//TODO return error state
+								//return error state
+							}
+
+							dhConf.type = GCI_DH;
+
+							//Get the domain parameters from the Server public key (Server Key Exchange in loc_protocolHand)
+							dhConf.config.dhDomain->g.len = dhSrvPubKey.key.dhPub.param->g.len;
+
+							memcpy(dhConf.config.dhDomain->g.data,
+								   dhSrvPubKey.key.dhPub.param->g.data,
+								   dhSrvPubKey.key.dhPub.param->g.len);
+
+							dhConf.config.dhDomain->p.len = dhSrvPubKey.key.dhPub.param->p.len;
+
+							memcpy(dhConf.config.dhDomain->p.data,
+									dhSrvPubKey.key.dhPub.param->p.data,
+									dhSrvPubKey.key.dhPub.param->p.len);
+
+
+
+							err = gci_dh_new_ctx(&dhConf, &dhCtx);
+							if(err != GCI_OK)
+							{
+								//TODO return state from error
 							}
 
 							err = gci_dh_gen_key(dhCtx, ps_hsElem->gci_dheCliPubKey);
 							if(err != GCI_OK)
 							{
-								//TODO return error state
+								//TODO return state from error
 							}
+
+
+							/* calculate dh shared secret */
 
 							//Context which contains the private key of the client
 							err = gci_dh_calc_sharedSecret(dhCtx, ps_hsElem->gci_dheSrvPubKey, &ps_hsElem->gci_dheSecKey);
@@ -5050,7 +5057,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							err = gci_key_get(ps_hsElem->gci_dheCliPubKey, &dhCliPubKey);
 							if(err != GCI_OK)
 							{
-								//TODO return error state
+								//TODO return state from error
 							}
 
 
@@ -5085,15 +5092,33 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 
 							TIME_STAMP(TS_ECDHE_CALC_SHARED_SEC_BEGIN);
 
-							/* Generate ECC private Key */
-							GciCtxId_t ecdhCtx;
-							GciDhType_t ecdhType;
-							ecdhType = GCI_ECDH;
+							//Get the big number of the Server public key (Server Key Exchange in loc_protocolHand)
+							err = gci_key_get(ps_hsElem->eccPubKeyPeer, &ecdhCliPubKey);
+							if(err != GCI_OK)
+							{
+								//TODO return state from error
+							}
 
-							//TODO sw - take the elliptic curve coming from the server ??
-							err = gci_dh_new_ctx(&ecdhType, &ecdhCtx);
+							ecdhConf.type = GCI_ECDH;
+
+							//Get the elliptic curve coming from the Server public key
+							ecdhConf.config.ecdhCurveName = ecdhCliPubKey.key.ecdhPub.curve;
+
+
+							err = gci_dh_new_ctx(&ecdhConf, &ecdhCtx);
+							if(err != GCI_OK)
+							{
+								//TODO return state from error
+							}
+
+
+							/* Generate ECC private Key */
 
 							err = gci_dh_gen_key(ecdhCtx, ps_secPar->ecdhCliPubKey);
+							if(err != GCI_OK)
+							{
+								//TODO return state from error
+							}
 
 
 							//if(cw_ecc_makeKey(&(ps_secPar->eccKey), ps_hsElem->eccCurve)!=CRYPT_OK)
@@ -5106,6 +5131,9 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 
 
 							/* calculate ecdhe shared secret with the public key coming from the server key exchange*/
+
+
+							//Here eccPubKeyPeer is the ecc public key of the server + private key of the client is in the context
 							err = gci_dh_calc_sharedSecret(ecdhCtx, ps_hsElem->eccPubKeyPeer, ps_hsElem->gci_ecdheSecKey);
 
 
@@ -5293,11 +5321,9 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 								GciCtxId_t rsaCtx;
 								GciSignConfig_t rsaConf;
 
-								//TODO sw - first encrypt and then sign or inverse ??
-
 								rsaConf.algo = GCI_SIGN_RSA;
 								rsaConf.hash = GCI_HASH_NONE;
-								rsaConf.config.rsa.padding = GCI_PADDING_NONE;
+								rsaConf.config.rsa.padding = GCI_PADDING_PKCS1;
 
 								//TODO sw - the private come from the PEM file with the certificate -> see _sslSoc_sett_import_RSAprivKey
 								err = gci_sign_gen_new_ctx(&rsaConf, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &rsaCtx);
@@ -5316,16 +5342,6 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 
 								//OLD-CW: if (cw_rsa_sign_encode(pc_write + 2, c_hashLen, pc_write + 2, &cwt_hashLen,
 								//ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey) != CW_OK)
-
-								//Crypt the signature
-
-								//No configuration for an asymmetric cipher
-								err = gci_cipher_new_ctx(NULL, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &rsaCtx);
-								if(err != GCI_OK)
-								{
-									//TODO return error state
-								}
-
 
 
 								if(err != GCI_OK)
@@ -5471,16 +5487,11 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx,
 							LOG_INFO("pcwt_recLen = %d",pc_write - pc_rec);
 							ps_sslGut->e_asmCtrl = E_SSL_ASM_FINISH;
 
-//							if (ps_sslCtx->s_secParams.c_useDheKey == TRUE)
-//							{
-//								//OLD-CW: km_dhe_releaseKey();
-//								err = gci_key_delete(ps_sslCtx->s_secParams.pgci_dheKey);
-//								if(err != GCI_OK)
-//								{
-//									//TODO return state
-//								}
-//								ps_sslCtx->s_secParams.c_useDheKey = FALSE;
-//							}
+							if (ps_sslCtx->s_secParams.c_useDheKey == TRUE)
+							{
+								km_dhe_releaseKey();
+								ps_sslCtx->s_secParams.c_useDheKey = FALSE;
+							}
 
 							ps_sslGut->e_smState = E_SSL_SM_APPDATA_EXCHANGE;
 							break;
@@ -6885,24 +6896,29 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 
 
 						//read/import pubkey from the buffer (ANSI x9.63)
-						//TODO sw - not sure it works -> compare with wireshark
 
 						//Read the first byte to be sure he has the value 4, 6 or 7 (to be valid)
 						if((*pc_hsBuff != 4) && (*pc_hsBuff != 6) && (*pc_hsBuff != 7))
 						{
-							//TODO return error state
+							//TODO return state from error
 						}
 
 						pc_hsBuff++;
 
 						//the x-coordinate has a length of the half of the public key's length
-						eccPub.key.ecdhPub.coord.x.len = cwt_len >> 1;
+						eccPub.key.ecdhPub.coord.x.len = pc_hsBuff;
+
+						pc_hsBuff++;
+
 						memcpy(eccPub.key.ecdhPub.coord.x.data, pc_hsBuff, eccPub.key.ecdhPub.coord.x.len);
 
 						pc_hsBuff+=eccPub.key.ecdhPub.coord.x.len;
 
 						//the y-coordinate has a length of the rest of the half of the public key's length
-						eccPub.key.ecdhPub.coord.y.len = cwt_len - eccPub.key.ecdhPub.coord.x.len;
+						eccPub.key.ecdhPub.coord.y.len = pc_hsBuff;
+
+						pc_hsBuff++;
+
 						memcpy(eccPub.key.ecdhPub.coord.y.data, pc_hsBuff, eccPub.key.ecdhPub.coord.y.len);
 
 						pc_hsBuff+=eccPub.key.ecdhPub.coord.y.len;
@@ -6911,7 +6927,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						err = gci_key_put(&eccPub, ps_hsElem->eccPubKeyPeer);
 						if(err != GCI_OK)
 						{
-							//TODO return error state
+							//TODO return state from error
 						}
 
 
@@ -6985,6 +7001,8 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						//Read the length of the generator
 						srvPub.key.dhPub.param->g.len = pc_hsBuff;
 
+						pc_hsBuff++;
+
 						//Copy the generator data
 						memcpy(srvPub.key.dhPub.param->g.data, pc_hsBuff, srvPub.key.dhPub.param->g.len);
 						pc_hsBuff+= srvPub.key.dhPub.param->g.len;
@@ -6998,19 +7016,21 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 
 						pc_hsBuff+=srvPub.key.dhPub.key.len;
 
+						pc_hsBuff++;
+
 						//Store the key and become an ID
 						err = gci_key_put(srvPub.key.dhPub.key.data, ps_hsElem->gci_dheSrvPubKey);
-
-
-						//TODO sw - in shared secret -> create a public key inside with the domain parameter of the server public key
-
+						if(err != GCI_OK)
+						{
+							//return error from state
+						}
 
 						/* jump over p */
-						pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
-						/* jump over q */
-						pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
-						/* jump over Ys */
-						pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
+//						pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
+//						/* jump over q */
+//						pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
+//						/* jump over Ys */
+//						pc_hsBuff += *pc_hsBuff * 256 + pc_hsBuff[1] + 2;
 
 						/* this is the length of (p, q, Ys) for now */
 						cwt_len = pc_hsBuff - pc_pqy;
@@ -7305,10 +7325,8 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 							rsaConf.hash=GCI_HASH_NONE;
 							rsaConf.config.rsa.padding = GCI_PADDING_PKCS1;
 
-							//TODO sw - Decrypt the signature ??
-
 							//RSA Public key of the client
-							err = gci_sign_verify_new_ctx(&rsaConf, ps_hsElem->gci_rsaSrvPubKey, &rsaCtx);
+							err = gci_sign_verify_new_ctx(&rsaConf, ps_hsElem->gci_rsaCliPubKey, &rsaCtx);
 							if(err != GCI_OK)
 							{
 								//TODO return state
@@ -8240,6 +8258,10 @@ int ssl_verifyHash(const uint8_t rac_verHash[], size_t cwt_verHashLen,
 #endif
 
 	err = gci_key_get(pPubKey, &rpcw_pubKey);
+	if(err != GCI_OK)
+	{
+		//TODO return error from state
+	}
 
 	assert(rac_verHash != NULL);
 	assert(rac_sign != NULL);
