@@ -6,6 +6,7 @@
 !cipher_suites_crypto_wrap.xlsx
 !testbench.txt
 !modif_embetterSSL.txt
+!Doc.txt
 !.gitignore
 
 #Ignore all the contain of crypto_libtom except the two folders below

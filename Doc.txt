@@ -1,0 +1,52 @@
+1- Init the interface by passing a username and a password
+
+2- Get information, like when you want to know which elliptic curves are available
+
+3- Hash
+----> 1. Create a context
+----> 2. Add the message which should be hashed (update)
+----> 3. If the next message could be different, the context can be cloned 
+----> 4. When all the message has been added, the hash_finish allows to get the digest of the hashed message
+
+4- Signature
+----> 
+
+4- HMAC
+
+5- CMAC ??
+
+6- Generate key pairs (RSA, DSA, ECDSA) -> not DH or ECDH (these have an other function)
+
+7- Cipher (symmetric and asymmetric)
+---> The configuration of the context should only be used to create a symmetric key -> asymmetric key pairs has to be generated in the function generate_key_pairs
+---> however, when a bloc mode or a padding has to be added with the cipher key, these had to be added in the configuration
+---> if an asymmetric key is used, the ID of the public key has to be added in the function
+---> However, if a symmetric key has to be used, -1 must be added in this part
+---> The function will get a context ID
+---> the function should return an explicit error or a GCI_OK if all no error occured in the function
+
+8- Encrypt
+---> A context has to be created in cipher_new_ctx -> see Cipher(symmetric and asymmetric)
+---> The plaintext has to be added in one time with the length of it
+---> a ciphertext will be return
+
+9- Decrypt
+---> A context has to be created in cipher_new_ctx -> see Cipher(symmetric and asymmetric)
+---> The plaintext has to be added in one time with the length of it
+---> a ciphertext will be return
+
+10- Random number generator
+
+11- Diffie-Hellmann keys
+
+12- Diffie-Hellmann shared secret
+
+13- Key management
+
+X-1- After the use of context, don't forget to release them
+
+X- Delete the interface
+
+X+1- Error Management
+----> The error management could be different whether the implementation
+----> A enumeration in crypto_def.h allows to enumerate all needed
