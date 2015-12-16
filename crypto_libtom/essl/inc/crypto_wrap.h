@@ -64,7 +64,7 @@ ltc_math_descriptor ltc_mp;
 
 #define     CW_PKCS1_MAX_KEYSIZE          4096
 #define     SSL_RSA_MAX_KEY_SIZE          CW_PKCS1_MAX_KEYSIZE
-#define     MAX_MSG_SIZE                  (CW_PKCS1_MAX_KEYSIZE / 8)
+#define     GCI_MAX_MSG_SIZE                  (CW_PKCS1_MAX_KEYSIZE / 8)
 
 /*==============================================================================
                                     MACROS

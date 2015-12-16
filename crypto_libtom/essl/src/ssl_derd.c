@@ -419,7 +419,7 @@ e_derdRet_t sslDerd_getBool(s_derdCtx_t *ps_derdCtx, uint8_t *pc_value)
 /*  sslDerd_getBigNum()                                                         */
 /*============================================================================*/
 //OLD-CW: e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, gci_bigNum_t **ppcwt_val)
-e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, GciBigInt_t **ppcwt_val)
+e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, st_gciBigInt_t **ppcwt_val)
 {
     e_derdRet_t e_res = E_SSL_DER_OK;
     size_t cwt_tmp = 0;
@@ -625,7 +625,7 @@ e_derdRet_t sslDerd_getOctStr(s_derdCtx_t *ps_derdCtx,
 //							e_sslHashAlg_t*	pe_hashAlg,
 //                            uint8_t*     	pc_decSign, size_t* pi_decSignLen)
 sslDerd_getSign(s_derdCtx_t* 	ps_derdCtx,
-							GciHashAlgo_t*	pe_hashAlg,
+							en_gciHashAlgo_t*	pe_hashAlg,
                             uint8_t*     	pc_decSign, size_t* pi_decSignLen)
 {
     e_derdRet_t         e_err = E_SSL_DER_OK;
@@ -786,15 +786,15 @@ e_derdRet_t sslDerd_setSign(s_derdCtx_t *ps_derdCtx, uint8_t c_hashAlg,
     if (e_err == E_SSL_DER_OK) {
         switch (c_hashAlg) {
         	//OLD-CW: case E_SSL_HASH_MD5:
-        	case GCI_HASH_MD5:
+        	case en_gciHashAlgo_MD5:
                 i_hashAlgOid = SSL_OID_MD5;
                 break;
             //OLD-CW: case E_SSL_HASH_SHA1:
-        	case GCI_HASH_SHA1:
+        	case en_gciHashAlgo_SHA1:
                 i_hashAlgOid = SSL_OID_SHA1;
                 break;
             //OLD-CW: case E_SSL_HASH_SHA256:
-        	case GCI_HASH_SHA256:
+        	case en_gciHashAlgo_SHA256:
                 i_hashAlgOid = SSL_OID_SHA256;
                 break;
             default:

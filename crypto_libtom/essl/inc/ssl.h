@@ -532,9 +532,9 @@ typedef enum {
 
 typedef struct ssl_signatureAndHashAlgorithms {
     //OLD-CW: uint8_t     c_sign;
-	GciSignAlgo_t	c_sign;
+	en_gciSignAlgo_t	c_sign;
     //OLD-CW: uint8_t     c_hash;
-	GciHashAlgo_t	c_hash;
+	en_gciHashAlgo_t	c_hash;
 }s_sslSignHashAlg_t;
 
 typedef enum ssl_psudoRandomFunctionType {
@@ -701,7 +701,7 @@ typedef struct ssl_handshakeElements
    GciKeyId_t			eccPubKeyPeer;
    //Name of the curve which is proposed by peer (server) when acting as a client.
    //OLD-CW: uint16_t				eccCurve;
-   GciNamedCurve_t		eccCurve;
+   en_gciNamedCurve_t		eccCurve;
 
    e_sslVer_t           e_offerVer;
    /* The two random values of Server and Client */
@@ -764,7 +764,7 @@ typedef struct ssl_peerGlobalSettings
    //OLD-CW: ecc_key*			        p_ECCMyPrivKey; //vpy
    GciKeyId_t				p_ECCMyPrivKey; //TODO sw - hierarchy of p_ECCMyPrivKey
    //OLD-CW: ltc_ecc_set_type			ltc_ECC_curvesParameters;
-   GciNamedCurve_t 			gci_curveName;
+   en_gciNamedCurve_t 			gci_curveName;
 
    /* Behaviour of the SSL context pertaining to Client Authentication */
    e_sslAuthLevel_t         e_authLvl;
@@ -790,7 +790,7 @@ typedef struct ssl_securityParameters
 {
    /* algorithm used to perform handshake */
    //OLD-CW: E_SSL_KST            e_kst;
-	GciKeyPairType_t	e_kst;
+	en_gciKeyPairType_t	e_kst;
    /* Supported sognature and hash algorithm. For TLS version prior 1.2 md5+sha1 used */
    s_sslSignHashAlg_t   s_signAlg;
    /* the key if diffie hellman is used as handshake algorithm and we act as server */
@@ -803,7 +803,7 @@ typedef struct ssl_securityParameters
    //TODO vpy: change and use a pointer for eccKey;
 
    //OLD-CW: uint16_t				eccChoosenCurve;
-   GciNamedCurve_t		eccChoosenCurve;
+   en_gciNamedCurve_t		eccChoosenCurve;
    //OLD-CW: ecc_key				eccKey;
 
 
@@ -817,7 +817,7 @@ typedef struct ssl_securityParameters
 
    /* the symmetric cipher algorithm used to encrypt application data */
    //OLD-CW: SYM_CIPHER       	e_cipType;
-   GciCipherAlgo_t		e_cipType;
+   en_gciCipherAlgo_t		e_cipType;
    /* Indicates whether this key's for a Stream(FALSE) or Blockcipher(TRUE) */
    uint8_t             	b_isBlkCip;
    /* the Blocklen of the used BlockCipher */
@@ -848,7 +848,7 @@ typedef struct ssl_securityParameters
    e_sslPrf_t           e_prf;
    /* type of the MAC algorithm used for message authentication */
    //OLD-CW: e_sslHashAlg_t       e_hmacType;
-   GciHashAlgo_t 		e_hmacType;
+   en_gciHashAlgo_t 		e_hmacType;
    /* length of the output produced by the MAC algorithm */
    uint8_t              c_hmacLen;
    /* storage for the MAC secrets. Maximum Possible amount of bytes */

@@ -199,12 +199,12 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
     s_sslCert_t *ps_tmpCaRootCert = NULL;
     s_sslCertList_t *ps_caListElem = NULL;
     //OLD-CW: s_pubKey_t s_pubKey;
-    GciKey_t s_pubKey;
+    st_gciKey_t s_pubKey;
 
     int32_t l_pathLen;
     int16_t i_tmpRet;
 
-    GciResult_t err;
+    en_gciResult_t err;
 
 
 
@@ -286,8 +286,8 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
          */
         //OLD-CW: cw_rsa_publickey_prep(pcwt_rsaPubKey, &s_pubKey);
 
-    	err = gci_key_get(*pcwt_rsaPubKey, &s_pubKey);
-    	if(err != GCI_OK)
+    	err = gciKeyGet(*pcwt_rsaPubKey, &s_pubKey);
+    	if(err != en_gciResult_Ok)
     	{
     		//TODO return error state
     	}
@@ -302,9 +302,9 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
 
 
         //Get an ID of this key
-        err = gci_key_put(&s_pubKey, pcwt_rsaPubKey);
+        err = gciKeyPut(&s_pubKey, pcwt_rsaPubKey);
 
-        if(err != GCI_OK)
+        if(err != en_gciResult_Ok)
         {
         	//TODO return error state
         }
@@ -562,7 +562,7 @@ e_sslResult_t sslCert_getSubject(s_sslCertList_t *ps_entry, uint8_t *pc_dest, si
     s_sslOctetStr_t s_octCert;
     size_t cwt_bufLen;
 
-    GciResult_t err;
+    en_gciResult_t err;
 
     assert(ps_entry != NULL);
     assert(pc_dest != NULL);
@@ -624,8 +624,8 @@ e_sslResult_t sslCert_getSubject(s_sslCertList_t *ps_entry, uint8_t *pc_dest, si
              * Free the public key
              */
             //OLD-CW: cw_rsa_publickey_free(&tmp_cert.gci_caPubKey);
-            err =  gci_key_delete(tmp_cert.gci_caPubKey);
-            if(err != GCI_OK)
+            err =  gciKeyDelete(tmp_cert.gci_caPubKey);
+            if(err != en_gciResult_Ok)
             {
             	//TODO return error state
             }
@@ -680,7 +680,7 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcw
     s_sslCert_t *ps_rootCert;
     s_sslCert_t *ps_tbvCert;
 
-    GciResult_t err;
+    en_gciResult_t err;
 
     /* Allocate some memory for a subject name */
     ps_octTbvStor  = &ast_tmpOctStor[1];
@@ -751,8 +751,8 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcw
                  * Re-Init the public key when init failed
                  */
                 //OLD-CW: cw_rsa_publickey_free(&ps_rootCert->gci_caPubKey);
-                err = gci_key_delete(ps_rootCert->gci_caPubKey);
-                if(err != GCI_OK)
+                err = gciKeyDelete(ps_rootCert->gci_caPubKey);
+                if(err != en_gciResult_Ok)
                 {
                 	//TODO return error state
                 }
@@ -837,15 +837,15 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcw
                 if (i_ret == E_SSL_CERT_OK)
                 {
                     //OLD-CW: cw_rsa_publickey_free(&ps_rootCert->gci_caPubKey);
-                    err = gci_key_delete(&ps_rootCert->gci_caPubKey);
-                    if(err != GCI_OK)
+                    err = gciKeyDelete(&ps_rootCert->gci_caPubKey);
+                    if(err != en_gciResult_Ok)
                     {
                     	//TODO return error state
                     }
 
                     //OLD-CW: cw_rsa_publickey_init(&ps_rootCert->gci_caPubKey);
-                    err = gci_key_delete(ps_rootCert->gci_caPubKey);
-                    if(err != GCI_OK)
+                    err = gciKeyDelete(ps_rootCert->gci_caPubKey);
+                    if(err != en_gciResult_Ok)
                     {
                     	//TODO return error state
                     }
@@ -877,15 +877,15 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcw
          * Free the temporary allocated data
          */
         //OLD-CW: cw_rsa_publickey_free(&ast_tmpCert[0].gci_caPubKey);
-        err = gci_key_delete(&ast_tmpCert[0].gci_caPubKey);
-        if(err != GCI_OK)
+        err = gciKeyDelete(&ast_tmpCert[0].gci_caPubKey);
+        if(err != en_gciResult_Ok)
         {
         	//TODO return error state
         }
 
         //OLD-CW: cw_rsa_publickey_free(&ast_tmpCert[1].gci_caPubKey);
-        err = gci_key_delete(&ast_tmpCert[1].gci_caPubKey);
-        if(err != GCI_OK)
+        err = gciKeyDelete(&ast_tmpCert[1].gci_caPubKey);
+        if(err != en_gciResult_Ok)
         {
         	//TODO return error state
         }

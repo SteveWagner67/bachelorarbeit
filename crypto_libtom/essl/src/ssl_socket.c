@@ -60,7 +60,7 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 //		ecc_key* pcwt_privKey, ltc_ecc_set_type* dp);
 
 static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
-		GciKeyId_t* pcwt_privKey, GciNamedCurve_t* curveName);
+		GciKeyId_t* pcwt_privKey, en_gciNamedCurve_t* curveName);
 
 
 /*==============================================================================
@@ -93,8 +93,8 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 	size_t cwt_len;
 	unsigned char* p_buffer;
 
-	GciResult_t err;
-	GciKey_t rsaPrivKey = {.type = GCI_KEY_RSA_PRIV};
+	en_gciResult_t err;
+	st_gciKey_t rsaPrivKey = {.type = en_gciKeyType_RsaPriv};
 
 	/*
 	 * Read the cert into the cert_db buffer
@@ -155,14 +155,14 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 //static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
 //		ecc_key* pcwt_privKey, ltc_ecc_set_type* dp)
 static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
-		GciKeyId_t* pcwt_privKey, GciNamedCurve_t* curveName)
+		GciKeyId_t* pcwt_privKey, en_gciNamedCurve_t* curveName)
 {
 	//OLD-CW: int err = E_SSL_ERROR;
 
 	size_t cwt_len;
 	unsigned char* p_buffer;
 
-	GciResult_t err;
+	en_gciResult_t err;
 
 	/*
 	 * Read the cert into the cert_db buffer
@@ -250,13 +250,13 @@ void sslSoc_initSett(s_sslSett_t* ps_sslSett, e_sslKeyType_t keyType)
 	if(keyType == E_SSL_KEY_EC)
 	{
 		//OLD-CW: ps_sslSett->s_certSignHashAlg.c_hash = E_SSL_HASH_SHA256;
-		ps_sslSett->s_certSignHashAlg.c_hash = GCI_HASH_SHA256;
+		ps_sslSett->s_certSignHashAlg.c_hash = en_gciHashAlgo_SHA256;
 		ps_sslSett->s_certSignHashAlg.c_sign = E_SSL_SIGN_RSA;
 	}
 	else
 	{
 		//OLD-CW: ps_sslSett->s_certSignHashAlg.c_hash = E_SSL_HASH_SHA256;
-		ps_sslSett->s_certSignHashAlg.c_hash = GCI_HASH_SHA256;
+		ps_sslSett->s_certSignHashAlg.c_hash = en_gciHashAlgo_SHA256;
 		ps_sslSett->s_certSignHashAlg.c_sign = E_SSL_SIGN_ECDSA;
 	}
 
@@ -269,13 +269,13 @@ void sslSoc_initSett(s_sslSett_t* ps_sslSett, e_sslKeyType_t keyType)
  ==============================================================================*/
 void sslSoc_freeSett(s_sslSett_t* ps_sslSett)
 {
-	GciResult_t err;
+	en_gciResult_t err;
 	assert(ps_sslSett != NULL);
 
 	if (ps_sslSett->pgci_rsaMyPrivKey)
 	{
-		err = gci_key_delete(ps_sslSett->pgci_rsaMyPrivKey);
-		if(err != GCI_OK)
+		err = gciKeyDelete(ps_sslSett->pgci_rsaMyPrivKey);
+		if(err != en_gciResult_Ok)
 		{
 			//TODO return error state
 		}
@@ -927,15 +927,15 @@ s_sslCtx_t* sslSoc_new(s_sslSett_t* ps_sslSett)
  ==============================================================================*/
 int sslSoc_free(s_sslCtx_t* ps_sslCtx)
 {
-	GciResult_t err;
+	en_gciResult_t err;
 
 	assert(ps_sslCtx != NULL);
 	assert(ps_sslCtx->ps_hsElem != NULL);
 
 
 	//OLD-cw:	cw_rsa_publickey_free(&ps_sslCtx->ps_hsElem->gci_peerPubKey);
-	err = gci_key_delete(&ps_sslCtx->ps_hsElem->gci_rsaCliPubKey);
-	if(err != GCI_OK)
+	err = gciKeyDelete(&ps_sslCtx->ps_hsElem->gci_rsaCliPubKey);
+	if(err != en_gciResult_Ok)
 	{
 		//TODO return error state
 	}
@@ -943,8 +943,8 @@ int sslSoc_free(s_sslCtx_t* ps_sslCtx)
 	//OLD-cw:	cw_dh_free(&ps_sslCtx->ps_hsElem->gci_dheCliPrivKey);
 
 	//OLD-cw:	cw_dh_free(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
-	err = gci_key_delete(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
-	if(err != GCI_OK)
+	err = gciKeyDelete(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
+	if(err != en_gciResult_Ok)
 	{
 		//TODO return error state
 	}

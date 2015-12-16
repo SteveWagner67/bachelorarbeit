@@ -66,17 +66,17 @@ static s_kmDheKey_t gst_dheKey =
 /*  km_dhe_init()                                                             */
 /*============================================================================*/
 //OLD-CW: int km_dhe_init(void)
-GciResult_t km_dhe_init()
+en_gciResult_t km_dhe_init()
 {
-    GciResult_t err;
+    en_gciResult_t err;
 
     GciCtxId_t dhCtx;
-    GciDhConfig_t dhConf;
+    st_gciDhConfig_t dhConf;
 
     //OLD-CW: cw_dh_free(&gst_dheKey.cwt_dheKey);
 
-    err = gci_key_delete(gst_dheKey.cwt_dheKey);
-    if(err != GCI_OK)
+    err = gciKeyDelete(gst_dheKey.cwt_dheKey);
+    if(err != en_gciResult_Ok)
     {
     	//TODO return error state
     }
@@ -87,19 +87,19 @@ GciResult_t km_dhe_init()
 
     gst_dheKey.l_inUse = 0;
 
-    dhConf.type = GCI_DH;
+    dhConf.type = en_gciDhType_Dh;
 
     //fix the domain parameter inside
-    err = gci_dh_new_ctx(&dhConf, &dhCtx);
-    if(err != GCI_OK)
+    err = gciDhNewCtx(&dhConf, &dhCtx);
+    if(err != en_gciResult_Ok)
     {
     	//TODO return error state
     }
 
-    err = gci_dh_gen_key(dhCtx, &gst_dheKey.cwt_dheKey);
+    err = gciDhGenKey(dhCtx, &gst_dheKey.cwt_dheKey);
 
     //if ((i_ret = cw_dhe_makeKey(&gst_dheKey.cwt_dheKey)) == CW_OK)
-    if(err == GCI_OK)
+    if(err == en_gciResult_Ok)
     {
         gst_dheKey.b_isValid = TRUE;
     }
@@ -112,6 +112,14 @@ GciResult_t km_dhe_init()
 #endif
     }
 
+
+    //Release the context
+    err = gciCtxRelease(dhCtx);
+    if(err != en_gciResult_Ok)
+    {
+    	//TODO Return error from state
+    }
+
     return err;
 } /* km_dhe_init() */
 
@@ -119,9 +127,9 @@ GciResult_t km_dhe_init()
 /*  km_dhe_getKey()                                                           */
 /*============================================================================*/
 // OLD-CW: gci_dhKey_t* km_dhe_getKey(void)
-GciResult_t km_dhe_getKey(GciKeyId_t* dhKeyID)
+en_gciResult_t km_dhe_getKey(GciKeyId_t* dhKeyID)
 {
-    GciResult_t err = GCI_OK;
+    en_gciResult_t err = en_gciResult_Ok;
 
     LOG_INFO("km_dhe_getKey() Valid: %i, Count: %i, inUse: %i",
             gst_dheKey.b_isValid, gst_dheKey.l_count, gst_dheKey.l_inUse);
@@ -136,7 +144,7 @@ GciResult_t km_dhe_getKey(GciKeyId_t* dhKeyID)
             if (gst_dheKey.l_inUse == 0)
             {
                 /* no, so we can renew the key */
-                if (km_dhe_init() == GCI_OK)
+                if (km_dhe_init() == en_gciResult_Ok)
                 {
                     gst_dheKey.l_count++;
                     gst_dheKey.l_inUse++;
@@ -168,7 +176,7 @@ GciResult_t km_dhe_getKey(GciKeyId_t* dhKeyID)
     } /* if(gst_dheKey.b_isValid) */
     else
     {
-        if (km_dhe_init() == GCI_OK)
+        if (km_dhe_init() == en_gciResult_Ok)
         {
             gst_dheKey.l_count++;
             gst_dheKey.l_inUse++;

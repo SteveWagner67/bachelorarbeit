@@ -371,7 +371,7 @@ e_sslSesCacheErr_t sslSesCache_getById(s_sslSessCache_t *ps_sessCache,
 l_sslSess_t sslSesCache_getNewSessId(s_sslSessCache_t *ps_sessCache)
 {
     l_sslSess_t l_id;
-    GciResult_t err;
+    en_gciResult_t err;
 
     assert(ps_sessCache != NULL);
 
@@ -381,8 +381,8 @@ l_sslSess_t sslSesCache_getNewSessId(s_sslSessCache_t *ps_sessCache)
     do
     {
         //OLD-CW: cw_prng_read((uint8_t*) &l_id, sizeof(l_id));
-        err = gci_rng_gen(sizeof(l_id), (uint8_t*) &l_id);
-        if(err != GCI_OK)
+        err = gciRngGen(sizeof(l_id), (uint8_t*) &l_id);
+        if(err != en_gciResult_Ok)
         {
         	//TODO return error state
         }

@@ -27,7 +27,7 @@
 #define SSL_CDB_MAX_BUFFSIZE      2560
 #else
 /* when the keysize grows, the buffer has to grow as well */
-#define SSL_CDB_MAX_BUFFSIZE      SSL_RSA_MAX_KEY_SIZE
+#define SSL_CDB_MAX_BUFFSIZE      GCI_RSA_MAX_KEY_SIZE
 #endif
 #endif
 

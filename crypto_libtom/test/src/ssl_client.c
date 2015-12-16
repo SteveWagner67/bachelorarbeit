@@ -175,7 +175,7 @@ E_CLIENT_FSM_RESULT ssl_client_entry(SSL_CLIENT_PARS parameters) {
 
 	int err;
 
-	GciResult_t gci_err;
+	en_gciResult_t gci_err;
 	/* Check the state of the client */
 	switch (i_state)
 	{
@@ -221,8 +221,8 @@ E_CLIENT_FSM_RESULT ssl_client_entry(SSL_CLIENT_PARS parameters) {
 			/* Initialises the crypto */
 			//OLD-CW: cw_crypto_init();
 			//TODO sw - where to become the user name + password ??
-			gci_err = gci_init(NULL, 0, NULL, 0);
-			if(gci_err != GCI_OK)
+			gci_err = gciInit(NULL, 0, NULL, 0);
+			if(gci_err != en_gciResult_Ok)
 			{
 				//TODO return error state
 			}
@@ -240,7 +240,7 @@ E_CLIENT_FSM_RESULT ssl_client_entry(SSL_CLIENT_PARS parameters) {
 			 * Initialisation of keymanager for DHE and DHE private key generation
 			 */
 			gci_err = km_dhe_init(); //TODO sw - this step in gci_init
-			if(gci_err != GCI_OK)
+			if(gci_err != en_gciResult_Ok)
 			{
 				//TODO return error state
 			}
@@ -310,8 +310,8 @@ E_CLIENT_FSM_RESULT ssl_client_entry(SSL_CLIENT_PARS parameters) {
 
 			//OLD-CW: cw_prng_read((uint8_t *)c_writeBuffer, sizeof(c_writeBuffer));
 
-			gci_err = gci_rng_gen(sizeof(c_writeBuffer), (uint8_t *)c_writeBuffer);
-			if(gci_err != GCI_OK)
+			gci_err = gciRngGen(sizeof(c_writeBuffer), (uint8_t *)c_writeBuffer);
+			if(gci_err != en_gciResult_Ok)
 			{
 				//TODO error state
 			}
@@ -532,7 +532,7 @@ int init_client_CA_certs(char ** ppc_CAcerts) {
 
 	e_sslCertErr_t c_ret = 0;
 
-	GciResult_t err;
+	en_gciResult_t err;
 
 	/* loop over CA certificates in ppc_CAcerts (assuming it is NULL-terminated) */
 	while (i < SSL_CLIENT_CA_CERTS_NUM && (pc_CAcert = ppc_CAcerts[i]) != NULL) {
@@ -597,8 +597,8 @@ int init_client_CA_certs(char ** ppc_CAcerts) {
 
 				//OLD-CW: cw_rsa_publickey_free(&as_caCert[i].gci_caPubKey);
 
-				err = gci_key_delete(&as_caCert[i].gci_caPubKey);
-				if(err != GCI_OK)
+				err = gciKeyDelete(&as_caCert[i].gci_caPubKey);
+				if(err != en_gciResult_Ok)
 				{
 					//TODO return error state
 				}

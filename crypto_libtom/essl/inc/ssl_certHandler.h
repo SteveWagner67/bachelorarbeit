@@ -257,7 +257,7 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
 /*e_derdRet_t sslCert_prepPubKey(s_pubKey_t       *ps_pubKeyInfo,
                                s_sslOctetStr_t  *ps_pubKeyStr);
 */
-e_derdRet_t sslCert_prepPubKey(GciKey_t       *ps_pubKeyInfo,
+e_derdRet_t sslCert_prepPubKey(st_gciKey_t       *ps_pubKeyInfo,
                                s_sslOctetStr_t  *ps_pubKeyStr);
 
 /****************************************************************************

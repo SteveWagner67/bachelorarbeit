@@ -30,9 +30,9 @@
 
 /*** Local Functions ********************************************************/
 //OLD-CW: static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, s_pubKey_t *ps_pubKey);
-static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, GciKey_t *ps_pubKey);
+static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pubKey);
 //OLD-CW: static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, s_pubKey_t *ps_pubKey);
-static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, GciKey_t *ps_pubKey);
+static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pubKey);
 
 /****************************************************************************
  * Decoding the following DER public key
@@ -42,7 +42,7 @@ static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, GciKey_t *ps_pubKey
  *      publicExponent  INTEGER }       --> cw_bigNum_t
  ****************************************************************************/
 //OLD-CW: static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, s_pubKey_t *ps_pubKey)
-static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, GciKey_t *ps_pubKey)
+static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pubKey)
 {
     int res = E_SSL_DER_OK;
 
@@ -57,13 +57,13 @@ static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, GciKey_t *ps_pubKey)
         if (sslDerd_getNextValue(ps_ctx) == SSL_DER_ASN1_INTEGER)
         {
             //OLD-CW: res = sslDerd_getBigNum(ps_ctx, &ps_pubKey->pM);
-        	res = sslDerd_getBigNum(ps_ctx, &ps_pubKey->key.rsaPub.n);
+        	res = sslDerd_getBigNum(ps_ctx, &ps_pubKey->un_key.keyRsaPub.n);
             if (res == E_SSL_DER_OK)
             {
                 if (sslDerd_getNextValue(ps_ctx) == SSL_DER_ASN1_INTEGER)
                 {
                     //OLD-CW: res = sslDerd_getBigNum(ps_ctx, &ps_pubKey->pE);
-                	res = sslDerd_getBigNum(ps_ctx, &ps_pubKey->key.rsaPub.e);
+                	res = sslDerd_getBigNum(ps_ctx, &ps_pubKey->un_key.keyRsaPub.e);
                 }
                 else
                     res = E_SSL_DER_ERR_NO_PUBEXP; /* no exponent */
@@ -90,7 +90,7 @@ static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, GciKey_t *ps_pubKey)
  *      rsaEncryption, OID = 1.2.840.113549.1.1.1
  ****************************************************************************/
 //OLD-CW: static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, s_pubKey_t *ps_pubKey)
-static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, GciKey_t *ps_pubKey)
+static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pubKey)
 {
     e_derdRet_t e_res = E_SSL_DER_OK;
     int algo;
@@ -102,7 +102,7 @@ static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, GciKey_t *ps_pubKey
             && (sslDerd_getNextValue(ps_ctx) == SSL_DER_ASN1_CSEQUENCE))
     {
         //OLD-CW: e_res = sslDerd_getPubKeyAlg(ps_ctx, &ps_pubKey->iAlgorithm, &ps_pubKey->uiKeyLen);
-    	e_res = sslDerd_getPubKeyAlg(ps_ctx, &algo, &ps_pubKey->key.rsaPub.e.len);
+    	e_res = sslDerd_getPubKeyAlg(ps_ctx, &algo, &ps_pubKey->un_key.keyRsaPub.e.len);
         if (e_res == E_SSL_DER_OK)
         {
             if (sslDerd_getNextBitStr(ps_ctx) == E_SSL_DER_OK)
@@ -944,11 +944,11 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
     uint32_t ul_bufLen = sizeof(ac_buf);
     e_sslCertErr_t e_ret = E_SSL_CERT_OK;
 
-    GciResult_t err;
+    en_gciResult_t err;
     GciCtxId_t hashCtx;
     GciCtxId_t signCtx;
 
-    GciSignConfig_t rsaConf;
+    st_gciSignConfig_t rsaConf;
 
 
 
@@ -965,23 +965,23 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
     switch(ps_certInfo->l_sigAlgOId)
     {
     case SSL_OID_MD5_WITH_RSA_ENC:
-    	hashAlgo = GCI_HASH_MD5;
+    	hashAlgo = en_gciHashAlgo_MD5;
     	break;
 
     case SSL_OID_SHA1_WITH_RSA_ENC:
-    	hashAlgo = GCI_HASH_SHA1;
+    	hashAlgo = en_gciHashAlgo_SHA1;
 		break;
 
     case SSL_OID_SHA256_WITH_RSA_ENC:
-    	hashAlgo = GCI_HASH_SHA256;
+    	hashAlgo = en_gciHashAlgo_SHA256;
     	break;
 
     case SSL_OID_SHA384_WITH_RSA_ENC:
-    	hashAlgo = GCI_HASH_SHA384;
+    	hashAlgo = en_gciHashAlgo_SHA384;
     	break;
 
     case SSL_OID_SHA512_WITH_RSA_ENC:
-    	hashAlgo = GCI_HASH_SHA512;
+    	hashAlgo = en_gciHashAlgo_SHA512;
 		break;
 
     default:
@@ -999,43 +999,43 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
     }
 */
 
-    err = gci_hash_new_ctx(hashAlgo, &hashCtx);
-    if(err != GCI_OK)
+    err = gciHashNewCtx(hashAlgo, &hashCtx);
+    if(err != en_gciResult_Ok)
     {
     	//TODO return error state
     }
 
-    err = gci_hash_update(hashCtx, ps_certInfo->s_octTbsCert.pc_data, ps_certInfo->s_octTbsCert.cwt_len);
-    if(err != GCI_OK)
+    err = gciHashUpdate(hashCtx, ps_certInfo->s_octTbsCert.pc_data, ps_certInfo->s_octTbsCert.cwt_len);
+    if(err != en_gciResult_Ok)
     {
     	//TODO return error state
     }
 
-    err = gci_hash_finish(hashCtx, ac_buf,(size_t *) &ul_bufLen);
+    err = gciHashFinish(hashCtx, ac_buf,(size_t *) &ul_bufLen);
 
-    if(err != GCI_OK)
+    if(err != en_gciResult_Ok)
     {
     	e_ret = E_SSL_CERT_ERR_INVALID_HASH;
     }
 
 
-    rsaConf.algo = GCI_SIGN_RSA;
+    rsaConf.algo = en_gciSignAlgo_RSA;
     rsaConf.hash = hashAlgo;
-    rsaConf.config.rsa.padding = GCI_PADDING_PKCS1;
+    rsaConf.un_signConfig.signConfigRsa.padding = en_gciPadding_PKCS1;
 
-    err = gci_sign_verify_new_ctx(&rsaConf, &ps_caPubKey, &signCtx);
-    if(err != GCI_OK)
+    err = gciSignVerifyNewCtx(&rsaConf, &ps_caPubKey, &signCtx);
+    if(err != en_gciResult_Ok)
     {
     	//TODO return error state
     }
 
-    err = gci_sign_update(signCtx, ac_buf, ul_bufLen);
-    if(err != GCI_OK)
+    err = gciSignUpdate(signCtx, ac_buf, ul_bufLen);
+    if(err != en_gciResult_Ok)
     {
     	//TODO return error state
     }
 
-    err = gci_sign_verify_finish(signCtx, ps_certInfo->s_sign.pc_bitStr, ps_certInfo->s_sign.cwt_len);
+    err = gciSignVerifyFinish(signCtx, ps_certInfo->s_sign.pc_bitStr, ps_certInfo->s_sign.cwt_len);
 
 
 
@@ -1054,7 +1054,7 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
     }
 
     */
-    if(err != GCI_OK)
+    if(err != en_gciResult_Ok)
     {
     	e_ret = E_SSL_CERT_ERR_PROCESS_FAILED;
     }
@@ -1064,6 +1064,19 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
     	e_ret = E_SSL_CERT_ERR_VERIFICATION_FAILED;
     }
 
+    //Release the contexts
+
+    err = gciCtxRelease(hashCtx);
+    if(err != en_gciResult_Ok)
+    {
+    	//TODO return error from state
+    }
+
+    err = gciCtxRelease(signCtx);
+    if(err != en_gciResult_Ok)
+    {
+    	//TODO return error from state
+    }
 
 
     return (e_ret);
@@ -1075,7 +1088,7 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
 /*e_derdRet_t sslCert_prepPubKey(s_pubKey_t       *ps_pubKeyInfo,
                                s_sslOctetStr_t  *ps_pubKeyStr)
 */
-e_derdRet_t sslCert_prepPubKey(GciKey_t       *ps_pubKeyInfo,
+e_derdRet_t sslCert_prepPubKey(st_gciKey_t       *ps_pubKeyInfo,
                                s_sslOctetStr_t  *ps_pubKeyStr)
 {
     s_derdCtx_t s_derdCtx;

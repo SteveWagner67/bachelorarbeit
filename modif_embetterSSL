@@ -16,6 +16,6 @@ Function: loc_verifySign
 -------------------------
 
 -> Modif of the hash function (new context, update and finish)
--> Modif of the verify of the signature algorithm (new verify )
+-> Modif of the verify of the signature algorithm (new verify context, update and verify)
 
 

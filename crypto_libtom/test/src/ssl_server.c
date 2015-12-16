@@ -177,7 +177,7 @@ E_SERVER_FSM_RESULT ssl_server_entry(SSL_SERVER_PARS parameters)
 
 	char	c_mode = 1;
 
-	GciResult_t err;
+	en_gciResult_t err;
 
 	/* Check the state of the server */
 	switch (i_state) {
@@ -192,7 +192,7 @@ E_SERVER_FSM_RESULT ssl_server_entry(SSL_SERVER_PARS parameters)
 
 		/* Initialises the crypto */
 		//TODO sw - where to become the user name + password ??
-		err = gci_init(NULL, 0, NULL, 0);
+		err = gciInit(NULL, 0, NULL, 0);
 
 		//OLD-CW: cw_crypto_init();
 //		{
@@ -663,7 +663,7 @@ int init_server_CA_certs(char ** ppc_CAcerts) {
 
 	int8_t c_ret = 0;
 
-	GciResult_t err;
+	en_gciResult_t err;
 
 	/* loop over CA certificates in ppc_CAcerts (assuming it is NULL-terminated) */
 	while (i < SSL_SERVER_CA_CERTS_NUM && (pc_CAcert = ppc_CAcerts[i]) != NULL) {
@@ -727,8 +727,8 @@ int init_server_CA_certs(char ** ppc_CAcerts) {
 
 				//OLD-CW: cw_rsa_publickey_free(&as_caCert[i].gci_caPubKey);
 
-				err = gci_key_delete(&as_caCert[i].gci_caPubKey);
-				if(err != GCI_OK)
+				err = gciKeyDelete(&as_caCert[i].gci_caPubKey);
+				if(err != en_gciResult_Ok)
 				{
 					//TODO return error state
 				}

@@ -243,7 +243,7 @@ e_derdRet_t sslDerd_getBool(s_derdCtx_t *ps_derdCtx, uint8_t *pc_value);
  */
 
 //OLD-CW: e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, gci_bigNum_t **ppcwt_val);
-e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, GciBigInt_t **ppcwt_val);
+e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, st_gciBigInt_t **ppcwt_val);
 
 /*
  * Get a Time string from the DER context
@@ -364,7 +364,7 @@ e_derdRet_t sslDerd_getOctStr(s_derdCtx_t *ps_derdCtx,
 //                            uint8_t*     	pc_decSign, size_t* pi_decSignLen);
 
 sslDerd_getSign(s_derdCtx_t* 	ps_derdCtx,
-							GciHashAlgo_t*	pe_hashAlg,
+							en_gciHashAlgo_t*	pe_hashAlg,
                             uint8_t*     	pc_decSign, size_t* pi_decSignLen);
 
 

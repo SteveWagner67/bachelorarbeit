@@ -51,7 +51,7 @@ extern "C"
  */
 #define SSL_DER_ASN1_MAX_SIZE_OCTET          2       /* max size octets in of an asn.1 type */
 
-#define SSL_DER_MAX_INTEGER_LEN          (SSL_RSA_MAX_KEY_SIZE / 8)
+#define SSL_DER_MAX_INTEGER_LEN          (GCI_RSA_MAX_KEY_SIZE / 8)
 #define SSL_DER_ASN1_MAX_BITSTR_OCTET        512
 #define SSL_DER_ASN1_MAX_TIME_OCTET          15
 #define SSL_DER_ASN1_MAX_OID_OCTET           9

@@ -69,7 +69,7 @@ void km_dhe_releaseKey(void);
  */
 /*============================================================================*/
 //OLD-CW: gci_dhKey_t* km_dhe_getKey(void);
-GciResult_t km_dhe_getKey(GciKeyId_t* dhKeyID);
+en_gciResult_t km_dhe_getKey(GciKeyId_t* dhKeyID);
 
 /*============================================================================*/
 /*!
@@ -84,7 +84,7 @@ GciResult_t km_dhe_getKey(GciKeyId_t* dhKeyID);
  */
 /*============================================================================*/
 //OLD-CW: int km_dhe_init(void);
-GciResult_t km_dhe_init();
+en_gciResult_t km_dhe_init();
 
 /*============================================================================*/
 #endif /* __KEY_MANAGEMENT_H__ */
