@@ -1,6 +1,6 @@
 #.gitignore for bachelorarbeit
 
-#Ignore all the files except the two below
+#Ignore all the files except this below
 *.*
 
 !cipher_suites_crypto_wrap.xlsx
@@ -8,57 +8,9 @@
 !modif_embetterSSL.txt
 !Doc.txt
 !.gitignore
-
-#Ignore all the contain of crypto_libtom except the two folders below
-crypto_libtom/*
-
-!/crypto_libtom/essl
-!/crypto_libtom/gci
-!/crypto_libtom/test
-!/crypto_libtom/test
-
-#Ignore all the contain of essl except the two folders below
-crypto_libtom/essl/*
-!/crypto_libtom/essl/inc
-!/crypto_libtom/essl/src
-
-#Ignore all the contain of inc except the .h
-crypto_libtom/essl/inc/*
-!/crypto_libtom/essl/inc/*.h
-
-#Ignore all the contain of the folder src except the .c
-crypto_libtom/essl/src/*
-!/crypto_libtom/essl/src/*.c
-
-#Ignore all the contain of gci except the two folders below
-crypto_libtom/gci/*
-!/crypto_libtom/gci/inc
-!/crypto_libtom/gci/src
-
-#Ignore all the contain of the folder inc except the .h
-crypto_libtom/gci/inc/*
-!/crypto_libtom/gci/inc/*.h
-
-#Ignore all the contain of the folder src except the .c
-crypto_libtom/gci/src/*
-!/crypto_libtom/gci/src/*.c
-
-#Ignore all the contain of the folder test
-crypto_libtom/test/*
-
-#Except the two folders below
-!/crypto_libtom/test/inc
-!/crypto_libtom/test/src
-
-#Ignore all the contain of the inc folder except the .h
-crypto_libtom/test/inc/*
-!crypto_libtom/test/inc/*.h
-
-#Ignore all the contain of the folder src except the .c
-crypto_libtom/test/src/*
-!crypto_libtom/test/src/*.c
-
-
-
-
+!*.c
+!*.h
+!*.tex
+!*.bib
+!*.pdf
 

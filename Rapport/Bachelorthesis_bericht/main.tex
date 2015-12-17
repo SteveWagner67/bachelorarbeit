@@ -1,0 +1,114 @@
+%%=====================================================================================
+%%
+%%          ToDo :  !!! important !!! on debian based systems you have to install
+%%                  biber with sudo apt-get install biber for the bibliography or use 
+%%                  bibtex instead but biber/biblatex has utf8 support per default
+%%       Filename:  main.tex
+%%
+%%    Description:  ESK Lab Thesis Template  
+%%
+%%        Version:  1.0
+%%        Created:  25.08.2015
+%%       Revision:  none
+%%
+%%         Author:  B.Eng. Oliver Kehret, okehret@stud.hs-offenburg.de
+%%   Organization:  HS Offenburg, Offenburg, Germany
+%%      Copyright:  Copyright (c) 2015, B.Eng. Oliver Kehret
+%%
+%%          Notes:  Inspired by Andreas Walz, Tobias Neff and Karl Voith
+%%                
+%%=====================================================================================
+\input{template/macros}
+%% ========================================================================
+%%  preamble
+%% ========================================================================
+\input{template/preamble}
+%% ========================================================================
+%%  TODO: Enable/Disable
+%% ========================================================================
+\setboolean{myaddlistoftodos}{true}  %% "true" or "false"
+%% If set to "true": the current list of open todos is added after the
+%% table of contents. If \mytodonotesoptions is set to "disable", no
+%% list of todos is added, independent of this setting here.
+
+
+%% example for english
+%\hypthenation{ex-am-ple hy-phen-ate}
+
+%----------------------------------------------------------------------------------------
+%	\begin{document}
+%----------------------------------------------------------------------------------------
+\begin{document}
+
+\frontmatter %% KOMA: roman page numbers and such; only available in scrbook
+
+\input{template/mytitlepage}
+%% Statutory Declaration -- For Bachelor or Master thesis 
+%% have to follow the titlepage
+\input{template/declaration} 
+
+
+\cleardoublepage
+%----------------------------------------------------------------------------------------
+%	Abstract
+%----------------------------------------------------------------------------------------
+
+%tbd
+\include{chapter/abstract}
+\clearpage
+
+
+%----------------------------------------------------------------------------------------
+%	List of Contents/Figures/Tables
+%----------------------------------------------------------------------------------------
+
+\tableofcontents
+
+%\listoffigures
+
+%\listoftables
+
+%\ifthenelse{\boolean{myaddlistoftodos}}{
+%  \newpage\todototoc \listoftodos          %% handy if you are using todonotes with \todo{}
+%}{}                             %% with todonotes-package option "disable" you can get rid of any todo in the output
+
+
+%----------------------------------------------------------------------------------------
+%	Body
+%----------------------------------------------------------------------------------------
+\mainmatter  %% KOMA: marks main part using arabic page numbers and such; only available in book-classes 
+
+% you have to create your chapter file here
+%\include{chapter/introduction}
+%\include{chapter/background}
+%\include{chapter/exp_design}
+%\include{chapter/result_analysis}
+%\include{chapter/conclusion}
+\include{chapter/basis}
+\include{chapter/gci}
+\include{chapter/embetterTLS}
+\include{chapter/LibTomcrypt}
+%----------------------------------------------------------------------------------------
+%	Bibliography
+%----------------------------------------------------------------------------------------
+
+%% prints every entry of the bib file -- useful in a state where is no cite
+%\appendix
+\nocite{*}
+%\printbibliography
+\bibliographystyle{plain}
+\bibliography{bib/bibliography}
+
+
+%----------------------------------------------------------------------------------------
+%	Appendix
+%----------------------------------------------------------------------------------------
+%% add possible appendix 
+%%\appendix
+%%\addpart*{Appendix}
+%%\input{chapter/appendices.tex}
+
+%----------------------------------------------------------------------------------------
+%	\end{document}
+%----------------------------------------------------------------------------------------
+\end{document}  
