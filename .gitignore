@@ -10,7 +10,7 @@
 !.gitignore
 !*.c
 !*.h
-!*.tex
+!*.tex.*
 !*.bib
 !*.pdf
 
