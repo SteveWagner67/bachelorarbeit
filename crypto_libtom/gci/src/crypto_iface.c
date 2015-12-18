@@ -29,7 +29,7 @@ en_gciResult_t gciInit(const uint8_t* user, size_t userLen, const uint8_t* passw
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Init");
+	printf("GCI: Init\r\n");
 
 	return err;
 }
@@ -43,7 +43,7 @@ en_gciResult_t gciDeinit(void)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: DeInit");
+	printf("GCI: DeInit\r\n");
 
 	return err;
 }
@@ -57,7 +57,7 @@ en_gciResult_t gciGetInfo(en_gciInfo_t infoType, uint16_t* info, size_t* infoLen
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Get Info");
+	printf("GCI: Get Info\r\n");
 
 	return err;
 }
@@ -75,7 +75,7 @@ en_gciResult_t gciCtxRelease(GciCtxId_t ctxID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Ctx Release");
+	printf("GCI: Ctx Release\r\n");
 
 	return err;
 }
@@ -93,7 +93,7 @@ en_gciResult_t gciHashNewCtx(en_gciHashAlgo_t hashAlgo, GciCtxId_t* ctxID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Hash New Ctx");
+	printf("GCI: Hash New Ctx\r\n");
 
 	return err;
 }
@@ -107,7 +107,7 @@ en_gciResult_t gciHashCtxClone(GciCtxId_t idSrc, GciCtxId_t* idDest)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Hash Ctx Clone");
+	printf("GCI: Hash Ctx Clone\r\n");
 
 	return err;
 }
@@ -121,7 +121,7 @@ en_gciResult_t gciHashUpdate(GciCtxId_t ctxID, const uint8_t* blockMsg, size_t b
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Hash Update");
+	printf("GCI: Hash Update\r\n");
 
 	return err;
 }
@@ -135,7 +135,7 @@ en_gciResult_t gciHashFinish(GciCtxId_t ctxID, uint8_t* digest, size_t* digestLe
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Hash Finish");
+	printf("GCI: Hash Finish\r\n");
 
 	return err;
 }
@@ -153,7 +153,7 @@ en_gciResult_t gciSignGenNewCtx(const st_gciSignConfig_t* signConfig, GciKeyId_t
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Sign Gen New Ctx");
+	printf("GCI: Sign Gen New Ctx\r\n");
 
 	return err;
 }
@@ -167,7 +167,7 @@ en_gciResult_t gciSignVerifyNewCtx(const st_gciSignConfig_t* signConfig, GciKeyI
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Sign Verify New Ctx");
+	printf("GCI: Sign Verify New Ctx\r\n");
 
 	return err;
 }
@@ -181,7 +181,7 @@ en_gciResult_t gciSignCtxClone(GciCtxId_t idSrc, GciCtxId_t* idDest)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Sign Ctx Clone");
+	printf("GCI: Sign Ctx Clone\r\n");
 
 	return err;
 }
@@ -195,7 +195,7 @@ en_gciResult_t gciSignUpdate(GciCtxId_t ctxID,const uint8_t* blockMsg, size_t bl
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Sign Update");
+	printf("GCI: Sign Update\r\n");
 
 	return err;
 }
@@ -209,7 +209,7 @@ en_gciResult_t gciSignGenFinish(GciCtxId_t ctxID, uint8_t* sign, size_t* signLen
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Sign Gen Finish");
+	printf("GCI: Sign Gen Finish\r\n");
 
 	return err;
 }
@@ -223,7 +223,7 @@ en_gciResult_t gciSignVerifyFinish(GciCtxId_t ctxID, const uint8_t* sign, size_t
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Sign Verify Finish");
+	printf("GCI: Sign Verify Finish\r\n");
 
 	return err;
 }
@@ -241,7 +241,7 @@ en_gciResult_t gciKeyPairGen(const st_gciKeyPairConfig_t* keyConf, GciKeyId_t* p
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Key Pair Gen");
+	printf("GCI: Key Pair Gen\r\n");
 
 	return err;
 }
@@ -259,7 +259,7 @@ en_gciResult_t gciCipherNewCtx(const st_gciCipherConfig_t* ciphConfig, GciKeyId_
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Cipher New Ctx");
+	printf("GCI: Cipher New Ctx\r\n");
 
 	return err;
 }
@@ -273,7 +273,7 @@ en_gciResult_t gciCipherEncrypt(GciCtxId_t ctxId, const uint8_t* plaintxt, size_
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Cipher Encrypt");
+	printf("GCI: Cipher Encrypt\r\n");
 
 	return err;
 }
@@ -286,7 +286,7 @@ en_gciResult_t gciCipherDecrypt(GciCtxId_t ctxId, const uint8_t* ciphtxt, size_t
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Cipher Decrypt");
+	printf("GCI: Cipher Decrypt\r\n");
 
 	return err;
 }
@@ -304,7 +304,7 @@ en_gciResult_t gciRngGen(int rdmNb, uint8_t* rdmBuf)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Rng Gen");
+	printf("GCI: Rng Gen\r\n");
 
 	return err;
 }
@@ -318,7 +318,7 @@ en_gciResult_t gciRngSeed(const uint8_t* sdBuf, size_t sdLen)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Rng Seed");
+	printf("GCI: Rng Seed\r\n");
 
 	return err;
 }
@@ -336,7 +336,7 @@ en_gciResult_t gciDhNewCtx(const st_gciDhConfig_t* dhConfig, GciCtxId_t* ctxID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: DH New Ctx");
+	printf("GCI: DH New Ctx\r\n");
 
 	return err;
 }
@@ -350,7 +350,7 @@ en_gciResult_t gciDhGenKey(GciCtxId_t ctxID, GciKeyId_t* pubKeyID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: DH Gen Key");
+	printf("GCI: DH Gen Key\r\n");
 
 	return err;
 }
@@ -364,7 +364,7 @@ en_gciResult_t gciDhCalcSharedSecret(GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciK
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: DH Calc Shared Secret");
+	printf("GCI: DH Calc Shared Secret\r\n");
 
 	return err;
 }
@@ -382,7 +382,7 @@ en_gciResult_t gciKeyPut(const st_gciKey_t* key, GciKeyId_t* keyID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Key Put");
+	printf("GCI: Key Put\r\n");
 
 	return err;
 }
@@ -396,7 +396,7 @@ en_gciResult_t gciKeyGet(GciKeyId_t keyID, st_gciKey_t* key)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Key Get");
+	printf("GCI: Key Get\r\n");
 
 	return err;
 }
@@ -410,7 +410,7 @@ en_gciResult_t gciKeyDelete(GciKeyId_t keyID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Key Delete");
+	printf("GCI: Key Delete\r\n");
 
 	return err;
 }
