@@ -5,25 +5,18 @@
  * \date 				13/10/2015
  */
 
-/**********************************************************************************************************************/
-/*		      										LIBRARIES	 				      							  	  */
-/**********************************************************************************************************************/
-/** LIB_TOMCRYPT */
-/** ... OTHER LIBRARIES*/
-#define OTHER LIBRARIES
 
-#ifdef LIB_TOMCRYPT
-#include "tomcrypt.h"
-#endif
-
-//... OTHER LIBRARIES
-
-
-
-/**********************************************************************************************************************/
-/*		      										INCLUDE			 				      							  */
-/**********************************************************************************************************************/
+/*--------------------------------------------------Include--------------------------------------------------------------*/
 #include "crypto_iface.h"
+#include "tomcrypt.h"
+
+
+
+/*-------------------------------------------------Variables-------------------------------------------------------------*/
+
+
+
+/*-------------------------------------------------Functions-------------------------------------------------------------*/
 
 /**********************************************************************************************************************/
 /*		      										GLOBAL			 				      							  */
@@ -35,9 +28,9 @@
 en_gciResult_t gciInit(const uint8_t* user, size_t userLen, const uint8_t* password, size_t passLen)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Init");
+
 	return err;
 }
 
@@ -49,9 +42,9 @@ en_gciResult_t gciInit(const uint8_t* user, size_t userLen, const uint8_t* passw
 en_gciResult_t gciDeinit(void)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: DeInit");
+
 	return err;
 }
 
@@ -63,9 +56,9 @@ en_gciResult_t gciDeinit(void)
 en_gciResult_t gciGetInfo(en_gciInfo_t infoType, uint16_t* info, size_t* infoLen)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Get Info");
+
 	return err;
 }
 
@@ -81,9 +74,9 @@ en_gciResult_t gciGetInfo(en_gciInfo_t infoType, uint16_t* info, size_t* infoLen
 en_gciResult_t gciCtxRelease(GciCtxId_t ctxID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Ctx Release");
+
 	return err;
 }
 
@@ -99,9 +92,9 @@ en_gciResult_t gciCtxRelease(GciCtxId_t ctxID)
 en_gciResult_t gciHashNewCtx(en_gciHashAlgo_t hashAlgo, GciCtxId_t* ctxID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Hash New Ctx");
+
 	return err;
 }
 
@@ -113,9 +106,9 @@ en_gciResult_t gciHashNewCtx(en_gciHashAlgo_t hashAlgo, GciCtxId_t* ctxID)
 en_gciResult_t gciHashCtxClone(GciCtxId_t idSrc, GciCtxId_t* idDest)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Hash Ctx Clone");
+
 	return err;
 }
 
@@ -127,9 +120,9 @@ en_gciResult_t gciHashCtxClone(GciCtxId_t idSrc, GciCtxId_t* idDest)
 en_gciResult_t gciHashUpdate(GciCtxId_t ctxID, const uint8_t* blockMsg, size_t blockLen)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Hash Update");
+
 	return err;
 }
 
@@ -141,9 +134,9 @@ en_gciResult_t gciHashUpdate(GciCtxId_t ctxID, const uint8_t* blockMsg, size_t b
 en_gciResult_t gciHashFinish(GciCtxId_t ctxID, uint8_t* digest, size_t* digestLen)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Hash Finish");
+
 	return err;
 }
 
@@ -159,9 +152,9 @@ en_gciResult_t gciHashFinish(GciCtxId_t ctxID, uint8_t* digest, size_t* digestLe
 en_gciResult_t gciSignGenNewCtx(const st_gciSignConfig_t* signConfig, GciKeyId_t keyID, GciCtxId_t* ctxID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Sign Gen New Ctx");
+
 	return err;
 }
 
@@ -173,9 +166,9 @@ en_gciResult_t gciSignGenNewCtx(const st_gciSignConfig_t* signConfig, GciKeyId_t
 en_gciResult_t gciSignVerifyNewCtx(const st_gciSignConfig_t* signConfig, GciKeyId_t keyID, GciCtxId_t* ctxID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Sign Verify New Ctx");
+
 	return err;
 }
 
@@ -187,9 +180,9 @@ en_gciResult_t gciSignVerifyNewCtx(const st_gciSignConfig_t* signConfig, GciKeyI
 en_gciResult_t gciSignCtxClone(GciCtxId_t idSrc, GciCtxId_t* idDest)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Sign Ctx Clone");
+
 	return err;
 }
 
@@ -201,9 +194,9 @@ en_gciResult_t gciSignCtxClone(GciCtxId_t idSrc, GciCtxId_t* idDest)
 en_gciResult_t gciSignUpdate(GciCtxId_t ctxID,const uint8_t* blockMsg, size_t blockLen)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Sign Update");
+
 	return err;
 }
 
@@ -215,9 +208,9 @@ en_gciResult_t gciSignUpdate(GciCtxId_t ctxID,const uint8_t* blockMsg, size_t bl
 en_gciResult_t gciSignGenFinish(GciCtxId_t ctxID, uint8_t* sign, size_t* signLen)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Sign Gen Finish");
+
 	return err;
 }
 
@@ -229,9 +222,9 @@ en_gciResult_t gciSignGenFinish(GciCtxId_t ctxID, uint8_t* sign, size_t* signLen
 en_gciResult_t gciSignVerifyFinish(GciCtxId_t ctxID, const uint8_t* sign, size_t signLen)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Sign Verify Finish");
+
 	return err;
 }
 
@@ -247,9 +240,9 @@ en_gciResult_t gciSignVerifyFinish(GciCtxId_t ctxID, const uint8_t* sign, size_t
 en_gciResult_t gciKeyPairGen(const st_gciKeyPairConfig_t* keyConf, GciKeyId_t* pubKeyID, GciKeyId_t* privKeyID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Key Pair Gen");
+
 	return err;
 }
 
@@ -265,9 +258,9 @@ en_gciResult_t gciKeyPairGen(const st_gciKeyPairConfig_t* keyConf, GciKeyId_t* p
 en_gciResult_t gciCipherNewCtx(const st_gciCipherConfig_t* ciphConfig, GciKeyId_t keyID, GciCtxId_t* ctxID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Cipher New Ctx");
+
 	return err;
 }
 
@@ -279,9 +272,9 @@ en_gciResult_t gciCipherNewCtx(const st_gciCipherConfig_t* ciphConfig, GciKeyId_
 en_gciResult_t gciCipherEncrypt(GciCtxId_t ctxId, const uint8_t* plaintxt, size_t pltxtLen, uint8_t* ciphtxt, size_t* cptxtLen)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Cipher Encrypt");
+
 	return err;
 }
 
@@ -292,9 +285,9 @@ en_gciResult_t gciCipherEncrypt(GciCtxId_t ctxId, const uint8_t* plaintxt, size_
 en_gciResult_t gciCipherDecrypt(GciCtxId_t ctxId, const uint8_t* ciphtxt, size_t cptxtLen, uint8_t* plaintxt, size_t* pltxtLen)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Cipher Decrypt");
+
 	return err;
 }
 
@@ -310,9 +303,9 @@ en_gciResult_t gciCipherDecrypt(GciCtxId_t ctxId, const uint8_t* ciphtxt, size_t
 en_gciResult_t gciRngGen(int rdmNb, uint8_t* rdmBuf)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Rng Gen");
+
 	return err;
 }
 
@@ -324,9 +317,9 @@ en_gciResult_t gciRngGen(int rdmNb, uint8_t* rdmBuf)
 en_gciResult_t gciRngSeed(const uint8_t* sdBuf, size_t sdLen)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Rng Seed");
+
 	return err;
 }
 
@@ -342,9 +335,9 @@ en_gciResult_t gciRngSeed(const uint8_t* sdBuf, size_t sdLen)
 en_gciResult_t gciDhNewCtx(const st_gciDhConfig_t* dhConfig, GciCtxId_t* ctxID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: DH New Ctx");
+
 	return err;
 }
 
@@ -356,9 +349,9 @@ en_gciResult_t gciDhNewCtx(const st_gciDhConfig_t* dhConfig, GciCtxId_t* ctxID)
 en_gciResult_t gciDhGenKey(GciCtxId_t ctxID, GciKeyId_t* pubKeyID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: DH Gen Key");
+
 	return err;
 }
 
@@ -370,9 +363,9 @@ en_gciResult_t gciDhGenKey(GciCtxId_t ctxID, GciKeyId_t* pubKeyID)
 en_gciResult_t gciDhCalcSharedSecret(GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciKeyId_t* secretKeyID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: DH Calc Shared Secret");
+
 	return err;
 }
 
@@ -388,9 +381,9 @@ en_gciResult_t gciDhCalcSharedSecret(GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciK
 en_gciResult_t gciKeyPut(const st_gciKey_t* key, GciKeyId_t* keyID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Key Put");
+
 	return err;
 }
 
@@ -402,9 +395,9 @@ en_gciResult_t gciKeyPut(const st_gciKey_t* key, GciKeyId_t* keyID)
 en_gciResult_t gciKeyGet(GciKeyId_t keyID, st_gciKey_t* key)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Key Get");
+
 	return err;
 }
 
@@ -416,9 +409,9 @@ en_gciResult_t gciKeyGet(GciKeyId_t keyID, st_gciKey_t* key)
 en_gciResult_t gciKeyDelete(GciKeyId_t keyID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
-#ifdef LIB_TOMCRYPT
 
-#endif
+	printf("GCI: Key Delete");
+
 	return err;
 }
 
