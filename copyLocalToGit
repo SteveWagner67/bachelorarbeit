@@ -1,9 +1,7 @@
 #!/bin/bash
 
-cp -r /home/steve/Bachelorarbeit/crypto_prov_libtom/essl/ /home/steve/Bachelorarbeit/embetter_ssl/gci/ /home/steve/Bachelorarbeit/bachelorarbeit/crypto_libtom/
-echo "DONE"
+cp -r /home/steve/Bachelorarbeit/embetter_ssl/essl/ /home/steve/Bachelorarbeit/embetter_ssl/gci/ /home/steve/Bachelorarbeit/bachelorarbeit/crypto_libtom/
 cp /home/steve/Bachelorarbeit/embetter_ssl/test/inc/* /home/steve/Bachelorarbeit/bachelorarbeit/crypto_libtom/test/inc/
-echo "DONE"
 cp /home/steve/Bachelorarbeit/embetter_ssl/test/src/* /home/steve/Bachelorarbeit/bachelorarbeit/crypto_libtom/test/src/
+cp -r /home/steve/Bachelorarbeit/swagner_doc/* /home/steve/Bachelorarbeit/bachelorarbeit/
 echo "DONE"
-

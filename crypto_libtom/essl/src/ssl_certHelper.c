@@ -199,13 +199,16 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
     s_sslCert_t *ps_tmpCaRootCert = NULL;
     s_sslCertList_t *ps_caListElem = NULL;
     //OLD-CW: s_pubKey_t s_pubKey;
-    st_gciKey_t s_pubKey;
+    st_gciKey_t* s_pubKey;
 
     int32_t l_pathLen;
     int16_t i_tmpRet;
 
     en_gciResult_t err;
 
+    st_gciKey_t key[1024];
+
+    s_pubKey = &key;
 
 
     assert(ps_octStrCert != NULL);
@@ -286,7 +289,7 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
          */
         //OLD-CW: cw_rsa_publickey_prep(pcwt_rsaPubKey, &s_pubKey);
 
-    	err = gciKeyGet(*pcwt_rsaPubKey, &s_pubKey);
+    	err = gciKeyGet(*pcwt_rsaPubKey, s_pubKey);
     	if(err != en_gciResult_Ok)
     	{
     		//TODO return error state

@@ -45,6 +45,8 @@ static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pub
 static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pubKey)
 {
     int res = E_SSL_DER_OK;
+    uint8_t keyTab[1024];
+
 
     assert(ps_pubKey != NULL);
     assert(ps_ctx != NULL);
