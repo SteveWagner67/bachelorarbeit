@@ -731,6 +731,9 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
     	pc_inData+=dhePeerPubKey.un_key.keyDhPub.key.len;
 
+    	/* Get an automatic key ID */
+    	ps_sslCtx->s_secParams.dhePeerPubKey = -1;
+
     	//Store the key and become an ID
     	err = gciKeyPut(dhePeerPubKey.un_key.keyDhPub.key.data, ps_sslCtx->s_secParams.dhePeerPubKey);
 
@@ -815,6 +818,9 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     	memcpy(ecdhPeerPubKey.un_key.keyEcdhPub.coord.y.data, pc_inData, ecdhPeerPubKey.un_key.keyEcdhPub.coord.y.len);
 
     	pc_inData+=ecdhPeerPubKey.un_key.keyEcdhPub.coord.y.len;
+
+    	/* Get an automatic key ID */
+    	ps_handshElem->eccPubKeyPeer = -1;
 
     	//store the key to become an ID of it
     	err = gciKeyPut(&ecdhPeerPubKey, ps_handshElem->eccPubKeyPeer);

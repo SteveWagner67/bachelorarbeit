@@ -239,7 +239,7 @@ E_CLIENT_FSM_RESULT ssl_client_entry(SSL_CLIENT_PARS parameters) {
 			/*
 			 * Initialisation of keymanager for DHE and DHE private key generation
 			 */
-			gci_err = km_dhe_init(); //TODO sw - this step in gci_init
+			gci_err = km_dhe_init();
 			if(gci_err != en_gciResult_Ok)
 			{
 				//TODO return error state

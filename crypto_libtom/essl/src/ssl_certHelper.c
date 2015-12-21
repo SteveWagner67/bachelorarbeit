@@ -303,6 +303,8 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
             goto error;
         }
 
+        /* Get an automatic key ID */
+        pcwt_rsaPubKey = -1;
 
         //Get an ID of this key
         err = gciKeyPut(&s_pubKey, pcwt_rsaPubKey);

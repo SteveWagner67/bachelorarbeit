@@ -14,3 +14,9 @@
 !*.bib
 !*.pdf
 
+
+*/*
+!/essl
+!/test
+!/gci
+!/gci_tomcrypt

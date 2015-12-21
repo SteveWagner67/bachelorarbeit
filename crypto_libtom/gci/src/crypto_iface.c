@@ -7,29 +7,154 @@
 
 
 /*--------------------------------------------------Include--------------------------------------------------------------*/
-#include "crypto_iface.h"
-#include "tomcrypt.h"
-
+#include "crypto_tomcrypt.h"
 
 
 /*-------------------------------------------------Variables-------------------------------------------------------------*/
 
+/** Array for the context ID */
+static st_tcCtxConfig_t a_ctxID[GCI_NB_CTX_MAX];
+
+/** Array for the Key ID */
+static st_gciKey_t a_keyID[GCI_NB_KEY_MAX];
 
 
-/*-------------------------------------------------Functions-------------------------------------------------------------*/
+/*---------------------------------------------Prototype of local functions----------------------------------------------*/
+
+/**
+ * \fn							en_gciResult_t _searchFreeCtxID(GciCtxId_t* p_ctxID)
+ * \brief						Search a free ID in a_ctxID[GCI_NB_CTX_MAX]
+ * \param [out] p_ctxID			Pointer to the context's ID
+ * @return						en_gciResult_Ok on success
+ * @return						en_gciResult_Err on error
+ */
+en_gciResult_t _searchFreeCtxID( GciCtxId_t* p_ctxID );
+
+
+/*---------------------------------------------Functions from crypto_iface.h---------------------------------------------*/
 
 /**********************************************************************************************************************/
 /*		      										GLOBAL			 				      							  */
 /**********************************************************************************************************************/
 
 /********************************/
-/*	gci_init					*/
+/*	gciInit					*/
 /********************************/
-en_gciResult_t gciInit(const uint8_t* user, size_t userLen, const uint8_t* password, size_t passLen)
+en_gciResult_t gciInit( const uint8_t* p_user, size_t userLen, const uint8_t* p_password, size_t passLen )
 {
 	en_gciResult_t err = en_gciResult_Ok;
+	int i = 0;
 
-	printf("GCI: Init\r\n");
+	/* Initialization of the context array */
+	for( i = 0; i < GCI_NB_CTX_MAX; i++ )
+	{
+		a_ctxID[i].type = en_tcCtxType_Invalid;
+
+		/* Hash */
+		a_ctxID[i].un_ctxConfig.ctxConfigHash = en_gciHashAlgo_Invalid;
+
+		/* Signature */
+		a_ctxID[i].un_ctxConfig.ctxConfigSign.algo = en_gciSignAlgo_Invalid;
+		a_ctxID[i].un_ctxConfig.ctxConfigSign.hash = en_gciHashAlgo_Invalid;
+		a_ctxID[i].un_ctxConfig.ctxConfigSign.un_signConfig.signConfigCmac.block = en_gciBlockMode_Invalid;
+		a_ctxID[i].un_ctxConfig.ctxConfigSign.un_signConfig.signConfigCmac.iv.len = -1;
+		a_ctxID[i].un_ctxConfig.ctxConfigSign.un_signConfig.signConfigCmac.iv.data = NULL;
+		a_ctxID[i].un_ctxConfig.ctxConfigSign.un_signConfig.signConfigCmac.padding = en_gciPadding_Invalid;
+		a_ctxID[i].un_ctxConfig.ctxConfigSign.un_signConfig.signConfigRsa.padding = en_gciPadding_Invalid;
+
+		/* Cipher */
+		a_ctxID[i].un_ctxConfig.ctxConfigCipher.algo = en_gciCipherAlgo_Invalid;
+		a_ctxID[i].un_ctxConfig.ctxConfigCipher.blockMode = en_gciBlockMode_Invalid;
+		a_ctxID[i].un_ctxConfig.ctxConfigCipher.iv.data = NULL;
+		a_ctxID[i].un_ctxConfig.ctxConfigCipher.iv.len = -1;
+		a_ctxID[i].un_ctxConfig.ctxConfigCipher.padding = en_gciPadding_Invalid;
+
+		/* Diffie-Hellman */
+		a_ctxID[i].un_ctxConfig.ctxConfigDh.type = en_gciDhType_Invalid;
+		a_ctxID[i].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamCurveName = en_gciNamedCurve_Invalid;
+		a_ctxID[i].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain = NULL;
+
+	}
+
+	/* Initialization of the key array */
+	for( i = 0; i < GCI_NB_KEY_MAX; i++ )
+	{
+		a_keyID[i].type = en_gciKeyType_Invalid;
+
+		/* Diffie-Hellmann private key */
+		a_keyID[i].un_key.keyDhPriv.key.data = NULL;
+		a_keyID[i].un_key.keyDhPriv.key.len = -1;
+		a_keyID[i].un_key.keyDhPriv.param = NULL;
+
+		/* Diffie-Hellmann public key */
+		a_keyID[i].un_key.keyDhPub.key.data = NULL;
+		a_keyID[i].un_key.keyDhPub.key.len = -1;
+		a_keyID[i].un_key.keyDhPub.param = NULL;
+
+		/* Diffie-Hellmann shared secret key */
+		a_keyID[i].un_key.keyDhSecret.data = NULL;
+		a_keyID[i].un_key.keyDhSecret.len = -1;
+
+		/* DSA private key */
+		a_keyID[i].un_key.keyDsaPriv.param = NULL;
+		a_keyID[i].un_key.keyDsaPriv.key.data = NULL;
+		a_keyID[i].un_key.keyDsaPriv.key.len = -1;
+
+		/* DSA public key */
+		a_keyID[i].un_key.keyDsaPub.key.data = NULL;
+		a_keyID[i].un_key.keyDsaPub.key.len = -1;
+		a_keyID[i].un_key.keyDsaPub.param = NULL;
+
+		/* ECDH private key */
+		a_keyID[i].un_key.keyEcdhPriv.curve = en_gciNamedCurve_Invalid;
+		a_keyID[i].un_key.keyEcdhPriv.key.data = NULL;
+		a_keyID[i].un_key.keyEcdhPriv.key.len = -1;
+
+		/* ECDH public key */
+		a_keyID[i].un_key.keyEcdhPub.coord.x.data = NULL;
+		a_keyID[i].un_key.keyEcdhPub.coord.x.len = -1;
+		a_keyID[i].un_key.keyEcdhPub.coord.y.data = NULL;
+		a_keyID[i].un_key.keyEcdhPub.coord.y.len = -1;
+		a_keyID[i].un_key.keyEcdhPub.curve = en_gciNamedCurve_Invalid;
+
+		/* ECDH shared secret key */
+		a_keyID[i].un_key.keyEcdhSecret.data = NULL;
+		a_keyID[i].un_key.keyEcdhSecret.len = -1;
+
+		/* ECDSA private key */
+		a_keyID[i].un_key.keyEcdsaPriv.curve = en_gciNamedCurve_Invalid;
+		a_keyID[i].un_key.keyEcdsaPriv.un_key.data = NULL;
+		a_keyID[i].un_key.keyEcdsaPriv.un_key.len = -1;
+
+		/* ECDSA public key */
+		a_keyID[i].un_key.keyEcdsaPub.coord.x.data = NULL;
+		a_keyID[i].un_key.keyEcdsaPub.coord.x.len = -1;
+		a_keyID[i].un_key.keyEcdsaPub.coord.y.data = NULL;
+		a_keyID[i].un_key.keyEcdsaPub.coord.y.len = -1;
+		a_keyID[i].un_key.keyEcdsaPub.curve = en_gciNamedCurve_Invalid;
+
+		/* RSA private key */
+		a_keyID[i].un_key.keyRsaPriv.crt = NULL;
+		a_keyID[i].un_key.keyRsaPriv.d.data = NULL;
+		a_keyID[i].un_key.keyRsaPriv.d.len = -1;
+		a_keyID[i].un_key.keyRsaPriv.n.data = NULL;
+		a_keyID[i].un_key.keyRsaPriv.n.len = -1;
+
+		/* RSA public key */
+		a_keyID[i].un_key.keyRsaPub.e.data = NULL;
+		a_keyID[i].un_key.keyRsaPub.e.len = -1;
+		a_keyID[i].un_key.keyRsaPub.n.data = NULL;
+		a_keyID[i].un_key.keyRsaPub.n.len = -1;
+
+		/* Symmetric key */
+		a_keyID[i].un_key.keysym.data = NULL;
+		a_keyID[i].un_key.keysym.len = -1;
+
+	}
+
+#ifdef TC_DBG
+	printf("GCI Info: Init\r\n");
+#endif
 
 	return err;
 }
@@ -37,13 +162,15 @@ en_gciResult_t gciInit(const uint8_t* user, size_t userLen, const uint8_t* passw
 
 
 /********************************/
-/*	gci_deinit					*/
+/*	gciDeinit					*/
 /********************************/
 en_gciResult_t gciDeinit(void)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: DeInit\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: DeInit\r\n");
+#endif
 
 	return err;
 }
@@ -51,13 +178,15 @@ en_gciResult_t gciDeinit(void)
 
 
 /********************************/
-/*	gci_get_info				*/
+/*	gciGetInfo				*/
 //********************************/
-en_gciResult_t gciGetInfo(en_gciInfo_t infoType, uint16_t* info, size_t* infoLen)
+en_gciResult_t gciGetInfo( en_gciInfo_t InfoType, uint16_t* p_Info, size_t* p_InfoLen )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Get Info\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Get Info\r\n");
+#endif
 
 	return err;
 }
@@ -69,13 +198,15 @@ en_gciResult_t gciGetInfo(en_gciInfo_t infoType, uint16_t* info, size_t* infoLen
 /**********************************************************************************************************************/
 
 /********************************/
-/*	gci_ctx_release				*/
+/*	gciCtxRelease				*/
 /********************************/
 en_gciResult_t gciCtxRelease(GciCtxId_t ctxID)
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Ctx Release\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Ctx Release\r\n");
+#endif
 
 	return err;
 }
@@ -87,13 +218,15 @@ en_gciResult_t gciCtxRelease(GciCtxId_t ctxID)
 /**********************************************************************************************************************/
 
 /********************************/
-/*	gci_hash_new_ctx			*/
+/*	gciHashNewCtx			*/
 /********************************/
-en_gciResult_t gciHashNewCtx(en_gciHashAlgo_t hashAlgo, GciCtxId_t* ctxID)
+en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Hash New Ctx\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Hash New Ctx\r\n");
+#endif
 
 	return err;
 }
@@ -101,13 +234,15 @@ en_gciResult_t gciHashNewCtx(en_gciHashAlgo_t hashAlgo, GciCtxId_t* ctxID)
 
 
 /********************************/
-/*	gci_hash_ctx_clone			*/
+/*	gciHashCtxClone			*/
 /********************************/
-en_gciResult_t gciHashCtxClone(GciCtxId_t idSrc, GciCtxId_t* idDest)
+en_gciResult_t gciHashCtxClone( GciCtxId_t idSrc, GciCtxId_t* p_idDest )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Hash Ctx Clone\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Hash Ctx Clone\r\n");
+#endif
 
 	return err;
 }
@@ -115,13 +250,15 @@ en_gciResult_t gciHashCtxClone(GciCtxId_t idSrc, GciCtxId_t* idDest)
 
 
 /********************************/
-/*	gci_hash_update				*/
+/*	gciHashUpdate				*/
 /********************************/
-en_gciResult_t gciHashUpdate(GciCtxId_t ctxID, const uint8_t* blockMsg, size_t blockLen)
+en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_t blockLen )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Hash Update\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Hash Update\r\n");
+#endif
 
 	return err;
 }
@@ -129,13 +266,15 @@ en_gciResult_t gciHashUpdate(GciCtxId_t ctxID, const uint8_t* blockMsg, size_t b
 
 
 /********************************/
-/*	gci_hash_finish				*/
+/*	gciHashFinish				*/
 /********************************/
-en_gciResult_t gciHashFinish(GciCtxId_t ctxID, uint8_t* digest, size_t* digestLen)
+en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_digestLen )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Hash Finish\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Hash Finish\r\n");
+#endif
 
 	return err;
 }
@@ -147,13 +286,15 @@ en_gciResult_t gciHashFinish(GciCtxId_t ctxID, uint8_t* digest, size_t* digestLe
 /**********************************************************************************************************************/
 
 /********************************/
-/*	gci_sign_gen_new_ctx		*/
+/*	gciSignGenNewCtx		*/
 /********************************/
-en_gciResult_t gciSignGenNewCtx(const st_gciSignConfig_t* signConfig, GciKeyId_t keyID, GciCtxId_t* ctxID)
+en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyId_t keyID, GciCtxId_t* p_ctxID )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Sign Gen New Ctx\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Sign Gen New Ctx\r\n");
+#endif
 
 	return err;
 }
@@ -161,13 +302,15 @@ en_gciResult_t gciSignGenNewCtx(const st_gciSignConfig_t* signConfig, GciKeyId_t
 
 
 /********************************/
-/*	gci_sign_verify_new_ctx		*/
+/*	gciSignVerifyNewCtx		*/
 /********************************/
-en_gciResult_t gciSignVerifyNewCtx(const st_gciSignConfig_t* signConfig, GciKeyId_t keyID, GciCtxId_t* ctxID)
+en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyId_t keyID, GciCtxId_t* p_ctxID )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Sign Verify New Ctx\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Sign Verify New Ctx\r\n");
+#endif
 
 	return err;
 }
@@ -175,13 +318,15 @@ en_gciResult_t gciSignVerifyNewCtx(const st_gciSignConfig_t* signConfig, GciKeyI
 
 
 /********************************/
-/*	gci_sign_ctx_clone			*/
+/*	gciSignCtxClone			*/
 /********************************/
-en_gciResult_t gciSignCtxClone(GciCtxId_t idSrc, GciCtxId_t* idDest)
+en_gciResult_t gciSignCtxClone( GciCtxId_t idSrc, GciCtxId_t* p_idDest )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Sign Ctx Clone\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Sign Ctx Clone\r\n");
+#endif
 
 	return err;
 }
@@ -189,13 +334,15 @@ en_gciResult_t gciSignCtxClone(GciCtxId_t idSrc, GciCtxId_t* idDest)
 
 
 /********************************/
-/*	gci_sign_update				*/
+/*	gciSignUpdate				*/
 /********************************/
-en_gciResult_t gciSignUpdate(GciCtxId_t ctxID,const uint8_t* blockMsg, size_t blockLen)
+en_gciResult_t gciSignUpdate( GciCtxId_t ctxID,const uint8_t* p_blockMsg, size_t blockLen )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Sign Update\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Sign Update\r\n");
+#endif
 
 	return err;
 }
@@ -203,13 +350,15 @@ en_gciResult_t gciSignUpdate(GciCtxId_t ctxID,const uint8_t* blockMsg, size_t bl
 
 
 /********************************/
-/*	gci_sign_gen_finish			*/
+/*	gciSignGenFinish			*/
 /********************************/
-en_gciResult_t gciSignGenFinish(GciCtxId_t ctxID, uint8_t* sign, size_t* signLen)
+en_gciResult_t gciSignGenFinish( GciCtxId_t ctxID, uint8_t* p_sign, size_t* p_signLen )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Sign Gen Finish\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Sign Gen Finish\r\n");
+#endif
 
 	return err;
 }
@@ -217,13 +366,15 @@ en_gciResult_t gciSignGenFinish(GciCtxId_t ctxID, uint8_t* sign, size_t* signLen
 
 
 /********************************/
-/*	gci_sign_verify_finish		*/
+/*	gciSignVerifyFinish		*/
 /********************************/
-en_gciResult_t gciSignVerifyFinish(GciCtxId_t ctxID, const uint8_t* sign, size_t signLen)
+en_gciResult_t gciSignVerifyFinish( GciCtxId_t ctxID, const uint8_t* p_sign, size_t signLen )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Sign Verify Finish\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Sign Verify Finish\r\n");
+#endif
 
 	return err;
 }
@@ -235,13 +386,15 @@ en_gciResult_t gciSignVerifyFinish(GciCtxId_t ctxID, const uint8_t* sign, size_t
 /**********************************************************************************************************************/
 
 /********************************/
-/*	gci_key_pair_gen			*/
+/*	gciKeyPairGen			*/
 /********************************/
-en_gciResult_t gciKeyPairGen(const st_gciKeyPairConfig_t* keyConf, GciKeyId_t* pubKeyID, GciKeyId_t* privKeyID)
+en_gciResult_t gciKeyPairGen( const st_gciKeyPairConfig_t* p_keyConf, GciKeyId_t* p_pubKeyID, GciKeyId_t* p_privKeyID )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Key Pair Gen\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Key Pair Gen\r\n");
+#endif
 
 	return err;
 }
@@ -253,13 +406,15 @@ en_gciResult_t gciKeyPairGen(const st_gciKeyPairConfig_t* keyConf, GciKeyId_t* p
 /**********************************************************************************************************************/
 
 /********************************/
-/*	 gci_cipher_new_ctx			*/
+/*	 gciCipherNewCtx			*/
 /********************************/
-en_gciResult_t gciCipherNewCtx(const st_gciCipherConfig_t* ciphConfig, GciKeyId_t keyID, GciCtxId_t* ctxID)
+en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKeyId_t keyID, GciCtxId_t* p_ctxID )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Cipher New Ctx\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Cipher New Ctx\r\n");
+#endif
 
 	return err;
 }
@@ -267,26 +422,30 @@ en_gciResult_t gciCipherNewCtx(const st_gciCipherConfig_t* ciphConfig, GciKeyId_
 
 
 /********************************/
-/*	gci_cipher_encrypt			*/
+/*	gciCipherEncrypt			*/
 /********************************/
-en_gciResult_t gciCipherEncrypt(GciCtxId_t ctxId, const uint8_t* plaintxt, size_t pltxtLen, uint8_t* ciphtxt, size_t* cptxtLen)
+en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, size_t pltxtLen, uint8_t* p_ciphtxt, size_t* p_cptxtLen )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Cipher Encrypt\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Cipher Encrypt\r\n");
+#endif
 
 	return err;
 }
 
 
 /********************************/
-/*	gci_cipher_decrypt			*/
+/*	gciCipherDecrypt			*/
 /********************************/
-en_gciResult_t gciCipherDecrypt(GciCtxId_t ctxId, const uint8_t* ciphtxt, size_t cptxtLen, uint8_t* plaintxt, size_t* pltxtLen)
+en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, size_t cptxtLen, uint8_t* p_plaintxt, size_t* p_pltxtLen )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Cipher Decrypt\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Cipher Decrypt\r\n");
+#endif
 
 	return err;
 }
@@ -298,13 +457,15 @@ en_gciResult_t gciCipherDecrypt(GciCtxId_t ctxId, const uint8_t* ciphtxt, size_t
 /**********************************************************************************************************************/
 
 /********************************/
-/*	gci_rng_gen					*/
+/*	gciRngGen					*/
 /********************************/
-en_gciResult_t gciRngGen(int rdmNb, uint8_t* rdmBuf)
+en_gciResult_t gciRngGen( int rdmNb, uint8_t* p_rdmBuf )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Rng Gen\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Rng Gen\r\n");
+#endif
 
 	return err;
 }
@@ -312,13 +473,15 @@ en_gciResult_t gciRngGen(int rdmNb, uint8_t* rdmBuf)
 
 
 /********************************/
-/*	gci_rng_seed				*/
+/*	gciRngSeed				*/
 /********************************/
-en_gciResult_t gciRngSeed(const uint8_t* sdBuf, size_t sdLen)
+en_gciResult_t gciRngSeed( const uint8_t* p_sdBuf, size_t sdLen )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Rng Seed\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Rng Seed\r\n");
+#endif
 
 	return err;
 }
@@ -330,13 +493,164 @@ en_gciResult_t gciRngSeed(const uint8_t* sdBuf, size_t sdLen)
 /**********************************************************************************************************************/
 
 /********************************/
-/*	gci_dh_new_ctx				*/
+/*	gciDhNewCtx				*/
 /********************************/
-en_gciResult_t gciDhNewCtx(const st_gciDhConfig_t* dhConfig, GciCtxId_t* ctxID)
+en_gciResult_t gciDhNewCtx( const st_gciDhConfig_t* p_dhConfig, GciCtxId_t* p_ctxID )
 {
 	en_gciResult_t err = en_gciResult_Ok;
+	uint8_t a_allocDhDomainParam[GCI_BUFFER_MAX_SIZE];
+	/* 2 bytes for the curve name */
+	uint8_t a_allocEcdhCurveName[2];
 
-	printf("GCI: DH New Ctx\r\n");
+	size_t keysize = TC_DEFAULT_DHE_KEYSIZE;
+	int x;
+	int tmpErr;
+
+	/* Temporary domain parameters */
+	void *p, *g;
+
+
+	/* Search free context ID
+	 *
+	 * return: 	en_gciResult_Ok 				on success
+	 * 			en_gciResult_ErrBufferIdFull	on error (Buffer of the context ID is full)
+	 */
+	err = _searchFreeCtxID(p_ctxID);
+
+	if(err != en_gciResult_Ok)
+	{
+		printf("GCI Error: No context ID free\r\n");
+
+		return err;
+	}
+
+	else
+	{
+
+	}
+
+	/* Save the configuration */
+	a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.type = p_dhConfig->type;
+
+	switch((*p_dhConfig).type)
+	{
+		case en_gciDhType_Dh:
+
+			printf("GCI Info: DH context ID = %d\r\n", *p_ctxID);
+
+			/* Allocate memory */
+			a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain = &a_allocDhDomainParam;
+
+			/* Save the parameters if different to NULL*/
+			if(p_dhConfig->un_dhParam.dhParamDomain != NULL)
+			{
+				//TODO sw - memcpy better ? */
+				a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->g.data = p_dhConfig->un_dhParam.dhParamDomain->g.data;
+				a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->g.len = p_dhConfig->un_dhParam.dhParamDomain->g.len;
+
+				//TODO sw - memcpy better ? */
+				a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->p.data = p_dhConfig->un_dhParam.dhParamDomain->p.data;
+				a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->p.len = p_dhConfig->un_dhParam.dhParamDomain->p.len;
+			}
+
+			/* Create the domain parameters */
+			else
+			{
+				/* Initialize the temporary domain parameters */
+				tmpErr = mp_init_multi(&g, &p, NULL);
+
+				if(tmpErr != 0)
+				{
+					err = en_gciResult_ErrInitDomainParam;
+					printf("GCI DH Error: Init domain parameters error");
+				}
+
+				/* find key size */
+				for (x = 0; (keysize > (int)sets[x].size) && (sets[x].size != 0); x++);
+
+				/* Generate g */
+				mp_read_radix(g, sets[x].base, 64);
+				if(tmpErr != 0)
+				{
+					err = en_gciResult_ErrGenDomainParam;
+					printf("GCI DH Error: generation domain parameters");
+				}
+
+				/* Generate p */
+				mp_read_radix(g, sets[x].base, 64);
+				if(tmpErr != 0)
+				{
+					err = en_gciResult_ErrGenDomainParam;
+				}
+
+				/* Save the temporary domain parameters */
+				memcpy(a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->g.data, g, sizeof(g));
+				a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->g.len = sizeof(g);
+
+				memcpy(a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->p.data, p, sizeof(p));
+				a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->p.len = sizeof(p);
+
+
+				/* Clear the temporary domain parameters */
+				 mp_clear_multi(p, g, NULL);
+
+				 printf("GCI Info: DH New Ctx\r\n");
+
+			}
+
+				//TODO sw - generate domain parameters in gciDhGenKey with dhe_make_key and get public and private key from it
+
+
+		break;
+
+		case en_gciDhType_Ecdh:
+
+			printf("GCI Info: ECDH context ID = %d\r\n", *p_ctxID);
+
+			/* Allocate memory */
+			a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamCurveName = &a_allocEcdhCurveName;
+
+			/* Save the parameters if different to NULL*/
+			if(p_dhConfig->un_dhParam.dhParamDomain != NULL)
+			{
+				a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamCurveName = p_dhConfig->un_dhParam.dhParamCurveName;
+			}
+
+			/* Create the domain parameters */
+			else
+			{
+				/* Choose a default elliptic curve */
+				a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamCurveName = en_gciNamedCurve_SECP384R1;
+			}
+
+			printf("GCI Info: ECDH New Ctx\r\n");
+
+		break;
+
+		case en_gciDhType_Invalid:
+		default:
+
+			err = gciCtxRelease(*p_ctxID);
+
+			printf("GCI Error: Invalid Configuration\r\n");
+
+			if (err == en_gciResult_Ok)
+			{
+				printf("GCI Info: Context releases\r\n");
+			}
+
+			else
+			{
+				printf("GCI Error: Context releases\r\n");
+
+			}
+
+			err = en_gciResult_ErrInvalidConfig;
+
+
+		break;
+
+	}
 
 	return err;
 }
@@ -344,13 +658,15 @@ en_gciResult_t gciDhNewCtx(const st_gciDhConfig_t* dhConfig, GciCtxId_t* ctxID)
 
 
 /********************************/
-/*	gci_dh_gen_key				*/
+/*	gciDhGenKey				*/
 /********************************/
-en_gciResult_t gciDhGenKey(GciCtxId_t ctxID, GciKeyId_t* pubKeyID)
+en_gciResult_t gciDhGenKey( GciCtxId_t ctxID, GciKeyId_t* p_pubKeyID )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: DH Gen Key\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: DH Gen Key\r\n");
+#endif
 
 	return err;
 }
@@ -358,13 +674,15 @@ en_gciResult_t gciDhGenKey(GciCtxId_t ctxID, GciKeyId_t* pubKeyID)
 
 
 /********************************/
-/*	gci_dh_calc_sharedSecret	*/
+/*	gciDhCalcSharedSecret	*/
 /********************************/
-en_gciResult_t gciDhCalcSharedSecret(GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciKeyId_t* secretKeyID)
+en_gciResult_t gciDhCalcSharedSecret( GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciKeyId_t* p_secretKeyID )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: DH Calc Shared Secret\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: DH Calc Shared Secret\r\n");
+#endif
 
 	return err;
 }
@@ -376,13 +694,15 @@ en_gciResult_t gciDhCalcSharedSecret(GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciK
 /**********************************************************************************************************************/
 
 /********************************/
-/*	gci_key_put					*/
+/*	gciKeyPut					*/
 /********************************/
-en_gciResult_t gciKeyPut(const st_gciKey_t* key, GciKeyId_t* keyID)
+en_gciResult_t gciKeyPut( const st_gciKey_t* p_key, GciKeyId_t* p_keyID )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Key Put\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Key Put\r\n");
+#endif
 
 	return err;
 }
@@ -390,13 +710,15 @@ en_gciResult_t gciKeyPut(const st_gciKey_t* key, GciKeyId_t* keyID)
 
 
 /********************************/
-/*	gci_key_get					*/
+/*	gciKeyGet					*/
 /********************************/
-en_gciResult_t gciKeyGet(GciKeyId_t keyID, st_gciKey_t* key)
+en_gciResult_t gciKeyGet( GciKeyId_t keyID, st_gciKey_t* p_key )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Key Get\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Key Get\r\n");
+#endif
 
 	return err;
 }
@@ -404,15 +726,51 @@ en_gciResult_t gciKeyGet(GciKeyId_t keyID, st_gciKey_t* key)
 
 
 /********************************/
-/*	gci_key_delete				*/
+/*	gciKeyDelete				*/
 /********************************/
-en_gciResult_t gciKeyDelete(GciKeyId_t keyID)
+en_gciResult_t gciKeyDelete( GciKeyId_t keyID  )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI: Key Delete\r\n");
+#ifdef TC_DBG
+	printf("GCI Info: Key Delete\r\n");
+#endif
 
 	return err;
 }
 
 
+/*---------------------------------------------local functions----------------------------------------------------------*/
+en_gciResult_t _searchFreeCtxID( GciCtxId_t* p_ctxID )
+{
+	en_gciResult_t err = en_gciResult_Ok;
+
+	/* Initialize the context ID */
+	*p_ctxID = -1;
+
+	int i = 0;
+
+	for( i = 0 ; i < GCI_NB_CTX_MAX ; i++ )
+	{
+		/* Free ctx ID when type is invalid */
+		if( a_ctxID[i].type == en_tcCtxType_Invalid )
+		{
+			*p_ctxID = i;
+
+			return err;
+		}
+	}
+
+	/* No free ID */
+	if(*p_ctxID == -1)
+	{
+		err = en_gciResult_ErrBufferIdFull;
+	}
+
+
+	return err;
+}
+
+
+
+/*---------------------------------------------EOF-----------------------------------------------------------------------*/

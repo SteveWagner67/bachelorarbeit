@@ -16,6 +16,7 @@
 #define __DECL_KEY_MANAGEMENT_H__
 #include "key_management.h"
 
+
 /*==============================================================================
  MACROS
  =============================================================================*/
@@ -73,13 +74,11 @@ en_gciResult_t km_dhe_init()
     GciCtxId_t dhCtx;
     st_gciDhConfig_t dhConf;
 
-    //OLD-CW: cw_dh_free(&gst_dheKey.cwt_dheKey);
+    uint8_t a_allocDhDomainParam[GCI_BUFFER_MAX_SIZE];
+    uint8_t	a_allocDhParamG[GCI_BUFFER_MAX_SIZE/2] = {8, 78};
+    uint8_t a_allocDhParamP[GCI_BUFFER_MAX_SIZE/2];
 
-    err = gciKeyDelete(gst_dheKey.cwt_dheKey);
-    if(err != en_gciResult_Ok)
-    {
-    	//TODO return error state
-    }
+    //OLD-CW: cw_dh_free(&gst_dheKey.cwt_dheKey);
 
     gst_dheKey.b_isValid = FALSE;
 
@@ -87,7 +86,9 @@ en_gciResult_t km_dhe_init()
 
     gst_dheKey.l_inUse = 0;
 
+
     dhConf.type = en_gciDhType_Dh;
+
 
     //fix the domain parameter inside
     err = gciDhNewCtx(&dhConf, &dhCtx);

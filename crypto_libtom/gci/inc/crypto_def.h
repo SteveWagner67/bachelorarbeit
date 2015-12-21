@@ -20,52 +20,57 @@
 
 /*----------------------------------------------Macro Definitions--------------------------------------------------------*/
 
-/*! Size of the context array */
-#define 	GCI_NB_CTX_MAX				16
-/*! Size of the key array */
-#define 	GCI_NB_KEY_MAX				255
-/*! Size in bits for md5 digest */
+/** Size of the context array */
+#define 	GCI_NB_CTX_MAX				100
+/** Size of the key array */
+#define 	GCI_NB_KEY_MAX				100
+/** Size in bits for md5 digest */
 #define     GCI_MD5_SIZE_BITS           128
-/*! Size in bytes for md5 digest */
+/** Size in bytes for md5 digest */
 #define     GCI_MD5_SIZE_BYTES          (GCI_MD5_SIZE_BITS / 8)
 
-/*! Size in bits for sha1 digest */
+/** Size in bits for sha1 digest */
 #define     GCI_SHA1_SIZE_BITS          160
-/*! Size in bytes for sha1 digest */
+/** Size in bytes for sha1 digest */
 #define     GCI_SHA1_SIZE_BYTES         (GCI_SHA1_SIZE_BITS / 8)
 
-/*! Size in bits for sha224 digest */
+/** Size in bits for sha224 digest */
 #define     GCI_SHA224_SIZE_BITS        224
-/*! Size in bytes for sha224 digest */
+/** Size in bytes for sha224 digest */
 #define     GCI_SHA224_SIZE_BYTES      (GCI_SHA224_SIZE_BITS / 8)
 
-/*! Size in bits for sha256 digest */
+/** Size in bits for sha256 digest */
 #define     GCI_SHA256_SIZE_BITS        256
-/*! Size in bytes for sha256 digest */
+/** Size in bytes for sha256 digest */
 #define     GCI_SHA256_SIZE_BYTES      (GCI_SHA256_SIZE_BITS / 8)
 
-/*! Size in bits for sha384 digest */
+/** Size in bits for sha384 digest */
 #define     GCI_SHA384_SIZE_BITS        384
-/*! Size in bytes for sha384 digest */
+/** Size in bytes for sha384 digest */
 #define     GCI_SHA384_SIZE_BYTES      (GCI_SHA384_SIZE_BITS / 8)
 
-/*! Size in bits for sha512 digest */
+/** Size in bits for sha512 digest */
 #define     GCI_SHA512_SIZE_BITS        512
-/*! Size in bytes for sha512 digest */
+/** Size in bytes for sha512 digest */
 #define     GCI_SHA512_SIZE_BYTES      (GCI_SHA512_SIZE_BITS / 8)
 
-/*! Size in bytes for md5+sha1 digest */
+/** Size in bytes for md5+sha1 digest */
 #define     GCI_MD5_SHA1_SIZE_BYTES     GCI_SHA1_SIZE_BYTES + GCI_MD5_SIZE_BYTES
 
-/*! Maximum size in bits for a digest */
+/** Maximum size in bits for a digest */
 #define     GCI_MAX_HASHSIZE_BITS       GCI_SHA512_SIZE_BITS
-/*! Maximum size in bits for a digest */
+/** Maximum size in bits for a digest */
 #define     GCI_MAX_HASHSIZE_BYTES      GCI_SHA512_SIZE_BYTES
 
-
+/** Maximum size in bits for a PKCS1 key */
 #define     GCI_PKCS1_MAX_KEYSIZE       4096
+/** Maximum size in bits for a RSA key */
 #define     GCI_RSA_MAX_KEY_SIZE        GCI_PKCS1_MAX_KEYSIZE
+/** Maximum size in bytes for a PKCS1 message */
 #define     GCI_MAX_MSG_SIZE            (GCI_PKCS1_MAX_KEYSIZE / 8)
+
+/** Max size for a buffer in bytes */
+#define 	GCI_BUFFER_MAX_SIZE			255
 
 
 
@@ -92,7 +97,7 @@ typedef int GciKeyId_t;
 /*		      										GLOBAL						      							  	  */
 /**********************************************************************************************************************/
 
-/*!
+/**
  * \enum 					en_gciResult
  * \brief					Enumeration for the error management
  */
@@ -100,19 +105,21 @@ typedef enum en_gciResult
 {
 	/** No error */
 	en_gciResult_Ok,
-	/** Overflow of IDs */
-	en_gciResult_ErrIdOverflow,
-	/** Error of hash algorithm */
-	en_gciResult_ErrHashAlgo,
-	/** Error in hash initialization */
-	en_gciResult_ErrInitHash,
-	/** Global error */
+	/** No free ID */
+	en_gciResult_ErrBufferIdFull,
+	/** Invalid configuration */
+	en_gciResult_ErrInvalidConfig,
+	/** Domain parameters initialization error */
+	en_gciResult_ErrInitDomainParam,
+	/** Domain parameters generation error */
+	en_gciResult_ErrGenDomainParam,
+	/** Default error */
 	en_gciResult_Err
 } en_gciResult_t;
 
 
 
-/*!
+/**
  * \enum 					en_gciInfo
  * \brief					Enumeration for informations that should be needed to become during the process
  */
@@ -126,30 +133,30 @@ typedef enum en_gciInfo
 
 
 
-/*!
+/**
  * \struct 					st_gciBigInt
  * \brief					Structure representing an arbitrary-length integer
  */
 typedef struct st_gciBigInt
 {
-	/**Big number length in bytes*/
+	/** Big number length in bytes */
 	size_t len;
-	/**Big number (data)*/
+	/** Big number (data) */
 	uint8_t* data;
 
 } st_gciBigInt_t;
 
 
 
-/*!
+/**
  * \struct 					st_gciBuffer
  * \brief					Structure representing an arbitrary-length buffer
  */
 typedef struct st_gciBuffer
 {
-	/**Buffer length in bytes*/
+	/** Buffer length in bytes */
 	size_t len;
-	/**Pointer to buffer (data)*/
+	/** Pointer to buffer (data) */
 	uint8_t* data;
 
 } st_gciBuffer_t;
@@ -160,7 +167,7 @@ typedef struct st_gciBuffer
 /*		      										HASH		 				      							  	  */
 /**********************************************************************************************************************/
 
-/*!
+/**
  * \enum 					en_GciHashAlgo
  * \brief					Enumeration for Hash algorithms
  */
@@ -190,13 +197,13 @@ typedef enum en_GciHashAlgo
 /*		      										SYMMETRIC CIPHER			      							  	  */
 /**********************************************************************************************************************/
 
-/*!
+/**
  * \enum 					en_GciBlockMode
  * \brief					Enumeration for all block mode
  */
 typedef enum en_GciBlockMode
 {
-	/** Invalid block mode*/
+	/** Invalid block mode */
 	en_gciBlockMode_Invalid,
 	/** CBC block mode */
 	en_gciBlockMode_CBC,
@@ -214,13 +221,13 @@ typedef enum en_GciBlockMode
 
 
 
-/*!
+/**
  * \enum 					en_gciPadding
  * \brief					Enumeration for all padding
  */
 typedef enum en_gciPadding
 {
-	/**Invalid padding*/
+	/**Invalid padding */
 	en_gciPadding_Invalid,
 	/** ISO9797 padding */
 	en_gciPadding_ISO9797,
@@ -236,13 +243,13 @@ typedef enum en_gciPadding
 
 
 
-/*!
+/**
  * \enum 					en_gciCipherAlgo
  * \brief					Enumeration for all symmetric cipher algorithm
  */
 typedef enum en_gciCipherAlgo
 {
-	/** Cipher type invalid*/
+	/** Cipher type invalid */
 	en_gciCipherAlgo_Invalid,
 	/** Stream cipher RC4 */
 	en_gciCipherAlgo_RC4,
@@ -250,15 +257,15 @@ typedef enum en_gciCipherAlgo
 	en_gciCipherAlgo_3DES,
 	/** Block cipher AES */
 	en_gciCipherAlgo_AES,
-	/** Block cipher DES*/
+	/** Block cipher DES */
 	en_gciCipherAlgo_DES,
-	/**No cipher used*/
+	/** No cipher used */
 	en_gciCipherAlgo_None=0xFF
 } en_gciCipherAlgo_t;
 
 
 
-/*!
+/**
  * \struct 					st_gciCipherConfig
  * \brief					Structure for all symmetric cipher data
  */
@@ -304,123 +311,123 @@ typedef struct st_gciCipherConfig
 /*		      										DOMAIN + KEY PAIR			      							  	  */
 /**********************************************************************************************************************/
 
-/*!
+/**
  * \struct 					st_gciDsaDomainParam
  * \brief					Structure for the DSA domain parameters
  */
 typedef struct st_gciDsaDomainParam
 {
-	/**Prime number*/
+	/** Prime number */
 	st_gciBigInt_t p;
-	/**Divisor*/
+	/** Divisor */
 	st_gciBigInt_t q;
-	/**Generator*/
+	/** Generator */
 	st_gciBigInt_t g;
 } st_gciDsaDomainParam_t;
 
 
 
-/*!
+/**
  * \struct 					st_gciDhDomainParam
  * \brief					Structure for the Diffie-Hellman domain parameters
  */
 typedef struct st_gciDhDomainParam
 {
-	/**Prime*/
+	/** Prime */
 	st_gciBigInt_t p;
-	/**Generator*/
+	/** Generator */
 	st_gciBigInt_t g;
 } st_gciDhDomainParam_t;
 
 
 
-/*!
+/**
  * \struct 					st_gciEcPoint
  * \brief					Structure for the coordinates of an Elliptic Curve
  */
 typedef struct st_gciEcPoint
 {
-	/**x-coordinate*/
+	/** x-coordinate */
 	st_gciBigInt_t x;
-	/**y-coordinate*/
+	/** y-coordinate */
 	st_gciBigInt_t y;
 } st_gciEcPoint_t;
 
 
 
-/*!
+/**
  * \enum 					en_gciNamedCurve
  * \brief					Enumeration of the Elliptic Curve
  * \brief					RFC4492 + RFC7027
  */
 typedef enum en_gciNamedCurve
 {
-	/**Invalid Elliptic Curve*/
+	/** Invalid Elliptic Curve */
 	en_gciNamedCurve_Invalid,
-	/**SECT163K1 Elliptic Curve*/
+	/** SECT163K1 Elliptic Curve */
 	en_gciNamedCurve_SECT163K1,
-	/**SECT163R1 Elliptic Curve*/
+	/** SECT163R1 Elliptic Curve */
 	en_gciNamedCurve_SECT163R1,
-	/**SECT163R2 Elliptic Curve*/
+	/** SECT163R2 Elliptic Curve */
 	en_gciNamedCurve_SECT163R2,
-	/**SECT193R1 Elliptic Curve*/
+	/** SECT193R1 Elliptic Curve */
 	en_gciNamedCurve_SECT193R1,
-	/**SECT193R2 Elliptic Curve*/
+	/** SECT193R2 Elliptic Curve */
 	en_gciNamedCurve_SECT193R2,
-	/**SECT233K1 Elliptic Curve*/
+	/** SECT233K1 Elliptic Curve */
 	en_gciNamedCurve_SECT233K1,
-	/**SECT233R1 Elliptic Curve*/
+	/** SECT233R1 Elliptic Curve */
 	en_gciNamedCurve_SECT233R1,
-	/**SECT239K1 Elliptic Curve*/
+	/** SECT239K1 Elliptic Curve */
 	en_gciNamedCurve_SECT239K1,
-	/**SECT283K1 Elliptic Curve*/
+	/** SECT283K1 Elliptic Curve */
 	en_gciNamedCurve_SECT283K1,
-	/**SECT283R1 Elliptic Curve*/
+	/** SECT283R1 Elliptic Curve */
 	en_gciNamedCurve_SECT283R1,
-	/**SECT409K1 Elliptic Curve*/
+	/** SECT409K1 Elliptic Curve */
 	en_gciNamedCurve_SECT409K1,
-	/**SECT409R1 Elliptic Curve*/
+	/** SECT409R1 Elliptic Curve */
 	en_gciNamedCurve_SECT409R1,
-	/**SECT571K1 Elliptic Curve*/
+	/** SECT571K1 Elliptic Curve */
 	en_gciNamedCurve_SECT571K1,
-	/**SECT571R1 Elliptic Curve*/
+	/** SECT571R1 Elliptic Curve */
 	en_gciNamedCurve_SECT571R1,
-	/**SECP160K1 Elliptic Curve*/
+	/** SECP160K1 Elliptic Curve */
 	en_gciNamedCurve_SECP160K1,
-	/**SECP160R1 Elliptic Curve*/
+	/** SECP160R1 Elliptic Curve */
 	en_gciNamedCurve_SECP160R1,
-	/**SECP160R2 Elliptic Curve*/
+	/** SECP160R2 Elliptic Curve */
 	en_gciNamedCurve_SECP160R2,
-	/**SECP192K1 Elliptic Curve*/
+	/** SECP192K1 Elliptic Curve */
 	en_gciNamedCurve_SECP192K1,
-	/**SECP192R1 (SECG) / PRIME192V1 (ANSI X9.62) Elliptic Curve*/
+	/** SECP192R1 (SECG) / PRIME192V1 (ANSI X9.62) Elliptic Curve */
 	en_gciNamedCurve_SECP192R1,
-	/**SECP224K1 Elliptic Curve*/
+	/** SECP224K1 Elliptic Curve */
 	en_gciNamedCurve_SECP224K1,
-	/**SECP224R1 Elliptic Curve*/
+	/** SECP224R1 Elliptic Curve */
 	en_gciNamedCurve_SECP224R1,
-	/**SECP256K1 Elliptic Curve*/
+	/** SECP256K1 Elliptic Curve */
 	en_gciNamedCurve_SECP256K1,
-	/**SECP256R1 (SECG) / PRIME256V1 (ANSI X9.62) Elliptic Curve*/
+	/** SECP256R1 (SECG) / PRIME256V1 (ANSI X9.62) Elliptic Curve */
 	en_gciNamedCurve_SECP256R1,
-	/**SECP384R1 Elliptic Curve*/
+	/** SECP384R1 Elliptic Curve */
 	en_gciNamedCurve_SECP384R1,
-	/**SECP521R1 Elliptic Curve*/
+	/** SECP521R1 Elliptic Curve */
 	en_gciNamedCurve_SECP521R1,
-	/**BRAINPOOLP256R1 Elliptic Curve*/
+	/** BRAINPOOLP256R1 Elliptic Curve */
 	en_gciNamedCurve_BRAINPOOLP256R1,
-	/**BRAINPOOLP384R1 Elliptic Curve*/
+	/** BRAINPOOLP384R1 Elliptic Curve */
 	en_gciNamedCurve_BRAINPOOLP384R1,
-	/**BRAINPOOLP512R1 Elliptic Curve*/
+	/** BRAINPOOLP512R1 Elliptic Curve */
 	en_gciNamedCurve_BRAINPOOLP512R1
 } en_gciNamedCurve_t;
 
 
 
-/*!
+/**
  * \struct 					st_gciEcDomainParam
  * \brief					Structure of the EC domain parameters to create an eventual EC
- */
+  */
 typedef struct st_gciEcDomainParam
 {
 	/**Coefficient a*/
@@ -443,7 +450,7 @@ typedef struct st_gciEcDomainParam
 /*		      										SIGNATURE	 				      							  	  */
 /**********************************************************************************************************************/
 
-/*!
+/**
  * \enum 					en_gciSignAlgo
  * \brief					Enumeration for Signature algorithms
  */
@@ -481,7 +488,7 @@ typedef enum en_gciSignAlgo
 
 
 
-/*!
+/**
  * \struct 					st_gciSignRsaConfig
  * \brief					Structure for the configuration of a RSA signature
  */
@@ -500,7 +507,7 @@ typedef struct st_gciSignRsaConfig
 
 
 
-/*!
+/**
  * \struct 					st_gciSignCmacConfig
  * \brief					Structure for the configuration of a CMAC signature
  */
@@ -534,7 +541,7 @@ typedef struct st_gciSignCmacConfig
 
 
 
-/*!
+/**
  * \struct 					st_gciSignConfig
  * \brief					Structure for the configuration of a signature
  */
@@ -591,7 +598,7 @@ typedef struct st_gciSignConfig
 /*		      										KEY GENERATOR			      							  		  */
 /**********************************************************************************************************************/
 
-/*!
+/**
  * \enum 					en_gciKeyPairType
  * \brief					Enumeration for all type of key pair algorithm
  */
@@ -619,7 +626,7 @@ typedef enum en_gciKeyPairType
 
 
 
-/*!
+/**
  * \struct 					st_gciRsaKeyGenConfig
  * \brief					Structure holding the configuration parameters for an RSA key generation operation
  */
@@ -631,7 +638,7 @@ typedef struct st_gciRsaKeyGenConfig
 
 
 
-/*!
+/**
  * \struct 					st_gciKeyPairConfig_t
  * \brief					Structure for the configuration of all key pair type
  */
@@ -650,7 +657,7 @@ typedef struct st_gciKeyPairConfig_t
 	 */
 	en_gciKeyPairType_t keyType;
 
-	/*!
+	/**
 	 * union 				un_keyPairParam
 	 * \brief				Union for all type of key pair configuration
 	 */
@@ -704,7 +711,7 @@ typedef struct st_gciKeyPairConfig_t
 /*		      										Diffie-Hellman	Key Generator     							  	  */
 /**********************************************************************************************************************/
 
-/*!
+/**
  * \enum 					en_gciDhType
  * \brief					Enumeration of the Diffie-Hellman type
  */
@@ -720,7 +727,7 @@ typedef enum en_gciDhType
 
 
 
-/*!
+/**
  * \struct 					st_gciDhConfig
  * \brief					Structure for the configuration of all Diffie-Hellman key pair type
  */
@@ -734,7 +741,7 @@ typedef struct st_gciDhConfig
 	en_gciDhType_t type;
 
 
-	/*!
+	/**
 	 * union 				un_dhParam
 	 * \brief				Union for all type of Diffie-Hellman parameters
 	 */
@@ -784,7 +791,7 @@ typedef struct st_gciDhConfig
 /*		      										KEYS						      							  	  */
 /**********************************************************************************************************************/
 
-/*!
+/**
  * \struct 					st_gciRsaPubKey_t
  * \brief					Structure representing a RSA public key
  */
@@ -797,7 +804,7 @@ typedef struct st_gciRsaPubKey_t
 }st_gciRsaPubKey_t;
 
 
-/*!
+/**
  * \struct 					st_gciRsaCrtPrivKey
  * \brief					Structure representing a RSA CRT private key
  */
@@ -817,7 +824,7 @@ typedef struct st_gciRsaCrtPrivKey
 
 
 
-/*!
+/**
  * \struct 					st_gciRsaPrivKey
  * \brief					Structure representing a RSA private key
  */
@@ -833,7 +840,7 @@ typedef struct st_gciRsaPrivKey
 
 
 
-/*!
+/**
  * \struct 					st_gciDsaKey
  * \brief					Structure representing a DSA key (public or private)
  */
@@ -842,12 +849,12 @@ typedef struct st_gciDsaKey
 	/**DSA domain parameters*/
 	st_gciDsaDomainParam_t* param;
 	/**Big number of the key*/
-	st_gciBigInt_t un_key;
+	st_gciBigInt_t key;
 }st_gciDsaKey_t;
 
 
 
-/*!
+/**
  * \struct 					st_gciDhKey
  * \brief					Structure representing a DH key (public or private)
  */
@@ -861,7 +868,7 @@ typedef struct st_gciDhKey
 
 
 
-/*!
+/**
  * \struct 					st_gciEcdhPubKey
  * \brief					Structure representing a ECDH public key
  */
@@ -905,7 +912,7 @@ typedef struct st_gciEcdhPubKey
 
 
 
-/*!
+/**
  * \struct 					st_gciEcdhPrivKey
  * \brief					Structure representing a ECDH priv key
  */
@@ -944,12 +951,12 @@ typedef struct st_gciEcdhPrivKey
 	 */
 	en_gciNamedCurve_t* curve;
 	/**Big number of the key*/
-	st_gciBigInt_t un_key;
+	st_gciBigInt_t key;
 }st_gciEcdhPrivKey_t;
 
 
 
-/*!
+/**
  * \struct 					st_gciEcdsaPubKey
  * \brief					Structure representing a ECDSA public key
  */
@@ -993,7 +1000,7 @@ typedef struct st_gciEcdsaPubKey
 
 
 
-/*!
+/**
  * \struct 					st_gciEcdsaPrivKey
  * \brief					Structure representing a ECDSA private key
  */
@@ -1037,7 +1044,7 @@ typedef struct st_gciEcdsaPrivKey
 
 
 
-/*!
+/**
  * \enum 					en_gciKeyType
  * \brief					Enumeration for all type of key
  */
@@ -1087,7 +1094,7 @@ typedef enum en_gciKeyType
 
 
 
-/*!
+/**
  * \struct 					st_gciKey
  * \brief					Structure for the parameters to each key object
  */
@@ -1117,37 +1124,37 @@ typedef struct st_gciKey
 	 */
 	en_gciKeyType_t type;
 
-   /*!
+   /**
 	* union 					un_keyData
 	* \brief					Union for the key/key-pair data of each key
 	*/
 	union un_key
 	{
-		/**Symmetric key*/
+		/** Symmetric key */
 		st_gciBuffer_t keysym;
-		/**Diffie-Hellman Public Key*/
+		/** Diffie-Hellman Public Key*/
 		st_gciDhKey_t keyDhPub;
 		/**Diffie-Hellman Private Key*/
 		st_gciDhKey_t keyDhPriv;
-		/**Diffie-Hellman Secret Key*/
+		/** Diffie-Hellman Secret Key*/
 		st_gciBuffer_t keyDhSecret;
-		/**Elliptic Curve Diffie-Hellman Public Key*/
+		/** Elliptic Curve Diffie-Hellman Public Key*/
 		st_gciEcdhPubKey_t keyEcdhPub;
-		/**Elliptic Curve Diffie-Hellman Private Key*/
+		/** Elliptic Curve Diffie-Hellman Private Key*/
 		st_gciEcdhPrivKey_t keyEcdhPriv;
-		/**Elliptic Curve Diffie-Hellman Secret Key*/
+		/** Elliptic Curve Diffie-Hellman Secret Key*/
 		st_gciBuffer_t keyEcdhSecret;
-		/**DSA Public Key*/
+		/** DSA Public Key*/
 		st_gciDsaKey_t keyDsaPub;
-		/**DSA Private Key*/
+		/** DSA Private Key*/
 		st_gciDsaKey_t keyDsaPriv;
-		/**Elliptic Curve DSA Public Key*/
+		/** Elliptic Curve DSA Public Key*/
 		st_gciEcdsaPubKey_t keyEcdsaPub;
-		/**Elliptic Curve DSA Private Key*/
+		/** Elliptic Curve DSA Private Key*/
 		st_gciEcdsaPrivKey_t keyEcdsaPriv;
-		/**RSA Public Key*/
+		/** RSA Public Key*/
 		st_gciRsaPubKey_t keyRsaPub;
-		/**RSA Private Key*/
+		/** RSA Private Key*/
 		st_gciRsaPrivKey_t keyRsaPriv;
 	} un_key;
 } st_gciKey_t;

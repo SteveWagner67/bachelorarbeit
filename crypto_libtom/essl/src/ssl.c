@@ -1925,7 +1925,9 @@ static void loc_pHash(en_gciHashAlgo_t hashAlgo, uint8_t* pc_secret,
 
 	st_gciSignConfig_t hmacConf;
 
-	GciKeyId_t secretKeyID;
+	/* Generate an automatic key */
+	GciKeyId_t secretKeyID = -1;
+
 	st_gciKey_t secretKey;
 
 	int32_t i_retCheck = 0;
@@ -2559,7 +2561,9 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey) {
 
 	en_gciResult_t err;
 	st_gciCipherConfig_t ciphConf;
-	GciKeyId_t keyID;
+
+	/* Generate an automatic key */
+	GciKeyId_t keyID = -1;
 	st_gciKey_t symKey;
 
 	assert(ps_sslCtx != NULL);
@@ -6588,6 +6592,9 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 
 					pc_hsBuff += eccPub.un_key.keyEcdhPub.coord.y.len;
 
+					/* Generate an automatic key */
+					ps_hsElem->eccPubKeyPeer = -1;
+
 					//store the key to become an ID of it
 					err = gciKeyPut(&eccPub, ps_hsElem->eccPubKeyPeer);
 					if (err != en_gciResult_Ok) {
@@ -6681,6 +6688,9 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 					pc_hsBuff += srvPub.un_key.keyDhPub.key.len;
 
 					pc_hsBuff++;
+
+					/* Get an automatic key ID*/
+					ps_hsElem->gci_dheSrvPubKey = -1;
 
 					//Store the key and become an ID
 					err = gciKeyPut(srvPub.un_key.keyDhPub.key.data,
