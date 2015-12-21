@@ -1,0 +1,41 @@
+import os
+import glob
+Import('env','math_lib','crypt_lib')
+confs = []
+sources = []
+
+math_conf = env.SConscript('./math/' + math_lib + '/' + math_lib + '.scons')
+confs.append(math_conf)
+
+crypt_conf = env.SConscript('./crypt/' + crypt_lib + '/' + crypt_lib + '.scons')
+confs.append(crypt_conf)
+
+essl_conf = env.SConscript('./essl/essl.scons')
+confs.append(essl_conf)
+
+gci_conf = env.SConscript('./gci/gci.scons')
+confs.append(gci_conf)
+
+gci_tc_conf = env.SConscript('./gci_tomcrypt/gci_tc.scons')
+confs.append(gci_tc_conf)
+
+test_conf = env.SConscript('./test/test.scons')
+confs.append(test_conf)
+
+for conf in confs:
+    if 'src' in conf:
+        for source in conf['src']:
+            sources += env.Glob('./' + source +'.c')
+            
+    if 'inc' in conf:
+        for include in conf['inc']:
+            env.MergeFlags({'CPPPATH' : [os.path.dirname('./' + include)]})
+            
+    env.MergeFlags(conf)
+
+ssl_test = env.Program( target = 'ssl_test', source = sources )
+
+# Show program size
+psize = env.Command(' ', ssl_test, Action('size $SOURCE'))
+
+Return('ssl_test')

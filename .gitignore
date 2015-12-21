@@ -14,9 +14,9 @@
 !*.bib
 !*.pdf
 
-
-*/*
-!/essl
-!/test
-!/gci
-!/gci_tomcrypt
+#val_crypto_prov_libtom/
+#crypto_libtom/
+#!/essl
+#!/test
+#!/gci_tomcrypt
+#!/gci

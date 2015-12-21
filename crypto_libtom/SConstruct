@@ -1,0 +1,70 @@
+import sys
+import re
+import os
+import platform
+
+# Get global environment
+genv = Environment(ENV = os.environ, tools=['gcc', 'gnulink'])
+CacheDir('./build/cache')
+# Set number of jobs
+num_cpu = int(os.environ.get('NUM_CPU', 4))
+SetOption('num_jobs', num_cpu)
+build_dir = './build/essl/'
+
+# Enable color building message output
+colors = {}
+colors['cyan']   = '\033[96m'
+colors['purple'] = '\033[95m'
+colors['blue']   = '\033[94m'
+colors['green']  = '\033[92m'
+colors['yellow'] = '\033[93m'
+colors['red']    = '\033[91m'
+colors['end']    = '\033[0m'
+
+#If the output is not a terminal, remove the colors
+if not sys.stdout.isatty():
+	print "Output is not terminal, coloring will be disabled"
+	for key, value in colors.iteritems():
+		colors[key] = ''
+
+compile_source_message = '%sCompiling %s==> %s$SOURCE%s' % \
+   (colors['green'], colors['purple'], colors['yellow'], colors['end'])
+
+link_program_message = '%sLinking Program %s==> %s$TARGET%s' % \
+   (colors['red'], colors['purple'], colors['yellow'], colors['end'])
+
+link_library_message = '%sLinking Static Library %s==> %s$TARGET%s' % \
+   (colors['cyan'], colors['purple'], colors['yellow'], colors['end'])
+
+genv['CXXCOMSTR'] = compile_source_message
+genv['CCCOMSTR'] = compile_source_message
+genv['ARCOMSTR'] = link_library_message
+genv['LINKCOMSTR'] = link_program_message
+
+Export('genv')
+
+if platform.system() == "Windows":
+    genv['CC'] = 'mingw32-gcc'
+
+env = genv.Clone()
+
+env.MergeFlags({'CFLAGS' : ['-m32','-fdiagnostics-color=auto']})
+env.MergeFlags({'LINKFLAGS' : ['-m32']})
+
+math_lib = ARGUMENTS.get('math', '')
+crypt_lib = ARGUMENTS.get('crypt', '')
+
+if math_lib == '':
+    math_lib="tommath"
+if crypt_lib == '':
+    crypt_lib="tomcrypt"
+    
+print "Selected math library is " + math_lib + ".Use math=<tommath/tomfastmath> to change"
+print "Selected crypt library is " + crypt_lib + ".Use crypt=<tomcrypt> to change"
+
+
+file = env.SConscript('SConscript', variant_dir=build_dir, duplicate=0, exports='env math_lib crypt_lib')
+file = env.Install('./', [file])
+
+env.Clean(file, '*')
+
