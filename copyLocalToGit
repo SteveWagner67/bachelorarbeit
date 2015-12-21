@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cp -r /home/steve/Bachelorarbeit/embetter_ssl/essl/ /home/steve/Bachelorarbeit/embetter_ssl/gci/ /home/steve/Bachelorarbeit/bachelorarbeit/crypto_libtom/
+cp -r /home/steve/Bachelorarbeit/embetter_ssl/essl/ /home/steve/Bachelorarbeit/embetter_ssl/gci/  /home/steve/Bachelorarbeit/embetter_ssl/gci_tomcrypt/ /home/steve/Bachelorarbeit/bachelorarbeit/crypto_libtom/
 cp /home/steve/Bachelorarbeit/embetter_ssl/test/inc/* /home/steve/Bachelorarbeit/bachelorarbeit/crypto_libtom/test/inc/
 cp /home/steve/Bachelorarbeit/embetter_ssl/test/src/* /home/steve/Bachelorarbeit/bachelorarbeit/crypto_libtom/test/src/
 cp -r /home/steve/Bachelorarbeit/swagner_doc/* /home/steve/Bachelorarbeit/bachelorarbeit/

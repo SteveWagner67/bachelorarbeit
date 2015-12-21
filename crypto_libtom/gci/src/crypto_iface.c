@@ -8,6 +8,7 @@
 
 /*--------------------------------------------------Include--------------------------------------------------------------*/
 #include "crypto_tomcrypt.h"
+//#include "crypto_wrap.h"
 
 
 /*-------------------------------------------------Variables-------------------------------------------------------------*/
@@ -499,16 +500,26 @@ en_gciResult_t gciDhNewCtx( const st_gciDhConfig_t* p_dhConfig, GciCtxId_t* p_ct
 {
 	en_gciResult_t err = en_gciResult_Ok;
 	uint8_t a_allocDhDomainParam[GCI_BUFFER_MAX_SIZE];
+
+	uint8_t a_allocDhKey[GCI_BUFFER_MAX_SIZE];
+
+	mp_int a_allocDhDomainP[GCI_BUFFER_MAX_SIZE/2];
+	mp_int a_allocDhDomainG[GCI_BUFFER_MAX_SIZE/2];
+
 	/* 2 bytes for the curve name */
 	uint8_t a_allocEcdhCurveName[2];
 
 	size_t keysize = TC_DEFAULT_DHE_KEYSIZE;
 	int x;
-	int tmpErr;
+	mp_err tmpErr;
 
 	/* Temporary domain parameters */
-	void *p, *g;
+	mp_int* p;
+	mp_int* g;
 
+//	cw_dhKey_t *key;
+
+//	key = &a_allocDhKey;
 
 	/* Search free context ID
 	 *
@@ -524,10 +535,6 @@ en_gciResult_t gciDhNewCtx( const st_gciDhConfig_t* p_dhConfig, GciCtxId_t* p_ct
 		return err;
 	}
 
-	else
-	{
-
-	}
 
 	/* Save the configuration */
 	a_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.type = p_dhConfig->type;
@@ -557,7 +564,11 @@ en_gciResult_t gciDhNewCtx( const st_gciDhConfig_t* p_dhConfig, GciCtxId_t* p_ct
 			else
 			{
 				/* Initialize the temporary domain parameters */
+				p = &a_allocDhDomainP;
+				g = &a_allocDhDomainG;
+
 				tmpErr = mp_init_multi(&g, &p, NULL);
+
 
 				if(tmpErr != 0)
 				{
@@ -593,6 +604,8 @@ en_gciResult_t gciDhNewCtx( const st_gciDhConfig_t* p_dhConfig, GciCtxId_t* p_ct
 
 				/* Clear the temporary domain parameters */
 				 mp_clear_multi(p, g, NULL);
+
+//				cw_dhe_makeKey(key);
 
 				 printf("GCI Info: DH New Ctx\r\n");
 

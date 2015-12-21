@@ -75,8 +75,6 @@ en_gciResult_t km_dhe_init()
     st_gciDhConfig_t dhConf;
 
     uint8_t a_allocDhDomainParam[GCI_BUFFER_MAX_SIZE];
-    uint8_t	a_allocDhParamG[GCI_BUFFER_MAX_SIZE/2] = {8, 78};
-    uint8_t a_allocDhParamP[GCI_BUFFER_MAX_SIZE/2];
 
     //OLD-CW: cw_dh_free(&gst_dheKey.cwt_dheKey);
 
@@ -88,7 +86,6 @@ en_gciResult_t km_dhe_init()
 
 
     dhConf.type = en_gciDhType_Dh;
-
 
     //fix the domain parameter inside
     err = gciDhNewCtx(&dhConf, &dhCtx);
