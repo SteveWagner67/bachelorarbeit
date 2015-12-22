@@ -14,6 +14,10 @@
 !*.bib
 !*.pdf
 
+val_crypto_prov_libtom/
+crypto_libtom/build/
+crypto_libtom/Debug/
+
 #val_crypto_prov_libtom/
 #crypto_libtom/
 #!/essl
