@@ -17,10 +17,6 @@
 val_crypto_prov_libtom/
 crypto_libtom/build/
 crypto_libtom/Debug/
-
-#val_crypto_prov_libtom/
-#crypto_libtom/
-#!/essl
-#!/test
-#!/gci_tomcrypt
-#!/gci
+crypto_libtom/crypt/
+crypto_libtom/math/
+crypto_libtom/frankencert files/
