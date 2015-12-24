@@ -10,9 +10,11 @@
 
 /*--------------------------------------------------Include--------------------------------------------------------------*/
 #define DESC_DEF_ONLY
+#include "netGlobal.h"
 #include "crypto_iface.h"
-#include "tommath.h"
+
 #include "tomcrypt.h"
+#include "tommath.h"
 
 
 
@@ -22,8 +24,41 @@
 /** Debug */
 #define TC_DBG
 
-/** Default size for a Diffie-Hellmann Ephemeral key */
-#define TC_DEFAULT_DHE_KEYSIZE     192
+/** Size in bits of symmetric key */
+#define TC_SYM_KEY_SIZE_BITS        128
+
+/**Size in bytes of a symmetric key */
+#define TC_SYM_KEY_SIZE_BYTES       (TC_SYM_KEY_SIZE_BITS / 8)
+
+/** Size in bits of a Diffie-Hellmann key */
+#define TC_DH_KEY_SIZE_BITS         192
+
+/** Size in bytes of a Diffie-Hellmann key */
+#define TC_DH_KEY_SIZE_BYTES        (TC_DH_KEY_SIZE_BITS / 8)
+
+/** Size in bits of the RSA key */
+#define TC_RSA_SIZE_BITS            1024
+
+/** Size in bytes of the RSA key */
+#define TC_RSA_SIZE_BYTES           (TC_RSA_SIZE_BITS / 8)
+
+/** Size in bits of the DSA key */
+#define TC_DSA_SIZE_BITS            1024
+
+/** Size in bytes of the DSA key */
+#define TC_DSA_SIZE_BYTES           (TC_DSA_SIZE_BITS / 8)
+
+/** Size in bits of the ECDH key */
+#define TC_ECDH_SIZE_BITS            512
+
+/** Size in bytes of the ECDH key */
+#define TC_ECDH_SIZE_BYTES           (TC_ECDH_SIZE_BITS / 8)
+
+/** Size in bits of the ECDSA key */
+#define TC_ECDSA_SIZE_BITS            512
+
+/** Size in bytes of the ECDSA key */
+#define TC_ECDSA_SIZE_BYTES           (TC_ECDSA_SIZE_BITS / 8)
 
 
 
@@ -149,6 +184,18 @@ static const struct {
 }
 };
 
+/*---------------------------------------------Prototype of functions----------------------------------------------*/
+
+/**
+ * \fn                          en_gciResult_t tcGetBigNum(const uint8_t* p_data, size_t dataLen, st_gciBigInt_t* p_bigNum)
+ * \brief                       Get the big number of a data
+ * \param [in]  p_data          Pointer to the data which will be convert the a big number
+ * \param [in]  dataLen         Length of the data above
+ * \param [out] p_bigNum        Pointer to the big number
+ * @return                      en_gciResult_Ok on success
+ * @return                      en_gciResult_Err on error
+ */
+en_gciResult_t tcGetBigNum(const uint8_t* p_data, size_t dataLen, st_gciBigInt_t* p_bigNum);
 
 
 #endif /* CRYPTO_DEV_H_ */

@@ -68,6 +68,12 @@ extern "C"
 {
 #endif
 
+//#include "crypto_wrap.h"
+
+//#include "crypto_iface.h"
+
+#include "crypto_tomcrypt.h"
+
 #include "netGlobal.h"
 #include "ssl_der.h"
 #include "ssl_derd.h"

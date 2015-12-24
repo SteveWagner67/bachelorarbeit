@@ -49,7 +49,10 @@ extern "C"
 #endif
 
 //#include "crypto_wrap.h"
-#include "crypto_iface.h"
+//#include "crypto_iface.h"
+
+#include "crypto_tomcrypt.h"
+
 #include "ssl_der.h"
 
 /*** Defines ****************************************************************/
@@ -243,7 +246,7 @@ e_derdRet_t sslDerd_getBool(s_derdCtx_t *ps_derdCtx, uint8_t *pc_value);
  */
 
 //OLD-CW: e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, gci_bigNum_t **ppcwt_val);
-e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, st_gciBigInt_t **ppcwt_val);
+e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, st_gciBigInt_t *ppcwt_val);
 
 /*
  * Get a Time string from the DER context

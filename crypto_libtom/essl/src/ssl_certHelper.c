@@ -16,6 +16,11 @@
  ==============================================================================*/
 #include <limits.h>
 //#include "crypto_wrap.h"
+
+//#include "crypto_iface.h"
+
+#include "crypto_tomcrypt.h"
+
 #include "ssl.h"
 #include "ssl_certHelper.h"
 #include "ssl_diag.h"
@@ -199,16 +204,20 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
     s_sslCert_t *ps_tmpCaRootCert = NULL;
     s_sslCertList_t *ps_caListElem = NULL;
     //OLD-CW: s_pubKey_t s_pubKey;
-    st_gciKey_t* s_pubKey;
+    st_gciKey_t s_pubKey = {.type = en_gciKeyType_RsaPub};
+
+    uint8_t a_allocN[TC_RSA_SIZE_BYTES];
+    uint8_t a_allocE[TC_RSA_SIZE_BYTES];
+
+
+    /* Allocate memory for the rsa public key parameters */
+    s_pubKey.un_key.keyRsaPub.e.data = a_allocE;
+    s_pubKey.un_key.keyRsaPub.n.data = a_allocN;
 
     int32_t l_pathLen;
     int16_t i_tmpRet;
 
     en_gciResult_t err;
-
-    st_gciKey_t key[1024];
-
-    s_pubKey = &key;
 
 
     assert(ps_octStrCert != NULL);
@@ -289,12 +298,6 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
          */
         //OLD-CW: cw_rsa_publickey_prep(pcwt_rsaPubKey, &s_pubKey);
 
-    	err = gciKeyGet(*pcwt_rsaPubKey, s_pubKey);
-    	if(err != en_gciResult_Ok)
-    	{
-    		//TODO return error state
-    	}
-
 
         i_tmpRet = sslCert_prepPubKey(&s_pubKey, &s_certInfo.s_octPubKey);
         if (i_tmpRet != E_SSL_DER_OK)
@@ -304,7 +307,7 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
         }
 
         /* Get an automatic key ID */
-        pcwt_rsaPubKey = -1;
+        *pcwt_rsaPubKey = -1;
 
         //Get an ID of this key
         err = gciKeyPut(&s_pubKey, pcwt_rsaPubKey);
@@ -849,11 +852,6 @@ e_sslResult_t sslCert_verifyChain(s_sslOctetStr_t *ps_octInData, GciKeyId_t *pcw
                     }
 
                     //OLD-CW: cw_rsa_publickey_init(&ps_rootCert->gci_caPubKey);
-                    err = gciKeyDelete(ps_rootCert->gci_caPubKey);
-                    if(err != en_gciResult_Ok)
-                    {
-                    	//TODO return error state
-                    }
 
 
                     loc_freeSubjStor(ps_octRootStor);

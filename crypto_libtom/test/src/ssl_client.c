@@ -31,6 +31,11 @@
 #include "ssl_target.h"
 #include "ssl_diag.h"
 //#include "crypto_wrap.h"
+
+//#include "crypto_iface.h"
+
+#include "crypto_tomcrypt.h"
+
 #include "cert_db.h"
 #include "ssl_certHelper.h"
 #include "key_management.h"
@@ -176,6 +181,8 @@ E_CLIENT_FSM_RESULT ssl_client_entry(SSL_CLIENT_PARS parameters) {
 	int err;
 
 	en_gciResult_t gci_err;
+
+	st_gciKey_t rsaPriv = {.type = en_gciKeyType_RsaPriv};
 	/* Check the state of the client */
 	switch (i_state)
 	{
@@ -298,6 +305,12 @@ E_CLIENT_FSM_RESULT ssl_client_entry(SSL_CLIENT_PARS parameters) {
 					return (E_CLIENT_FSM_ERROR);
 				}
 			}
+
+//			else
+//			{
+//			    //TODO sw - put the key in a rsa priv key and get an ID
+//			    //rsaPriv.un_key.keyRsaPriv.
+//			}
 
 			/* Setting up the SSL version */
 			sslSoc_setVer(&s_sslCtx, versmin, versmax);

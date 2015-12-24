@@ -42,6 +42,10 @@
 #include "key_management.h"
 //#include "crypto_wrap.h"
 
+//#include "crypto_iface.h"
+
+#include "crypto_tomcrypt.h"
+
 /*** Defines ****************************************************************/
 #define	LOGGER_ENABLE		DBG_SSL_PROTO_MODULE
 #include "logger.h"
@@ -1982,8 +1986,8 @@ static void loc_pHash(en_gciHashAlgo_t hashAlgo, uint8_t* pc_secret,
 	hmacConf.algo = en_gciSignAlgo_HMAC;
 	hmacConf.hash = hashAlgo;
 	secretKey.type = en_gciKeyType_Hmac;
-	secretKey.un_key.keysym.len = sz_secLen;
-	memcpy(secretKey.un_key.keysym.data, pc_secret, sz_secLen);
+	secretKey.un_key.keySym.len = sz_secLen;
+	memcpy(secretKey.un_key.keySym.data, pc_secret, sz_secLen);
 
 	err = gciKeyPut(&secretKey, &secretKeyID);
 	if (err != en_gciResult_Ok) {
@@ -2633,8 +2637,8 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey) {
 
 	//Save the key and get an ID of it
 	symKey.type = en_gciKeyType_Sym;
-	symKey.un_key.keysym.len = ps_secPar->c_keyLen;
-	memcpy(symKey.un_key.keysym.data, ac_keyBlk, ps_secPar->c_keyLen);
+	symKey.un_key.keySym.len = ps_secPar->c_keyLen;
+	memcpy(symKey.un_key.keySym.data, ac_keyBlk, ps_secPar->c_keyLen);
 
 	err = gciKeyPut(&symKey, &keyID);
 	if (err != en_gciResult_Ok) {

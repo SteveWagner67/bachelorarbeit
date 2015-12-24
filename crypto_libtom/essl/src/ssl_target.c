@@ -32,6 +32,11 @@
 /*****************************************************************************/
 
 //#include "crypto_wrap.h"
+
+//#include "crypto_iface.h"
+
+#include "crypto_tomcrypt.h"
+
 #include "ssl.h"
 #include "ssl_target.h"
 

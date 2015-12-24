@@ -38,6 +38,11 @@
 #include "ssl_diag.h"
 #include "ssl_certHelper.h"
 //#include "crypto_wrap.h"
+
+//#include "crypto_iface.h"
+
+#include "crypto_tomcrypt.h"
+
 #include "key_management.h"
 #include "logger.h"
 

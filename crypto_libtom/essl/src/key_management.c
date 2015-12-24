@@ -74,8 +74,6 @@ en_gciResult_t km_dhe_init()
     GciCtxId_t dhCtx;
     st_gciDhConfig_t dhConf;
 
-    uint8_t a_allocDhDomainParam[GCI_BUFFER_MAX_SIZE];
-
     //OLD-CW: cw_dh_free(&gst_dheKey.cwt_dheKey);
 
     gst_dheKey.b_isValid = FALSE;
@@ -117,6 +115,7 @@ en_gciResult_t km_dhe_init()
     {
     	//TODO Return error from state
     }
+
 
     return err;
 } /* km_dhe_init() */

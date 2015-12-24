@@ -34,6 +34,11 @@
 /*****************************************************************************/
 
 //#include "crypto_wrap.h"
+
+//#include "crypto_iface.h"
+
+#include "crypto_tomcrypt.h"
+
 #include "ssl.h"
 #include "ssl_der.h"
 #include "ssl_derd.h"
@@ -629,11 +634,6 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
 
     //OLD-CW: cw_rsa_publickey_prep(&ps_handshElem->gci_peerPubKey, &s_pubKeyInfo);
-    err = gciKeyGet(ps_handshElem->gci_rsaCliPubKey, &s_pubKeyInfo);
-    if(err != en_gciResult_Ok)
-    {
-    	//TODO return error state
-    }
 
 
     switch (e_nextAction)

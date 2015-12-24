@@ -11,6 +11,11 @@
  */
 
 //#include "crypto_wrap.h"
+
+//#include "crypto_iface.h"
+
+#include "crypto_tomcrypt.h"
+
 #include <limits.h>
 #include "netGlobal.h"
 #include "ssl_der.h"
@@ -31,6 +36,8 @@
 /*** Local Functions ********************************************************/
 //OLD-CW: static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, s_pubKey_t *ps_pubKey);
 static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pubKey);
+
+
 //OLD-CW: static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, s_pubKey_t *ps_pubKey);
 static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pubKey);
 
@@ -45,7 +52,8 @@ static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pub
 static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pubKey)
 {
     int res = E_SSL_DER_OK;
-    uint8_t keyTab[1024];
+
+    en_gciResult_t err = en_gciResult_Ok;
 
 
     assert(ps_pubKey != NULL);
@@ -68,14 +76,21 @@ static e_derdRet_t loc_getRsaPubKey(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pubKey)
                 	res = sslDerd_getBigNum(ps_ctx, &ps_pubKey->un_key.keyRsaPub.e);
                 }
                 else
+                {
                     res = E_SSL_DER_ERR_NO_PUBEXP; /* no exponent */
+                }
             }
+
         }
         else
+        {
             res = E_SSL_DER_ERR_NO_MODULUS; /* no modulus */
+        }
     }
     else
+    {
         res = E_SSL_DER_ERR_NO_CSEQUENCE; /* no RSA public key sequence */
+    }
 
     return res;
 } /* loc_getRsaPubKey */
@@ -97,6 +112,8 @@ static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pub
     e_derdRet_t e_res = E_SSL_DER_OK;
     int algo;
 
+    size_t keyLen;
+
     assert(ps_ctx != NULL);
     assert(ps_pubKey != NULL);
 
@@ -104,7 +121,7 @@ static e_derdRet_t loc_getRsaPubKeyInfo(s_derdCtx_t *ps_ctx, st_gciKey_t *ps_pub
             && (sslDerd_getNextValue(ps_ctx) == SSL_DER_ASN1_CSEQUENCE))
     {
         //OLD-CW: e_res = sslDerd_getPubKeyAlg(ps_ctx, &ps_pubKey->iAlgorithm, &ps_pubKey->uiKeyLen);
-    	e_res = sslDerd_getPubKeyAlg(ps_ctx, &algo, &ps_pubKey->un_key.keyRsaPub.e.len);
+    	e_res = sslDerd_getPubKeyAlg(ps_ctx, &algo, &keyLen);
         if (e_res == E_SSL_DER_OK)
         {
             if (sslDerd_getNextBitStr(ps_ctx) == E_SSL_DER_OK)
@@ -951,10 +968,6 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
     GciCtxId_t signCtx;
 
     st_gciSignConfig_t rsaConf;
-
-
-
-
 
     assert(ps_certInfo != NULL);
     assert(ps_certInfo->s_octTbsCert.pc_data != NULL);

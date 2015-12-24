@@ -61,6 +61,11 @@
  */
 
 //#include "crypto_wrap.h"
+
+//#include "crypto_iface.h"
+
+#include "crypto_tomcrypt.h"
+
 #include <string.h>
 #include "netGlobal.h"
 #include "ssl_der.h"
@@ -419,13 +424,18 @@ e_derdRet_t sslDerd_getBool(s_derdCtx_t *ps_derdCtx, uint8_t *pc_value)
 /*  sslDerd_getBigNum()                                                         */
 /*============================================================================*/
 //OLD-CW: e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, gci_bigNum_t **ppcwt_val)
-e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, st_gciBigInt_t **ppcwt_val)
+e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, st_gciBigInt_t *ppcwt_val)
 {
     e_derdRet_t e_res = E_SSL_DER_OK;
+    en_gciResult_t err = en_gciResult_Ok;
     size_t cwt_tmp = 0;
 
+    mp_int bignum;
+    st_gciBigInt_t test;
+
+    mp_init(&bignum);
+
     assert(ps_derdCtx != NULL);
-    //OLD-CW: assert(ppcwt_val != NULL);
     assert(ppcwt_val != NULL);
 
     if ((ps_derdCtx->c_tag == SSL_DER_ASN1_INTEGER)
@@ -449,14 +459,18 @@ e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, st_gciBigInt_t **ppcwt_va
          */
         if (ps_derdCtx->s_octVal.cwt_len <= SSL_DER_MAX_INTEGER_LEN)
         {
-            /**ppcwt_val = cw_bn_create(*ppcwt_val,
+            /* OLD-CW: *ppcwt_val = cw_bn_create(*ppcwt_val,
                     (size_t) (ps_derdCtx->s_octVal.cwt_len * 8));
             cw_bn_set(*ppcwt_val, &ps_derdCtx->s_octVal.pc_data[cwt_tmp],
                     (size_t) ps_derdCtx->s_octVal.cwt_len);
             */
-        	memcpy((*ppcwt_val)->data, &ps_derdCtx->s_octVal.pc_data[cwt_tmp], (size_t) ps_derdCtx->s_octVal.cwt_len);
-        	(*ppcwt_val)->len = (size_t) ps_derdCtx->s_octVal.cwt_len;
 
+            err = tcGetBigNum(&ps_derdCtx->s_octVal.pc_data[cwt_tmp], ps_derdCtx->s_octVal.cwt_len, ppcwt_val);
+
+            if(err != en_gciResult_Ok)
+            {
+                //TODO return error from state
+            }
 
         }
         else

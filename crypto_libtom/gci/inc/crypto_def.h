@@ -1031,7 +1031,7 @@ typedef struct st_gciEcdsaPrivKey
 	 */
 	en_gciNamedCurve_t* curve;
 	/**Big number of the key*/
-	st_gciBigInt_t un_key;
+	st_gciBigInt_t key;
 }st_gciEcdsaPrivKey_t;
 
 
@@ -1123,7 +1123,7 @@ typedef struct st_gciKey
 	union un_key
 	{
 		/** Symmetric key */
-		st_gciBuffer_t keysym;
+		st_gciBuffer_t keySym;
 		/** Diffie-Hellman Public Key*/
 		st_gciDhKey_t keyDhPub;
 		/**Diffie-Hellman Private Key*/
