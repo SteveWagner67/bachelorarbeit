@@ -670,7 +670,7 @@ typedef struct ssl_handshakeElements
     */
 
    //OLD-CW: gci_rsaPubKey_t        gci_peerPubKey;
-   GciKeyId_t			gci_rsaCliPubKey;
+   GciKeyId_t			gci_rsaPeerKey;
 
    /* TODO adjust memory usage for dhe key exchange
     * the private key if diffie hellman is used and we act as client */

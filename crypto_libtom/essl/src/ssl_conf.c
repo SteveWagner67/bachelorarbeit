@@ -612,7 +612,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     int32_t l_result;
     uint8_t ac_rndBuf[46];
     //OLD-CW: gci_dhKey_t cwt_dhKeyCliY;
-    //OLD-CW: GciKeyId_t cwt_dhKeyCliY;
+    // GciKeyId_t cwt_dhKeyCliY;
     s_sslCertList_t *ps_caList = NULL;
     e_sslCertErr_t e_ret;
 
@@ -634,6 +634,8 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
 
     //OLD-CW: cw_rsa_publickey_prep(&ps_handshElem->gci_peerPubKey, &s_pubKeyInfo);
+
+
 
 
     switch (e_nextAction)
@@ -894,7 +896,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
         s_octPeerCert.pc_data = pc_inData;
         s_octPeerCert.cwt_len = cwt_inLen;
 
-        e_ret = sslCert_verifyChain(&s_octPeerCert, &ps_handshElem->gci_rsaCliPubKey, ps_caList);
+        e_ret = sslCert_verifyChain(&s_octPeerCert, &ps_handshElem->gci_rsaPeerKey, ps_caList);
 
         if (e_ret != E_SSL_CERT_OK)
         {
@@ -955,7 +957,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 //					&ps_handshElem->gci_peerPubKey) != CW_OK)
     		if (ssl_verifyHash(pc_inData, VERIF_HASHSIZE,
     					pc_inData + VERIF_HASHSIZE, cwt_inLen - VERIF_HASHSIZE,
-    					&ps_handshElem->gci_rsaCliPubKey) != en_gciResult_Ok)
+    					&ps_handshElem->gci_rsaPeerKey) != en_gciResult_Ok)
 			{
 				E_SSL_VERIFRES_FAILED(pc_outData);
 				LOG_ERR("Verification of CertificateVerify failed");

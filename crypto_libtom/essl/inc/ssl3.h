@@ -35,8 +35,6 @@
 extern "C" {
 #endif /* begin C prototype in C++ */
 
-//TODO sw - this define was in crypto_wrap.h
-#define AES_AND_3DES_ENABLED
 
 /*** Defines ****************************************************************/
 

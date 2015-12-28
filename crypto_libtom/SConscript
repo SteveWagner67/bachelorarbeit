@@ -10,14 +10,14 @@ confs.append(math_conf)
 crypt_conf = env.SConscript('./crypt/' + crypt_lib + '/' + crypt_lib + '.scons')
 confs.append(crypt_conf)
 
-essl_conf = env.SConscript('./essl/essl.scons')
-confs.append(essl_conf)
-
 gci_conf = env.SConscript('./gci/gci.scons')
 confs.append(gci_conf)
 
 gci_tc_conf = env.SConscript('./gci_tomcrypt/gci_tc.scons')
 confs.append(gci_tc_conf)
+
+essl_conf = env.SConscript('./essl/essl.scons')
+confs.append(essl_conf)
 
 test_conf = env.SConscript('./test/test.scons')
 confs.append(test_conf)

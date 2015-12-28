@@ -206,8 +206,8 @@ e_sslCertErr_t sslCert_init(s_sslOctetStr_t *ps_octStrCert,
     //OLD-CW: s_pubKey_t s_pubKey;
     st_gciKey_t s_pubKey = {.type = en_gciKeyType_RsaPub};
 
-    uint8_t a_allocN[TC_RSA_SIZE_BYTES];
-    uint8_t a_allocE[TC_RSA_SIZE_BYTES];
+    uint8_t a_allocN[TC_RSA_KEY_SIZE_MAX_BYTES];
+    uint8_t a_allocE[TC_RSA_KEY_SIZE_MAX_BYTES];
 
 
     /* Allocate memory for the rsa public key parameters */

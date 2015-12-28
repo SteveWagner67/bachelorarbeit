@@ -580,7 +580,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t* ps_sslCtx, uint8_t* pc_tbvParams,
 			rsaConf.un_signConfig.signConfigRsa.padding = en_gciPadding_None;
 
 			//RSA public key coming from a Certificate -> see sslCert_verifyChain in ssl_certHelper.c
-			err = gciSignVerifyNewCtx(&rsaConf, ps_hsElem->gci_rsaCliPubKey,
+			err = gciSignVerifyNewCtx(&rsaConf, ps_hsElem->gci_rsaPeerKey,
 					&rsaCtx);
 			if (err != en_gciResult_Ok) {
 				//TODO: return from error state
@@ -1934,6 +1934,13 @@ static void loc_pHash(en_gciHashAlgo_t hashAlgo, uint8_t* pc_secret,
 
 	st_gciKey_t secretKey;
 
+	uint8_t a_allocSymKey[24];
+
+	/* Allocate memory */
+	secretKey.un_key.keySym.data = a_allocSymKey;
+
+
+
 	int32_t i_retCheck = 0;
 	sz_hmacLen = loc_getHashSize(hashAlgo);
 	uint8_t ac_hmac[sz_hmacLen];
@@ -2021,6 +2028,8 @@ static void loc_pHash(en_gciHashAlgo_t hashAlgo, uint8_t* pc_secret,
 		//TODO: return from error state
 	}
 
+
+
 	//TODO sw - what for error to stop the loop ?
 
 	while (err == en_gciResult_Ok) {
@@ -2055,6 +2064,12 @@ static void loc_pHash(en_gciHashAlgo_t hashAlgo, uint8_t* pc_secret,
 		if (err != en_gciResult_Ok) {
 			//TODO: return from error state
 		}
+
+	    if (sz_realLen >= sz_outLen)
+	    {
+	        //Stop the loop
+	        break;
+	    }
 
 	}
 
@@ -4662,14 +4677,18 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 
 				TIME_STAMP(TS_PMS_ENCRYPT_BEGIN);
 
+				st_gciCipherConfig_t rsaConf = {.algo = en_gciCipherAlgo_RSA,
+				                                .blockMode = en_gciBlockMode_None,
+				                                .padding = en_gciPadding_PKCS1};
+
+
 				/* The premaster secret is encrypted in PKCS#1 V1.5 Style */
 
 				//OLD-CW: if (cw_rsa_encrypt(ps_hsElem->s_sessElem.ac_msSec, PREMSSEC_SIZE, pc_write + IFSSL30_LENOFF(ps_sslCtx->e_ver), &cwt_hashLen, &ps_hsElem->gci_peerPubKey) != CW_OK)
 				GciCtxId_t rsaCtx;
-				//No config used for an asymmetric cipher
+				//Just the initialization of the padding for an asymmetric cipher
 				//Public key coming from the certificate from the server
-				err = gciCipherNewCtx(NULL, ps_hsElem->gci_rsaCliPubKey,
-						&rsaCtx);
+				err = gciCipherNewCtx(&rsaConf, ps_hsElem->gci_rsaPeerKey, &rsaCtx);
 				if (err != en_gciResult_Ok) {
 					//TODO return state from error
 				}
@@ -6985,7 +7004,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 
 						//RSA Public key of the client
 						err = gciSignVerifyNewCtx(&rsaConf,
-								ps_hsElem->gci_rsaCliPubKey, &rsaCtx);
+								ps_hsElem->gci_rsaPeerKey, &rsaCtx);
 						if (err != en_gciResult_Ok) {
 							//TODO return state
 						}

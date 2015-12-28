@@ -423,7 +423,7 @@ e_derdRet_t sslDerd_getBool(s_derdCtx_t *ps_derdCtx, uint8_t *pc_value)
 /*============================================================================*/
 /*  sslDerd_getBigNum()                                                         */
 /*============================================================================*/
-//OLD-CW: e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, gci_bigNum_t **ppcwt_val)
+//OLD-CW: e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, cw_bigNum_t **ppcwt_val)
 e_derdRet_t sslDerd_getBigNum(s_derdCtx_t *ps_derdCtx, st_gciBigInt_t *ppcwt_val)
 {
     e_derdRet_t e_res = E_SSL_DER_OK;

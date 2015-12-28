@@ -10,6 +10,7 @@
 
 /*--------------------------------------------------Include--------------------------------------------------------------*/
 #define DESC_DEF_ONLY
+#define AES_AND_3DES_ENABLED
 #include "netGlobal.h"
 #include "crypto_iface.h"
 
@@ -24,41 +25,41 @@
 /** Debug */
 #define TC_DBG
 
-/** Size in bits of symmetric key */
-#define TC_SYM_KEY_SIZE_BITS        128
+/** Maximal size in bits of symmetric key */
+#define TC_SYM_KEY_SIZE_MAX_BITS            192
 
-/**Size in bytes of a symmetric key */
-#define TC_SYM_KEY_SIZE_BYTES       (TC_SYM_KEY_SIZE_BITS / 8)
+/** Maximal size in bytes of a symmetric key */
+#define TC_SYM_KEY_SIZE_MAX_BYTES           (TC_SYM_KEY_SIZE_MAX_BITS / 8)
 
 /** Size in bits of a Diffie-Hellmann key */
-#define TC_DH_KEY_SIZE_BITS         192
+#define TC_DH_KEY_SIZE_MAX_BITS             512
 
 /** Size in bytes of a Diffie-Hellmann key */
-#define TC_DH_KEY_SIZE_BYTES        (TC_DH_KEY_SIZE_BITS / 8)
+#define TC_DH_KEY_SIZE_MAX_BYTES        (TC_DH_KEY_SIZE_MAX_BITS / 8)
 
 /** Size in bits of the RSA key */
-#define TC_RSA_SIZE_BITS            1024
+#define TC_RSA_KEY_SIZE_MAX_BITS            1024
 
 /** Size in bytes of the RSA key */
-#define TC_RSA_SIZE_BYTES           (TC_RSA_SIZE_BITS / 8)
+#define TC_RSA_KEY_SIZE_MAX_BYTES           (TC_RSA_KEY_SIZE_MAX_BITS / 8)
 
 /** Size in bits of the DSA key */
-#define TC_DSA_SIZE_BITS            1024
+#define TC_DSA_KEY_SIZE_MAX_BITS            1024
 
 /** Size in bytes of the DSA key */
-#define TC_DSA_SIZE_BYTES           (TC_DSA_SIZE_BITS / 8)
+#define TC_DSA_KEY_SIZE_MAX_BYTES           (TC_DSA_KEY_SIZE_MAX_BITS / 8)
 
 /** Size in bits of the ECDH key */
-#define TC_ECDH_SIZE_BITS            512
+#define TC_ECDH_KEY_SIZE_MAX_BITS           512
 
 /** Size in bytes of the ECDH key */
-#define TC_ECDH_SIZE_BYTES           (TC_ECDH_SIZE_BITS / 8)
+#define TC_ECDH_KEY_SIZE_MAX_BYTES          (TC_ECDH_KEY_SIZE_MAX_BITS / 8)
 
 /** Size in bits of the ECDSA key */
-#define TC_ECDSA_SIZE_BITS            512
+#define TC_ECDSA_KEY_SIZE_MAX_BITS          512
 
 /** Size in bytes of the ECDSA key */
-#define TC_ECDSA_SIZE_BYTES           (TC_ECDSA_SIZE_BITS / 8)
+#define TC_ECDSA_KEY_SIZE_MAX_BYTES         (TC_ECDSA_KEY_SIZE_MAX_BITS / 8)
 
 
 
@@ -121,6 +122,9 @@ typedef struct st_tcCtxConfig
 		/** Configuration of the Diffie-Hellman context */
 		st_gciDhConfig_t ctxConfigDh;
 	}un_ctxConfig;
+
+	/* The ID of the key uses for the cipher or signature */
+	GciKeyId_t keyID;
 
 } st_tcCtxConfig_t;
 

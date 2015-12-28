@@ -26,7 +26,7 @@
 #include "ssl_sessCache.h"
 
 //TODO sw - use of crypto_wrap for the ANS1 sequence
-#include "crypto_wrap.h"
+//#include "crypto_wrap.h"
 
 /*==============================================================================
  MACROS
@@ -113,7 +113,7 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 		 */
 		//OLD-CW: iRet = cw_rsa_privatekey_init(p_buffer, (uint32_t) cwt_len, pcwt_privKey);
 
-	    cw_rsa_privatekey_init(p_buffer, (uint32_t) cwt_len, &rsaKey);
+	   // cw_rsa_privatekey_init(p_buffer, (uint32_t) cwt_len, &rsaKey);
 
 		//TODO sw - import the private by using a ASN1 Sequence
 
@@ -121,7 +121,7 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 		{
 
 			//OLD-CW: cw_rsa_privatekey_shrink(pcwt_privKey);
-		    cw_rsa_privatekey_shrink(&rsaKey);
+		   // cw_rsa_privatekey_shrink(&rsaKey);
 		    rsaPrivKey.un_key.keyRsaPriv.n.data = rsaKey.N;
 		    rsaPrivKey.un_key.keyRsaPriv.n.len = strlen(rsaKey.N);
 		    rsaPrivKey.un_key.keyRsaPriv.d.data = rsaKey.d;
@@ -136,9 +136,9 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 
 		else
 		{
-			LOG_ERR(
-					"Import of the private key was't successful! Cryptolib says: %s",
-					cw_error2string(iRet));
+//			LOG_ERR(
+//					"Import of the private key was't successful! Cryptolib says: %s",
+//					cw_error2string(iRet));
 		} /* else */
 
 		cdb_free();
@@ -953,7 +953,7 @@ int sslSoc_free(s_sslCtx_t* ps_sslCtx)
 
 
 	//OLD-cw:	cw_rsa_publickey_free(&ps_sslCtx->ps_hsElem->gci_peerPubKey);
-	err = gciKeyDelete(&ps_sslCtx->ps_hsElem->gci_rsaCliPubKey);
+	err = gciKeyDelete(&ps_sslCtx->ps_hsElem->gci_rsaPeerKey);
 	if(err != en_gciResult_Ok)
 	{
 		//TODO return error state

@@ -21,9 +21,9 @@
 /*----------------------------------------------Macro Definitions--------------------------------------------------------*/
 
 /** Size of the context array */
-#define 	GCI_NB_CTX_MAX				100
+#define 	GCI_NB_CTX_MAX				5
 /** Size of the key array */
-#define 	GCI_NB_KEY_MAX				100
+#define 	GCI_NB_KEY_MAX				5
 /** Size in bits for md5 digest */
 #define     GCI_MD5_SIZE_BITS           128
 /** Size in bytes for md5 digest */
@@ -243,14 +243,16 @@ typedef enum en_gciCipherAlgo
 {
 	/** Cipher type invalid */
 	en_gciCipherAlgo_Invalid,
-	/** Stream cipher RC4 */
+	/** Symmetric Stream cipher RC4 */
 	en_gciCipherAlgo_RC4,
-	/** Block cipher Triple DES */
+	/** Symmetric Block cipher Triple DES */
 	en_gciCipherAlgo_3DES,
-	/** Block cipher AES */
+	/** Symmetric Block cipher AES */
 	en_gciCipherAlgo_AES,
-	/** Block cipher DES */
+	/** Symmetric Block cipher DES */
 	en_gciCipherAlgo_DES,
+	/** Asymmetric cipher RSA */
+	en_gciCipherAlgo_RSA,
 	/** No cipher used */
 	en_gciCipherAlgo_None=0xFF
 } en_gciCipherAlgo_t;
@@ -269,6 +271,7 @@ typedef struct st_gciCipherConfig
 	 * en_gciCipherAlgo_3DES
 	 * en_gciCipherAlgo_AES
 	 * en_gciCipherAlgo_DES
+	 * en_gciCipherAlgo_RSA
 	 * en_gciCipherAlgo_None=0xFF
 	 */
 	en_gciCipherAlgo_t algo;
