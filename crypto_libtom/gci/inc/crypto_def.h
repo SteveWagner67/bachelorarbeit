@@ -21,7 +21,7 @@
 /*----------------------------------------------Macro Definitions--------------------------------------------------------*/
 
 /** Size of the context array */
-#define 	GCI_NB_CTX_MAX				5
+#define 	GCI_NB_CTX_MAX				10
 /** Size of the key array */
 #define 	GCI_NB_KEY_MAX				5
 /** Size in bits for md5 digest */

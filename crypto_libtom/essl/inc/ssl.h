@@ -713,14 +713,14 @@ typedef struct ssl_handshakeElements
    uint8_t              ac_hsBuf[SSL_HANDSHAKE_BUFFER_SIZE];
    /* Sha1 and MD5 context for verification of the handshake messages */
    //TODO: delete this union after written hashCtx instead of it
-   union {
+//   union {
        s_md5Sha1_t      s_md5Sha1;
 	   GciCtxId_t 		md5Ctx;
        //OLD-CW: gci_hashCtx_t    gci_hashCtx;
 	   GciCtxId_t		sha1Ctx;
 	   GciCtxId_t		hashCtx;
 
-   }u_hashCtx;
+ //  }u_hashCtx;
 
    size_t               gci_hsBufLen;
 

@@ -910,107 +910,24 @@ int main(int argc , char *argv[])
 	}
 
 #else
+    typedef struct con
+    {
+        int* a;
+        int *b;
+    }con;
 
-#define testOther 0
 	int main(int argc , char *argv[])
 	{
 
-#if testOther
-		GciCtxConfig_t p[10];
-		int i=0;
 
-		p[4].data.sign.config.cmac.iv = (uint8_t*)malloc(sizeof(uint8_t));
+	    con Con;
 
-		if(NULL != p[4].data.sign.config.cmac.iv)
-		{
-			puts("Done.");
-		}
+	    int c = 12;
 
-		else
-		{
-			puts("Error.");
-		}
+	    Con.a = &c;
 
-		uint8_t array[5];
-		array[0]=1;
-		array[1]=2;
-		array[2]=3;
-		array[3]=4;
-		array[4]=5;
+	    printf("c = %d\r\n struct = %d", c, *Con.a);
 
-		uint8_t* test;
-
-
-		printf("\r\nfor copy without malloc:");
-		for(i=0;i<5;i++)
-		{
-			printf("%d", test[i]);
-		}
-
-		test = (uint8_t*)malloc(sizeof(*test)*5);
-
-
-		printf("\r\nfor copy with malloc:");
-		for(i=0;i<5;i++)
-		{
-			printf("%d", test[i]);
-		}
-
-		memcpy(test, array, sizeof(array));
-		printf("\r\nafter copy:");
-		for(i=0;i<5;i++)
-		{
-			printf("%d", test[i]);
-		}
-
-		free(test);
-		printf("\r\nafter free memory:");
-		for(i=0;i<5;i++)
-		{
-			printf("%d", test[i]);
-		}
-
-		memcpy(test, array, sizeof(array));
-		printf("\r\nmemcopy after free memory:");
-		for(i=0;i<5;i++)
-		{
-			printf("%d", test[i]+1);
-		}
-
-		/*	free(test);
-	printf("\r\nafter free memory:");
-	for(i=0;i<5;i++)
-	{
-		printf("%d", test[i]);
-	}
-		 */
-		printf("\r\n");
-
-
-#else
-
-		//Used for test
-		uint8_t buf[5] = {0,1,2,3,4};
-		uint8_t* p;
-
-		int i;
-
-		//p = &buf;
-
-		memcpy(p, buf, sizeof(buf));
-
-		for(i=0;i<sizeof(p)+1;i++)
-		{
-			printf("%d\r\n", p[i]);
-		}
-
-
-
-
-
-
-
-#endif
 		return 0;
 	}
 

@@ -34,9 +34,6 @@ static st_gciKey_t ga_keyID[GCI_NB_KEY_MAX];
 static prng_state g_fortuna_prng;
 static int g_fortunaID;
 
-/* Diffie-Hellmann private key ID */
-static GciKeyId_t g_dhPrivKeyID;
-
 /* Diffie-Hellmann domain parameters length buffer */
 static size_t ga_allocDhDomainParam[GCI_BUFFER_MAX_SIZE];
 /* Diffie-Hellmann domain parameter p buffer */
@@ -46,17 +43,20 @@ static uint8_t ga_allocDhDomainG[GCI_BUFFER_MAX_SIZE/2];
 
 
 /* Hash MD5 */
-static hash_state ga_hashMd5[sizeof(hash_state)];
+static hash_state ga_hashMd5[GCI_NB_CTX_MAX][sizeof(hash_state)];
 /* Hash SHA1 */
-static hash_state ga_hashSha1[sizeof(hash_state)];
+static hash_state ga_hashSha1[GCI_NB_CTX_MAX][sizeof(hash_state)];
 /* Hash SHA224 */
-static hash_state ga_hashSha224[sizeof(hash_state)];
+static hash_state ga_hashSha224[GCI_NB_CTX_MAX][sizeof(hash_state)];
 /* Hash SHA256 */
-static hash_state ga_hashSha256[sizeof(hash_state)];
+static hash_state ga_hashSha256[GCI_NB_CTX_MAX][sizeof(hash_state)];
 /* Hash SHA384 */
-static hash_state ga_hashSha384[sizeof(hash_state)];
+static hash_state ga_hashSha384[GCI_NB_CTX_MAX][sizeof(hash_state)];
 /* Hash SHA512 */
-static hash_state ga_hashSha512[sizeof(hash_state)];
+static hash_state ga_hashSha512[GCI_NB_CTX_MAX][sizeof(hash_state)];
+
+/* HMAC */
+static hmac_state ga_hmac[GCI_NB_CTX_MAX];
 
 /* Cipher RC4 */
 static prng_state ga_cipherRc4[GCI_NB_CTX_MAX];
@@ -79,7 +79,10 @@ static gcm_state ga_blockModeGCM[GCI_NB_CTX_MAX];
 static uint8_t ga_allocSymKey[GCI_NB_KEY_MAX][TC_SYM_KEY_SIZE_MAX_BYTES];
 
 /* Diffie-Hellmann private key */
-static uint8_t ga_allocDhPrivKey[GCI_NB_KEY_MAX][TC_DH_KEY_SIZE_MAX_BYTES];
+//static uint8_t ga_allocDhPrivKey[GCI_NB_KEY_MAX][TC_DH_KEY_SIZE_MAX_BYTES];
+
+/* Private key corresponds to dhKey.x */
+dh_key dhKey;
 
 /* Diffie-Hellmann public key */
 static uint8_t ga_allocDhPubKey[GCI_NB_KEY_MAX][TC_DH_KEY_SIZE_MAX_BYTES];
@@ -175,13 +178,14 @@ en_gciResult_t _initPrng(const uint8_t* p_randBuf, size_t randLen);
 en_gciResult_t _genDhDomainParam(uint8_t* p_g, size_t* gLen, uint8_t* p_p, size_t* pLen);
 
 /**
- * \fn                          en_gciResult_t _genDhKeyPair( dh_key* p_dhKey )
+ * \fn                          en_gciResult_t _genDhKeyPair( GciKeyId_t* p_pubKeyID )
  * \brief                       Generate Diffie-Hellmann key pair
- * \param [out] p_dhKey         Pointer to the structure for the key pair (.x -> private key, .y -> public key)
+ * \param [in]  ctxID           Context ID
+ * \param [out] p_pubKeyID      Pointer to the ID of the public key
  * @return                      en_gciResult_Ok on success
  * @return                      en_gciResult_Err on error
  */
-en_gciResult_t _genDhKeyPair( dh_key* p_dhKey );
+en_gciResult_t _genDhKeyPair( GciCtxId_t ctxID, GciKeyId_t* p_pubKeyID );
 
 /**
  * \fn                          en_gciResult_t _ctxRelease( st_tcCtxConfig_t ctx)
@@ -374,7 +378,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 	    case en_gciHashAlgo_MD5:
 	        printf("GCI Info: Hash MD5 context ID = %d\r\n", *p_ctxID);
 
-	        tmpErr = md5_init(ga_hashMd5);
+	        tmpErr = md5_init(&ga_hashMd5[*p_ctxID]);
 
 	        if(tmpErr != CRYPT_OK)
 	        {
@@ -387,7 +391,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 	    case en_gciHashAlgo_SHA1:
 	        printf("GCI Info: Hash SHA1 context ID = %d\r\n", *p_ctxID);
 
-	        tmpErr = sha1_init(ga_hashSha1);
+	        tmpErr = sha1_init(&ga_hashSha1[*p_ctxID]);
 
 	        if(tmpErr != CRYPT_OK)
 	        {
@@ -400,7 +404,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 	    case en_gciHashAlgo_SHA224:
 	        printf("GCI Info: Hash SHA224 context ID = %d\r\n", *p_ctxID);
 
-	        tmpErr = sha224_init(ga_hashSha224);
+	        tmpErr = sha224_init(&ga_hashSha224[*p_ctxID]);
 
 	        if(tmpErr != CRYPT_OK)
 	        {
@@ -412,7 +416,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 	    case en_gciHashAlgo_SHA256:
 	        printf("GCI Info: Hash SHA256 context ID = %d\r\n", *p_ctxID);
 
-	        tmpErr = sha256_init(ga_hashSha256);
+	        tmpErr = sha256_init(&ga_hashSha256[*p_ctxID]);
 
 	        if(tmpErr != CRYPT_OK)
 	        {
@@ -424,7 +428,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 	    case en_gciHashAlgo_SHA384:
 	        printf("GCI Info: Hash SHA384 context ID = %d\r\n", *p_ctxID);
 
-	        tmpErr = sha384_init(ga_hashSha384);
+	        tmpErr = sha384_init(&ga_hashSha384[*p_ctxID]);
 
 	        if(tmpErr != CRYPT_OK)
 	        {
@@ -436,7 +440,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 	    case en_gciHashAlgo_SHA512:
 	        printf("GCI Info: Hash SHA512 context ID = %d\r\n", *p_ctxID);
 
-	        tmpErr = sha512_init(ga_hashSha512);
+	        tmpErr = sha512_init(&ga_hashSha512[*p_ctxID]);
 
 	        if(tmpErr != CRYPT_OK)
 	        {
@@ -458,9 +462,66 @@ en_gciResult_t gciHashCtxClone( GciCtxId_t idSrc, GciCtxId_t* p_idDest )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-#ifdef TC_DBG
 	printf("GCI Info: Hash Ctx Clone\r\n");
-#endif
+
+	/* Search a free context ID */
+	err = _searchFreeCtxID(p_idDest);
+
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error: No context ID free\r\n");
+        return err;
+    }
+
+    else
+    {
+        printf("GCI Info: Hash clone context ID = %d\r\n", *p_idDest);
+
+    }
+
+    ga_ctxID[*p_idDest].keyID = ga_ctxID[idSrc].keyID;
+    ga_ctxID[*p_idDest].type = ga_ctxID[idSrc].type;
+    ga_ctxID[*p_idDest].un_ctxConfig.ctxConfigHash = ga_ctxID[idSrc].un_ctxConfig.ctxConfigHash;
+
+    switch(ga_ctxID[*p_idDest].type)
+    {
+        case en_gciHashAlgo_MD5:
+
+            memcpy(&ga_hashMd5[*p_idDest], &ga_hashMd5[idSrc], sizeof(hash_state));
+
+
+        break;
+
+        case en_gciHashAlgo_SHA1:
+
+            memcpy(&ga_hashSha1[*p_idDest], &ga_hashSha1[idSrc], sizeof(hash_state));
+
+        break;
+
+        case en_gciHashAlgo_SHA224:
+
+            memcpy(&ga_hashSha224[*p_idDest], &ga_hashSha224[idSrc], sizeof(hash_state));
+
+        break;
+
+        case en_gciHashAlgo_SHA256:
+
+            memcpy(&ga_hashSha256[*p_idDest], &ga_hashSha256[idSrc], sizeof(hash_state));
+
+        break;
+
+        case en_gciHashAlgo_SHA384:
+
+            memcpy(&ga_hashSha384[*p_idDest], &ga_hashSha384[idSrc], sizeof(hash_state));
+
+        break;
+
+        case en_gciHashAlgo_SHA512:
+
+            memcpy(&ga_hashSha512[*p_idDest], &ga_hashSha512[idSrc], sizeof(hash_state));
+
+        break;
+    }
 
 	return err;
 }
@@ -476,7 +537,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 	int tmpErr = CRYPT_OK;
 	hash_state hash;
 
-	printf("GCI Info: Hash Update\r\n");
+	printf("GCI Info: Hash Update ID %d\r\n", ctxID);
 
 	/* Compare the type of the context */
 	if(ga_ctxID[ctxID].type != en_tcCtxType_Hash)
@@ -492,7 +553,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 	{
 	    case en_gciHashAlgo_MD5:
 
-	        tmpErr = md5_process(ga_hashMd5, p_blockMsg, blockLen);
+	        tmpErr = md5_process(&ga_hashMd5[ctxID], p_blockMsg, blockLen);
 
 	        if(tmpErr != CRYPT_OK)
 	        {
@@ -509,7 +570,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
 	    case en_gciHashAlgo_SHA1:
 
-	        tmpErr = sha1_process(ga_hashSha1, p_blockMsg, blockLen);
+	        tmpErr = sha1_process(&ga_hashSha1[ctxID], p_blockMsg, blockLen);
 
 	        if(tmpErr != CRYPT_OK)
 	        {
@@ -526,7 +587,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
 	    case en_gciHashAlgo_SHA224:
 
-	        tmpErr = sha224_process(ga_hashSha224, p_blockMsg, blockLen);
+	        tmpErr = sha224_process(&ga_hashSha224[ctxID], p_blockMsg, blockLen);
 
 	        if(tmpErr != CRYPT_OK)
 	        {
@@ -543,7 +604,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
 	    case en_gciHashAlgo_SHA256:
 
-	        tmpErr = sha256_process(ga_hashSha256, p_blockMsg, blockLen);
+	        tmpErr = sha256_process(&ga_hashSha256[ctxID], p_blockMsg, blockLen);
 
 	        if(tmpErr != CRYPT_OK)
 	        {
@@ -560,7 +621,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
 	    case en_gciHashAlgo_SHA384:
 
-	        tmpErr = sha384_process(ga_hashSha384, p_blockMsg, blockLen);
+	        tmpErr = sha384_process(&ga_hashSha384[ctxID], p_blockMsg, blockLen);
 
 	        if(tmpErr != CRYPT_OK)
 	        {
@@ -577,7 +638,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
 	    case en_gciHashAlgo_SHA512:
 
-	        tmpErr = sha512_process(ga_hashSha512, p_blockMsg, blockLen);
+	        tmpErr = sha512_process(&ga_hashSha512[ctxID], p_blockMsg, blockLen);
 
 	        if(tmpErr != CRYPT_OK)
 	        {
@@ -622,7 +683,7 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
 	    {
 	        case en_gciHashAlgo_MD5:
 
-	            tmpErr = md5_done(ga_hashMd5, p_digest);
+	            tmpErr = md5_done(&ga_hashMd5[ctxID], p_digest);
 
 	            if(tmpErr != CRYPT_OK)
 	            {
@@ -635,13 +696,13 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
 	                printf("GCI Info: Finish MD5 done\r\n");
 	            }
 
-	            p_digestLen = (size_t)strlen(*p_digest);
+	            //*p_digestLen = (size_t)strlen(p_digest);
 
 	        break;
 
 	        case en_gciHashAlgo_SHA1:
 
-	            tmpErr = sha1_done(ga_hashSha1, p_digest);
+	            tmpErr = sha1_done(&ga_hashSha1[ctxID], p_digest);
 
 	            if(tmpErr != CRYPT_OK)
 	            {
@@ -654,13 +715,13 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
 	                printf("GCI Info: Finish SHA1 done\r\n");
 	            }
 
-	            p_digestLen = (size_t)strlen(*p_digest);
+	            //*p_digestLen = strlen(p_digest);
 
 	        break;
 
 	        case en_gciHashAlgo_SHA224:
 
-	            tmpErr = sha224_done(ga_hashSha224, p_digest);
+	            tmpErr = sha224_done(&ga_hashSha224[ctxID], p_digest);
 
 	            if(tmpErr != CRYPT_OK)
 	            {
@@ -673,13 +734,13 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
 	                printf("GCI Info: Finish SHA224 done\r\n");
 	            }
 
-	            p_digestLen = (size_t)strlen(*p_digest);
+	            *p_digestLen = (size_t)strlen(p_digest);
 	        break;
 
 	        case en_gciHashAlgo_SHA256:
 	            printf("GCI Info: Finish SHA256");
 
-	            tmpErr = sha256_done(ga_hashSha256, p_digest);
+	            tmpErr = sha256_done(&ga_hashSha256[ctxID], p_digest);
 
 	            if(tmpErr != CRYPT_OK)
 	            {
@@ -687,12 +748,12 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
 	                printf("GCI Error: finish Sha256\r\n");
 	            }
 
-	            p_digestLen = (size_t)strlen(*p_digest);
+	            *p_digestLen = (size_t)strlen(p_digest);
 	        break;
 
 	        case en_gciHashAlgo_SHA384:
 
-	            tmpErr = sha384_done(ga_hashSha384, p_digest);
+	            tmpErr = sha384_done(&ga_hashSha384[ctxID], p_digest);
 
 	            if(tmpErr != CRYPT_OK)
 	            {
@@ -705,12 +766,12 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
                     printf("GCI Info: Finish SHA384 done\r\n");
                 }
 
-	            p_digestLen = (size_t)strlen(*p_digest);
+	            *p_digestLen = (size_t)strlen(p_digest);
 	        break;
 
 	        case en_gciHashAlgo_SHA512:
 
-	            tmpErr = sha512_done(ga_hashSha512, p_digest);
+	            tmpErr = sha512_done(&ga_hashSha512[ctxID], p_digest);
 
 	            if(tmpErr != CRYPT_OK)
 	            {
@@ -723,7 +784,7 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
                     printf("GCI Info: Finish SHA512 done\r\n");
                 }
 
-	            p_digestLen = (size_t)strlen(*p_digest);
+	            *p_digestLen = (size_t)strlen(p_digest);
 
 	        break;
 	    }
@@ -743,10 +804,177 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
 en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyId_t keyID, GciCtxId_t* p_ctxID )
 {
 	en_gciResult_t err = en_gciResult_Ok;
+	int tmpErr = CRYPT_OK;
+	st_gciKey_t key;
+	int hashID;
 
-#ifdef TC_DBG
+	uint8_t a_allocKey[255];
+
 	printf("GCI Info: Sign Gen New Ctx\r\n");
-#endif
+
+	/* Search free context ID */
+	err = _searchFreeCtxID(p_ctxID);
+
+	if(err != en_gciResult_Ok)
+	{
+	    printf("GCI Error: No context ID free\r\n");
+
+	    return err;
+	}
+
+	/* Indicate the type of the context */
+	ga_ctxID[*p_ctxID].type = en_tcCtxType_SignGen;
+
+	/* Save the configuration */
+	ga_ctxID[*p_ctxID].un_ctxConfig.ctxConfigSign.algo = p_signConfig->algo;
+	ga_ctxID[*p_ctxID].un_ctxConfig.ctxConfigSign.hash = p_signConfig->hash;
+
+	switch(p_signConfig->algo)
+	{
+	    case en_gciSignAlgo_CMAC_AES:
+
+            printf("GCI Info: Message Authentication code CMAC\r\n");
+
+	    break;
+
+	    case en_gciSignAlgo_DSA:
+
+            printf("GCI Info: Signature algorithm DSA\r\n");
+
+	    break;
+
+	    case en_gciSignAlgo_ECDSA:
+	    case en_gciSignAlgo_ECDSA_GF2M:
+	    case en_gciSignAlgo_ECDSA_GFP:
+
+            printf("GCI Info: Signature algorithm ECDSA\r\n");
+
+	    break;
+
+
+	    case en_gciSignAlgo_HMAC:
+
+            printf("GCI Info: Message Authentication code HMAC\r\n");
+
+            /* Get the hmac/symmetric key with the ID in input */
+            key.type = en_gciKeyType_Hmac;
+            key.un_key.keySym.data = a_allocKey;
+            err = gciKeyGet(keyID, &key);
+
+            if( err != en_gciResult_Ok)
+            {
+                printf("GCI Error: Getting the HMAC/symmetric key\r\n");
+                return err;
+            }
+
+            /* Hash */
+            switch(p_signConfig->hash)
+            {
+                case en_gciHashAlgo_MD5:
+
+                    printf("GCI Info: Hash MD5\r\n");
+
+                    /* Get the ID of the hash MD5 */
+                    hashID = find_hash("md5");
+
+                break;
+
+                case en_gciHashAlgo_SHA1:
+
+                    printf("GCI Info: Hash SHA1\r\n");
+
+                    /* Get the ID of the hash SHA1 */
+                    hashID = find_hash("sha1");
+
+                break;
+
+                case en_gciHashAlgo_SHA224:
+
+                    printf("GCI Info: Hash SHA224\r\n");
+
+                    /* Get the ID of the hash SHA224 */
+                    hashID = find_hash("sha224");
+
+                break;
+
+                case en_gciHashAlgo_SHA256:
+
+                    printf("GCI Info: Hash SHA256\r\n");
+
+                    /* Get the ID of the hash SHA256 */
+                    hashID = find_hash("sha256");
+
+                break;
+
+                case en_gciHashAlgo_SHA384:
+
+                    printf("GCI Info: Hash SHA384\r\n");
+
+                    /* Get the ID of the hash SHA384 */
+                    hashID = find_hash("sha384");
+
+                break;
+
+
+                case en_gciHashAlgo_SHA512:
+
+                    printf("GCI Info: Hash SHA512\r\n");
+
+                    /* Get the ID of the hash SHA512 */
+                    hashID = find_hash("sha512");
+
+                break;
+
+                case en_gciHashAlgo_None:
+                case en_gciHashAlgo_Invalid:
+                default:
+
+                    printf("GCI Error: Invalid Hash\r\n");
+                    err = en_gciResult_Err;
+                    return err;
+                break;
+
+            }
+
+            /* Initialize the HMAC */
+            tmpErr = hmac_init(&ga_hmac[*p_ctxID], hashID, key.un_key.keySym.data, key.un_key.keySym.len);
+
+            if(tmpErr != CRYPT_OK)
+            {
+                printf("GCI Error: HMAC init\r\n");
+                err = en_gciResult_Err;
+            }
+
+	    break;
+
+	    case en_gciSignAlgo_MAC_ISO9797_ALG1:
+	    case en_gciSignAlgo_MAC_ISO9797_ALG3:
+
+            printf("GCI Info: Message Authentication code MAC\r\n");
+
+	    break;
+
+
+	    case en_gciSignAlgo_RSA:
+	    case en_gciSignAlgo_RSASSA_PKCS:
+	    case en_gciSignAlgo_RSASSA_PSS:
+	    case en_gciSignAlgo_RSASSA_X509:
+
+	        printf("GCI Info: Signature algorithm RSA\r\n");
+
+	    break;
+
+
+	    case en_gciSignAlgo_None:
+	    case en_gciSignAlgo_Invalid:
+	    default:
+
+	        printf("GCI Error Invalid signature algorithm\r\n");
+
+	    break;
+
+	}
+
 
 	return err;
 }
@@ -770,7 +998,7 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
 
 
 /********************************/
-/*	gciSignCtxClone			*/
+/*	gciSignCtxClone			    */
 /********************************/
 en_gciResult_t gciSignCtxClone( GciCtxId_t idSrc, GciCtxId_t* p_idDest )
 {
@@ -788,13 +1016,85 @@ en_gciResult_t gciSignCtxClone( GciCtxId_t idSrc, GciCtxId_t* p_idDest )
 /********************************/
 /*	gciSignUpdate				*/
 /********************************/
-en_gciResult_t gciSignUpdate( GciCtxId_t ctxID,const uint8_t* p_blockMsg, size_t blockLen )
+en_gciResult_t gciSignUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_t blockLen )
 {
 	en_gciResult_t err = en_gciResult_Ok;
+	int tmpErr = CRYPT_OK;
 
-#ifdef TC_DBG
-	printf("GCI Info: Sign Update\r\n");
-#endif
+	printf("GCI Info: Signature Update\r\n");
+
+	/* Verify the type of the context */
+	if(ga_ctxID[ctxID].type != en_tcCtxType_SignGen)
+	{
+	    printf("GCI Error: Type of the context not signature gen\r\n");
+	    err = en_gciResult_Err;
+	    return err;
+	}
+
+	switch(ga_ctxID[ctxID].un_ctxConfig.ctxConfigSign.algo)
+	{
+
+	    case en_gciSignAlgo_CMAC_AES:
+
+            printf("GCI Info: Message Authentication code CMAC\r\n");
+
+        break;
+
+        case en_gciSignAlgo_DSA:
+
+            printf("GCI Info: Signature algorithm DSA\r\n");
+
+        break;
+
+        case en_gciSignAlgo_ECDSA:
+        case en_gciSignAlgo_ECDSA_GF2M:
+        case en_gciSignAlgo_ECDSA_GFP:
+
+            printf("GCI Info: Signature algorithm ECDSA\r\n");
+
+        break;
+
+
+        case en_gciSignAlgo_HMAC:
+
+            printf("GCI Info: Message Authentication code HMAC\r\n");
+
+            tmpErr = hmac_process(&ga_hmac[ctxID], p_blockMsg, blockLen);
+
+            if(tmpErr != CRYPT_OK)
+            {
+                printf("GCI Error: HMAC process\r\n");
+                err = en_gciResult_Err;
+            }
+
+        break;
+
+        case en_gciSignAlgo_MAC_ISO9797_ALG1:
+        case en_gciSignAlgo_MAC_ISO9797_ALG3:
+
+            printf("GCI Info: Message Authentication code MAC\r\n");
+
+        break;
+
+
+        case en_gciSignAlgo_RSA:
+        case en_gciSignAlgo_RSASSA_PKCS:
+        case en_gciSignAlgo_RSASSA_PSS:
+        case en_gciSignAlgo_RSASSA_X509:
+
+            printf("GCI Info: Signature algorithm RSA\r\n");
+
+        break;
+
+
+        case en_gciSignAlgo_None:
+        case en_gciSignAlgo_Invalid:
+        default:
+
+            printf("GCI Error Invalid signature algorithm\r\n");
+
+        break;
+	}
 
 	return err;
 }
@@ -807,10 +1107,87 @@ en_gciResult_t gciSignUpdate( GciCtxId_t ctxID,const uint8_t* p_blockMsg, size_t
 en_gciResult_t gciSignGenFinish( GciCtxId_t ctxID, uint8_t* p_sign, size_t* p_signLen )
 {
 	en_gciResult_t err = en_gciResult_Ok;
+	int tmpErr = CRYPT_OK;
 
-#ifdef TC_DBG
 	printf("GCI Info: Sign Gen Finish\r\n");
-#endif
+
+    /* Verify the type of the context */
+    if(ga_ctxID[ctxID].type != en_tcCtxType_SignGen)
+    {
+        printf("GCI Error: Type of the context not signature gen\r\n");
+        err = en_gciResult_Err;
+        return err;
+    }
+
+    switch(ga_ctxID[ctxID].un_ctxConfig.ctxConfigSign.algo)
+    {
+
+        case en_gciSignAlgo_CMAC_AES:
+
+            printf("GCI Info: Message Authentication code CMAC\r\n");
+
+        break;
+
+        case en_gciSignAlgo_DSA:
+
+            printf("GCI Info: Signature algorithm DSA\r\n");
+
+        break;
+
+        case en_gciSignAlgo_ECDSA:
+        case en_gciSignAlgo_ECDSA_GF2M:
+        case en_gciSignAlgo_ECDSA_GFP:
+
+            printf("GCI Info: Signature algorithm ECDSA\r\n");
+
+        break;
+
+
+        case en_gciSignAlgo_HMAC:
+
+            printf("GCI Info: Message Authentication code HMAC\r\n");
+
+            tmpErr = hmac_done(&ga_hmac[ctxID], p_sign, p_signLen);
+
+            if(tmpErr != CRYPT_OK)
+            {
+                printf("GCI Error: HMAC done\r\n");
+                err = en_gciResult_Err;
+            }
+
+            else
+            {
+                printf("GCI Info: HMAC done\r\n");
+            }
+
+        break;
+
+        case en_gciSignAlgo_MAC_ISO9797_ALG1:
+        case en_gciSignAlgo_MAC_ISO9797_ALG3:
+
+            printf("GCI Info: Message Authentication code MAC\r\n");
+
+        break;
+
+
+        case en_gciSignAlgo_RSA:
+        case en_gciSignAlgo_RSASSA_PKCS:
+        case en_gciSignAlgo_RSASSA_PSS:
+        case en_gciSignAlgo_RSASSA_X509:
+
+            printf("GCI Info: Signature algorithm RSA\r\n");
+
+        break;
+
+
+        case en_gciSignAlgo_None:
+        case en_gciSignAlgo_Invalid:
+        default:
+
+            printf("GCI Error Invalid signature algorithm\r\n");
+
+        break;
+    }
 
 	return err;
 }
@@ -894,7 +1271,7 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 
 	if(p_ciphConfig->iv.data != NULL)
 	{
-	    memcpy(&ga_allocIV[*p_ctxID], p_ciphConfig->iv.data, p_ciphConfig->iv.len);
+	    memcpy(&ga_allocIV[*p_ctxID], &p_ciphConfig->iv.data, p_ciphConfig->iv.len);
 	    ga_ctxID[*p_ctxID].un_ctxConfig.ctxConfigCipher.iv.len = p_ciphConfig->iv.len;
 	}
 
@@ -1121,6 +1498,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 {
 	en_gciResult_t err = en_gciResult_Ok;
 	int tmpErr;
+	int bytesRead;
 
 	st_gciKey_t rsaPubKey = {.type = en_gciKeyType_RsaPub };
 
@@ -1152,10 +1530,12 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 	        /* Copy the input- to the output-buffer */
 	        memcpy(p_ciphtxt, p_plaintxt, pltxtLen);
 
-	        /* Encrypt */
-	        tmpErr = rc4_read(p_ciphtxt, *p_cptxtLen, &ga_cipherRc4[ctxId]);
+	        p_cptxtLen = &pltxtLen;
 
-	        if(tmpErr != CRYPT_OK)
+	        /* Encrypt */
+	        bytesRead = rc4_read(p_ciphtxt, *p_cptxtLen, &ga_cipherRc4[ctxId]);
+
+	        if(bytesRead <= 0)
 	        {
 	            printf("GCI Error: RC4 encrypt\r\n");
 	            err = en_gciResult_Err;
@@ -1163,7 +1543,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 
 	        else
 	        {
-	            printf("GCI Info: RC4 encrypt done\r\n");
+	            printf("GCI Info: RC4 encrypt %d bytes\r\n", bytesRead);
 	        }
 
 	    break;
@@ -1406,6 +1786,8 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
 	en_gciResult_t err = en_gciResult_Ok;
 	int tmpErr = CRYPT_OK;
 
+	int bytesRead;
+
 	uint8_t a_allocRsaPrivN[TC_RSA_KEY_SIZE_MAX_BYTES];
 	uint8_t a_allocRsaPrivD[TC_RSA_KEY_SIZE_MAX_BYTES];
 
@@ -1436,17 +1818,17 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
             memcpy(p_plaintxt, p_ciphtxt, cptxtLen);
 
             /* Decrypt */
-            tmpErr = rc4_read(p_plaintxt, *p_pltxtLen, &ga_cipherRc4[ctxId]);
+            bytesRead = rc4_read(p_plaintxt, *p_pltxtLen, &ga_cipherRc4[ctxId]);
 
-            if(tmpErr != CRYPT_OK)
+            if(bytesRead <= 0)
             {
-                printf("GCI Error: RC4 decrypt\r\n");
+                printf("GCI Error: RC4 encrypt\r\n");
                 err = en_gciResult_Err;
             }
 
             else
             {
-                printf("GCI Info: RC4 decrypt done\r\n");
+                printf("GCI Info: RC4 encrypt %d bytes\r\n", bytesRead);
             }
 
         break;
@@ -1803,10 +2185,10 @@ en_gciResult_t gciDhNewCtx( const st_gciDhConfig_t* p_dhConfig, GciCtxId_t* p_ct
 			/* Save the parameters if different to NULL*/
 			if(p_dhConfig->un_dhParam.dhParamDomain != NULL)
 			{
-			    memcpy(p_g, &p_dhConfig->un_dhParam.dhParamDomain->g.data, p_dhConfig->un_dhParam.dhParamDomain->g.len);
+			    memcpy(p_g, p_dhConfig->un_dhParam.dhParamDomain->g.data, p_dhConfig->un_dhParam.dhParamDomain->g.len);
 				ga_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->g.len = p_dhConfig->un_dhParam.dhParamDomain->g.len;
 
-				memcpy(p_p, &p_dhConfig->un_dhParam.dhParamDomain->p.data, p_dhConfig->un_dhParam.dhParamDomain->p.len);
+				memcpy(p_p, p_dhConfig->un_dhParam.dhParamDomain->p.data, p_dhConfig->un_dhParam.dhParamDomain->p.len);
 				ga_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->p.len = p_dhConfig->un_dhParam.dhParamDomain->p.len;
 
 				printf("GCI Info: copy DH domain parameters done\r\n");
@@ -1892,18 +2274,6 @@ en_gciResult_t gciDhNewCtx( const st_gciDhConfig_t* p_dhConfig, GciCtxId_t* p_ct
 en_gciResult_t gciDhGenKey( GciCtxId_t ctxID, GciKeyId_t* p_pubKeyID )
 {
 	en_gciResult_t err = en_gciResult_Ok;
-	int tmpErr = CRYPT_OK;
-	uint8_t a_prngBuf[TC_DH_KEY_SIZE_MAX_BITS];
-	size_t prngSize = TC_DH_KEY_SIZE_MAX_BITS;
-
-	uint8_t* dhParamG;
-	uint8_t* dhParamP;
-	dh_key dhKey = {0};
-
-	mp_int p, g;
-
-	/* Init the big numbers */
-	mp_init_multi(&p, &g, NULL);
 
 	/* Compare the type of the context */
 	if(ga_ctxID[ctxID].type != en_tcCtxType_Dh)
@@ -1918,93 +2288,21 @@ en_gciResult_t gciDhGenKey( GciCtxId_t ctxID, GciKeyId_t* p_pubKeyID )
 	{
 		case en_gciDhType_Dh:
 
-		    /* TODO sw - the part in _genDhKeyPair doesn't work
-		     * Problem: should initialize the keys with ltc_multi_init
-		     *          but in this function is called mp_init which return 0x0 (in step to step mode)
-		     *          BUT in valentin's project is instead of mp_init, init from ltc_desc.c used (in step to step mode)
-		     *
-		     * To resolve the problem, find where is written that init is called instead of mp_init in valentin's projet
-		     */
-
 			printf("GCI Info: DH Gen Key\r\n");
 
+			err = _genDhKeyPair(ctxID, p_pubKeyID);
 
-			/* Allocate memory */
-			dhParamG = ga_allocDhDomainG;
-			dhParamP = ga_allocDhDomainP;
-
-
-			/* Init the keys */
-			//err = _genDhKeyPair(&dhKey);
-
-			/* Copy the the domain parameters set in gciDhNewCtx */
-			memcpy(dhParamG, ga_allocDhDomainG, GCI_BUFFER_MAX_SIZE/2);
-			memcpy(dhParamP, ga_allocDhDomainP, GCI_BUFFER_MAX_SIZE/2);
-
-			/* Check the validity of the prng */
-			tmpErr = prng_is_valid(g_fortunaID);
-
-			if (tmpErr != CRYPT_OK)
+			if(err == en_gciResult_Ok)
 			{
-				err = en_gciResult_Err;
-				printf("GCI Error: Invalid pnrg\r\n");
+			    printf("GCI Info: DH generate key pair done\r\n");
 			}
 
-			/* Create prng */
-			tmpErr = rng_make_prng(128, g_fortunaID, &g_fortuna_prng, NULL);
-			if (tmpErr != CRYPT_OK)
+			else
 			{
-				err = en_gciResult_Err;
-				printf("GCI Error: Make prng\r\n");
-
+			    printf("GCI Error: DH generate key pair\r\n");
 			}
-
-			/* Store the prng in a buf */
-			 if ( prng_descriptor[g_fortunaID].read( a_prngBuf, prngSize, &g_fortuna_prng ) != prngSize )
-			 {
-				 err = en_gciResult_Err;
-				 printf("GCI Error: Store prng\r\n");
-
-			 }
-
-
-			 /* TODO sw - the part below doesn't work without the initialization of the keys with ltc_multi_init (see above for more details) */
-
-			 /* Read private key from prngBuf */
-//			 tmpErr = mp_read_unsigned_bin(dhKey->x, a_prngBuf, prngSize);
-//			 if (tmpErr != CRYPT_OK)
-//			 {
-//				 err = en_gciResult_Err;
-//				 printf("GCI Error: Read private key as big number\r\n");
-//			 }
-//
-//			 /* Read domain parameter g */
-//			 tmpErr = mp_read_unsigned_bin(&g, dhParamG, a_ctxID[ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->g.len);
-//
-//			 /* Read domain parameter p */
-//			 tmpErr = mp_read_unsigned_bin(&p, dhParamP, a_ctxID[ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->p.len);
-//
-//			 /* Generate DH public key */
-//			 tmpErr = mp_exptmod(&g, dhKey->x, &p, dhKey->y);
-//
-//			 if (tmpErr != CRYPT_OK)
-//			 {
-//				 err = en_gciResult_Err;
-//				 printf("GCI Error: DH generate keys");
-//			 }
-
-
-		 	 /*TODO sw - Get an ID for the public key */
-
-			 /*TODO sw - Get an ID for the private key (use the global ID) */
-
-			 /* TODO sw - put the whole case in a local function to have more visibility */
-
-
-
 
 		break;
-
 
 
 		case en_gciDhType_Ecdh:
@@ -2071,7 +2369,6 @@ en_gciResult_t gciKeyPut( const st_gciKey_t* p_key, GciKeyId_t* p_keyID )
 
 	if(err != en_gciResult_Ok)
 	{
-		err = en_gciResult_Err;
 		printf("GCI Error: No key ID free\r\n");
 		return err;
 	}
@@ -2096,15 +2393,7 @@ en_gciResult_t gciKeyPut( const st_gciKey_t* p_key, GciKeyId_t* p_keyID )
 
 
 		case en_gciKeyType_DhPriv:
-			printf("GCI Info: DH priv key ID = %d\r\n", *p_keyID);
-
-			/* Save the data */
-
-			ga_keyID[*p_keyID].type = p_key->type;
-
-			memcpy(&ga_allocDhPrivKey[*p_keyID], p_key->un_key.keyDhPriv.key.data, p_key->un_key.keyDhPriv.key.len);
-
-			ga_keyID[*p_keyID].un_key.keyDhPriv.key.len = p_key->un_key.keyDhPriv.key.len;
+			printf("GCI Info: DH priv key not implemented\r\n", *p_keyID);
 
 		break;
 
@@ -2310,7 +2599,7 @@ en_gciResult_t gciKeyGet( GciKeyId_t keyID, st_gciKey_t* p_key )
 {
 	en_gciResult_t err = en_gciResult_Ok;
 
-	printf("GCI Info: Key Get\r\n");
+	printf("GCI Info: Key Get from ID %d\r\n", keyID);
 
 
 	/* Store the key as big number in the key array */
@@ -2337,39 +2626,17 @@ en_gciResult_t gciKeyGet( GciKeyId_t keyID, st_gciKey_t* p_key )
 	            p_key->un_key.keySym.len = ga_keyID[keyID].un_key.keySym.len;
 
 	            printf("GCI Info: Symmetric key copied\r\n");
-
-	            /* Delete the key */
-	            err = gciKeyDelete(keyID);
 	        }
+
+            /* Delete the key */
+            err = gciKeyDelete(keyID);
 
 	    break;
 
 
 	    case en_gciKeyType_DhPriv:
 
-            printf("GCI Info: DH private key\r\n");
-
-            /* Copy the type of the key */
-            p_key->type = ga_keyID[keyID].type;
-
-            /* Copy of the key */
-            if(p_key->un_key.keyDhPriv.key.data == NULL)
-            {
-                printf("GCI Error: pointer of the data for the key is NULL\r\n");
-                p_key->un_key.keyDhPriv.key.len = -1;
-                err = en_gciResult_Err;
-            }
-
-            else
-            {
-                memcpy(p_key->un_key.keyDhPriv.key.data, &ga_allocDhPrivKey[keyID], ga_keyID[keyID].un_key.keyDhPriv.key.len);
-                p_key->un_key.keyDhPriv.key.len = ga_keyID[keyID].un_key.keyDhPriv.key.len;
-
-                printf("GCI Info: DH private key copied\r\n");
-
-                /* Delete the key */
-                err = gciKeyDelete(keyID);
-            }
+            printf("GCI Info: DH private key not possible\r\n");
 
 	    break;
 
@@ -2685,10 +2952,7 @@ en_gciResult_t gciKeyGet( GciKeyId_t keyID, st_gciKey_t* p_key )
                 memcpy(p_key->un_key.keySym.data, &ga_allocSymKey[keyID], ga_keyID[keyID].un_key.keySym.len);
                 p_key->un_key.keySym.len = ga_keyID[keyID].un_key.keySym.len;
 
-                printf("GCI Info: Symmetric key copied\r\n");
-
-                /* Delete the key */
-                err = gciKeyDelete(keyID);
+                printf("GCI Info: HMAC key copied\r\n");
             }
 
 	    break;
@@ -2937,9 +3201,10 @@ en_gciResult_t _searchFreeKeyID( GciKeyId_t* p_keyID )
 	            return err;
 	        }
 
-	        /* If it goes out of the loop mean no key ID are free */
-	        err = en_gciResult_Err;
 	    }
+
+        /* If it goes out of the loop mean no key ID are free */
+        err = en_gciResult_Err;
 
 	}
 
@@ -3373,10 +3638,106 @@ en_gciResult_t _genDhDomainParam(uint8_t* p_g, size_t* gLen, uint8_t* p_p, size_
 	return err;
 }
 
-en_gciResult_t _genDhKeyPair( dh_key* p_dhKey )
+en_gciResult_t _genDhKeyPair( GciCtxId_t ctxID, GciKeyId_t* p_pubKeyID )
 {
     en_gciResult_t err = en_gciResult_Ok;
-    ltc_init_multi(&p_dhKey->x, &p_dhKey->y, NULL);
+
+    int tmpErr = CRYPT_OK;
+
+    st_gciKey_t dhPubKey  = {.type = en_gciKeyType_DhPub};
+
+    uint8_t a_prngBuf[TC_DH_KEY_SIZE_MAX_BITS];
+    size_t prngSize = TC_DH_KEY_SIZE_MAX_BITS;
+
+    uint8_t* dhParamG;
+    uint8_t* dhParamP;
+
+    mp_int p, g;
+
+
+    /* Allocate memory */
+    dhPubKey.un_key.keyDhPub.key.data = &ga_allocDhPubKey[ctxID];
+    dhParamG = ga_allocDhDomainG;
+    dhParamP = ga_allocDhDomainP;
+
+    /* Init the big numbers */
+    mp_init_multi(&p, &g, NULL);
+
+    /* Init the keys */
+    ltc_init_multi(&dhKey.x, &dhKey.y, NULL);
+
+
+    /* Check the validity of the prng */
+    tmpErr = prng_is_valid(g_fortunaID);
+
+    if (tmpErr != CRYPT_OK)
+    {
+        err = en_gciResult_Err;
+        printf("GCI Error: Invalid pnrg\r\n");
+    }
+
+    /* Create prng */
+    tmpErr = rng_make_prng(128, g_fortunaID, &g_fortuna_prng, NULL);
+    if (tmpErr != CRYPT_OK)
+    {
+        err = en_gciResult_Err;
+        printf("GCI Error: Make prng\r\n");
+
+    }
+
+    /* Store the prng in a buf */
+    if ( prng_descriptor[g_fortunaID].read( a_prngBuf, prngSize, &g_fortuna_prng ) != prngSize )
+    {
+        err = en_gciResult_Err;
+        printf("GCI Error: Store prng\r\n");
+
+    }
+
+    /* Read private key from prngBuf */
+    tmpErr = mp_read_unsigned_bin(dhKey.x, a_prngBuf, prngSize);
+    if (tmpErr != CRYPT_OK)
+    {
+        err = en_gciResult_Err;
+        printf("GCI Error: Read private key as big number\r\n");
+    }
+
+    /* Read domain parameter g */
+    tmpErr = mp_read_unsigned_bin(&g, dhParamG, ga_ctxID[ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->g.len);
+    if (tmpErr != CRYPT_OK)
+    {
+        err = en_gciResult_Err;
+        printf("GCI Error: Read generator (g)\r\n");
+    }
+
+    /* Read domain parameter p */
+    tmpErr = mp_read_unsigned_bin(&p, dhParamP, ga_ctxID[ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamDomain->p.len);
+    if (tmpErr != CRYPT_OK)
+    {
+        err = en_gciResult_Err;
+        printf("GCI Error: Read prime (p)\r\n");
+    }
+
+    /* Generate DH key pair */
+    tmpErr = mp_exptmod(&g, dhKey.x, &p, dhKey.y);
+
+    if (tmpErr != CRYPT_OK)
+    {
+        err = en_gciResult_Err;
+        printf("GCI Error: DH generate keys\r\n");
+    }
+
+    /* Convert the public key in a bytes buffer */
+    dhPubKey.un_key.keyDhPub.key.len = mp_unsigned_bin_size(dhKey.y);
+    tmpErr = mp_to_unsigned_bin(dhKey.y, dhPubKey.un_key.keyDhPub.key.data);
+
+    if (tmpErr != CRYPT_OK)
+    {
+        err = en_gciResult_Err;
+        printf("GCI Error: Convert big number to bytes buffer\r\n");
+    }
+
+    /* Get an ID for the public key */
+    gciKeyPut(&dhPubKey, p_pubKeyID);
 
     return err;
 }

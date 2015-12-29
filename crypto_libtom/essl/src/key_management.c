@@ -92,8 +92,8 @@ en_gciResult_t km_dhe_init()
     	//TODO return error state
     }
 
-    err = gciDhGenKey(dhCtx, &gst_dheKey.cwt_dheKey);
 
+    err = gciDhGenKey(dhCtx, &gst_dheKey.cwt_dheKey);
     //if ((i_ret = cw_dhe_makeKey(&gst_dheKey.cwt_dheKey)) == CW_OK)
     if(err == en_gciResult_Ok)
     {
