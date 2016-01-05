@@ -223,8 +223,10 @@ typedef enum en_gciPadding
 	en_gciPadding_Invalid,
 	/** ISO9797 padding */
 	en_gciPadding_ISO9797,
-	/** PKCS1 padding */
-	en_gciPadding_PKCS1,
+	/** PKCS1 V1_5 padding */
+	en_gciPadding_PKCS1_V1_5,
+    /** PKCS1 EMSA padding */
+    en_gciPadding_PKCS1_EMSA,
 	/** PKCS5 padding */
 	en_gciPadding_PKCS5,
 	/** PKCS7 padding */

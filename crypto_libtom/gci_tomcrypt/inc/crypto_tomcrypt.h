@@ -49,11 +49,8 @@
 /** Size in bytes of the DSA key */
 #define TC_DSA_KEY_SIZE_MAX_BYTES           (TC_DSA_KEY_SIZE_MAX_BITS / 8)
 
-/** Size in bits of the ECDH key */
-#define TC_ECDH_KEY_SIZE_MAX_BITS           512
-
 /** Size in bytes of the ECDH key */
-#define TC_ECDH_KEY_SIZE_MAX_BYTES          (TC_ECDH_KEY_SIZE_MAX_BITS / 8)
+#define TC_ECDH_KEY_SIZE_MAX_BYTES          66
 
 /** Size in bits of the ECDSA key */
 #define TC_ECDSA_KEY_SIZE_MAX_BITS          512

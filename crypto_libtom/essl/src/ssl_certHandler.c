@@ -1036,7 +1036,7 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
 
     rsaConf.algo = en_gciSignAlgo_RSA;
     rsaConf.hash = hashAlgo;
-    rsaConf.un_signConfig.signConfigRsa.padding = en_gciPadding_PKCS1;
+    rsaConf.un_signConfig.signConfigRsa.padding = en_gciPadding_PKCS1_V1_5;
 
     err = gciSignVerifyNewCtx(&rsaConf, &ps_caPubKey, &signCtx);
     if(err != en_gciResult_Ok)

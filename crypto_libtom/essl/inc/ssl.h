@@ -680,6 +680,9 @@ typedef struct ssl_handshakeElements
    /* the public key if dh is used and we act as server */
    //OLD-CW: gci_dhKey_t            gci_dheSrvPubKey;
 
+   GciCtxId_t           gci_dheSrvCtxID;
+   GciCtxId_t           gci_dheCliCtxID;
+
    GciKeyId_t			gci_dheSrvPubKey;
    GciKeyId_t			gci_dheCliPubKey;
 
@@ -701,6 +704,7 @@ typedef struct ssl_handshakeElements
    GciKeyId_t			eccPubKeyPeer;
    //Name of the curve which is proposed by peer (server) when acting as a client.
    //OLD-CW: uint16_t				eccCurve;
+   GciCtxId_t               ecdhCtxID;
    en_gciNamedCurve_t		eccCurve;
 
    e_sslVer_t           e_offerVer;

@@ -54,7 +54,7 @@ en_gciResult_t gciDeinit( void );
 
 
 /**
- * \fn							en_gciResult_t gciGetInfo( en_gciInfo_t infoType, uint16_t* p_info, size_t* p_infoLen )
+ * \fn							en_gciResult_t gciGetInfo( en_gciInfo_t infoType, uint8_t* p_info, size_t* p_infoLen )
  * \brief						Get some information
  * \param [in]	infoType		Which information
  * \param [out]	p_info			Pointer to the buffer with the information
@@ -62,7 +62,7 @@ en_gciResult_t gciDeinit( void );
  * @return						en_gciResult_Ok on success
  * @return						en_gciResult_Err on error
  */
-en_gciResult_t gciGetInfo( en_gciInfo_t infoType, uint16_t* p_info, size_t* p_infoLen );
+en_gciResult_t gciGetInfo( en_gciInfo_t infoType, uint8_t* p_info, size_t* p_infoLen );
 
 
 

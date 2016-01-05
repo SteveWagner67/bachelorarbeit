@@ -63,3 +63,4 @@ en_gciResult_t tcGetBigNum(const uint8_t* p_data, size_t dataLen, st_gciBigInt_t
     return err;
 }
 
+/*---------------------------------------------EOF-----------------------------------------------------------------------*/

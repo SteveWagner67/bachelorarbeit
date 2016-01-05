@@ -623,7 +623,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     st_gciKey_t ecdhPeerPubKey = {.type = en_gciKeyType_EcdhPub};
     st_gciKey_t dhePeerPubKey 	= {.type = en_gciKeyType_DhPub};
 
-    st_gciCipherConfig_t rsaConf = {.padding = en_gciPadding_PKCS1};
+    st_gciCipherConfig_t rsaConf = {.padding = en_gciPadding_PKCS1_V1_5};
 
     assert(ps_sslCtx != NULL);
     assert(pc_inData != NULL);

@@ -85,7 +85,7 @@ char * logger_get_time(void) {
 #if !Otest
 int main(int argc , char *argv[])
 {
-	if (argc < 2)
+    if (argc < 2)
 	{
 		puts("ssl_test: A command-line wrapper for emBetterSSL"
 				" client and server implementation\n");
