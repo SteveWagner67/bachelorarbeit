@@ -20,3 +20,4 @@ crypto_libtom/Debug/
 crypto_libtom/crypt/
 crypto_libtom/math/
 crypto_libtom/frankencert files/
+openssl/

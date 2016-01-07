@@ -475,6 +475,13 @@ static e_sslError_t loc_verifySign(s_sslCtx_t* ps_sslCtx, uint8_t* pc_tbvParams,
 			//TODO: return from error state
 		}
 
+	    err = gciCtxRelease(md5Ctx);
+	    if (err != en_gciResult_Ok)
+	    {
+	        //TODO: return from error state
+	    }
+
+
 		//OLD-CW: cr_digestInit(&cwt_sha1Ctx, NULL, 0, E_SSL_HASH_SHA1);
 		err = gciHashNewCtx(en_gciHashAlgo_SHA1, &sha1Ctx);
 
@@ -505,6 +512,12 @@ static e_sslError_t loc_verifySign(s_sslCtx_t* ps_sslCtx, uint8_t* pc_tbvParams,
 		if (err != en_gciResult_Ok) {
 			//TODO: return from error state
 		}
+
+        err = gciCtxRelease(sha1Ctx);
+        if (err != en_gciResult_Ok)
+        {
+            //TODO: return from error state
+        }
 
 		hashLen = GCI_MD5_SHA1_SIZE_BYTES;
 	}
@@ -544,6 +557,13 @@ static e_sslError_t loc_verifySign(s_sslCtx_t* ps_sslCtx, uint8_t* pc_tbvParams,
 		if (err != en_gciResult_Ok) {
 			//TODO: return from error state
 		}
+
+
+	    err = gciCtxRelease(hashCtx);
+	    if (err != en_gciResult_Ok)
+	    {
+	        //TODO: return from error state
+	    }
 
 	}
 
@@ -588,7 +608,14 @@ static e_sslError_t loc_verifySign(s_sslCtx_t* ps_sslCtx, uint8_t* pc_tbvParams,
 
 			err = gciCipherDecrypt(rsaCtx, pc_encSign, i_signLen, ac_decSign, &sz_decSignLen);
 
-            if (err != en_gciResult_Ok) {
+            if (err != en_gciResult_Ok)
+            {
+                //TODO: return from error state
+            }
+
+            err = gciCtxRelease(rsaCtx);
+            if (err != en_gciResult_Ok)
+            {
                 //TODO: return from error state
             }
 
@@ -643,23 +670,6 @@ static e_sslError_t loc_verifySign(s_sslCtx_t* ps_sslCtx, uint8_t* pc_tbvParams,
 					"Failed to verify signature of server DH parameter " "in ServerKeyExchange message");
 			e_result = E_SSL_ERROR_GENERAL;
 		}
-	}
-
-	//Release the contexts
-
-	err = gciCtxRelease(md5Ctx);
-	if (err != en_gciResult_Ok) {
-		//TODO: return from error state
-	}
-
-	err = gciCtxRelease(hashCtx);
-	if (err != en_gciResult_Ok) {
-		//TODO: return from error state
-	}
-
-	err = gciCtxRelease(rsaCtx);
-	if (err != en_gciResult_Ok) {
-		//TODO: return from error state
 	}
 
 	return (e_result);
@@ -1954,11 +1964,13 @@ static void loc_pHash(en_gciHashAlgo_t hashAlgo, uint8_t* pc_secret,
 		uint8_t c_xSeedLen, uint8_t* pc_out, size_t sz_outLen) {
 	size_t sz_realLen = 0;
 	size_t sz_hmacLen = 0;
-	//OLD-CW: gci_hmacCtx_t    cwt_hmacCtx;
+	cw_hmacCtx_t    cwt_hmacCtx;
 	GciCtxId_t hmacCtx;
 
 	st_gciSignConfig_t hmacConf = {.algo = en_gciSignAlgo_HMAC,
 	                               .hash = hashAlgo };
+
+    en_gciResult_t err;
 
 	/* Generate an automatic key */
 	GciKeyId_t secretKeyID;
@@ -1971,74 +1983,73 @@ static void loc_pHash(en_gciHashAlgo_t hashAlgo, uint8_t* pc_secret,
 	/* Allocate memory */
 	secretKey.un_key.keySym.data = a_allocSymKey;
 
+	  secretKey.un_key.keySym.len = sz_secLen;
+	  memcpy(secretKey.un_key.keySym.data, pc_secret, sz_secLen);
+
+	  /* Random research */
+	  secretKeyID = -1;
+
+	  err = gciKeyPut(&secretKey, &secretKeyID);
+	  if (err != en_gciResult_Ok) {
+	      //TODO: return from error state
+
+	  }
+
+	  hmacConf.algo = en_gciSignAlgo_HMAC;
+	  hmacConf.hash = hashAlgo;
+
 
 
 	int32_t i_retCheck = 0;
 	sz_hmacLen = loc_getHashSize(hashAlgo);
+
+
 	// OLD-CW: uint8_t ac_hmac[sz_hmacLen];
 
 	//TODO sw - length of the ac_hmac above is to small for the case TC0033
 	uint8_t ac_hmac[GCI_BUFFER_MAX_SIZE];
 
-	en_gciResult_t err;
-
 	//OLD-CW:
 //	i_retCheck += cr_digestInit(&cwt_hmacCtx, pc_secret, sz_secLen, hashAlgo);
 //
+//    i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_label, c_labelLen, hashAlgo);
 //
-//	 i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_label, c_labelLen, hashAlgo);
+//    i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_seed, c_seedLen, hashAlgo);
 //
+//    if (c_xSeedLen != 0)
+//    {
+//        i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_xSeed, c_xSeedLen, hashAlgo);
 //
-//	 i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_seed, c_seedLen, hashAlgo);
+//    }
+//    i_retCheck += cr_digestFinish(&cwt_hmacCtx, ac_hmac, &sz_hmacLen, hashAlgo);
 //
-//	 if (c_xSeedLen != 0)
-//	 {
-//	 i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_xSeed, c_xSeedLen, hashAlgo);
-//	 }
-//	 i_retCheck += cr_digestFinish(&cwt_hmacCtx, ac_hmac, &sz_hmacLen, hashAlgo);
 //
 //	 while (i_retCheck == 0)
 //	 {
-//	 i_retCheck += cr_digestInit(&cwt_hmacCtx, pc_secret, sz_secLen, hashAlgo);
-//	 i_retCheck += cr_digestUpdate(&cwt_hmacCtx, ac_hmac, sz_hmacLen, hashAlgo);
-//	 i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_label, c_labelLen, hashAlgo);
-//	 i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_seed,c_seedLen, hashAlgo);
-//	 if (c_xSeedLen != 0)
-//	 {
-//	 i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_xSeed,c_xSeedLen, hashAlgo);
+//	     i_retCheck += cr_digestInit(&cwt_hmacCtx, pc_secret, sz_secLen, hashAlgo);
+//	     i_retCheck += cr_digestUpdate(&cwt_hmacCtx, ac_hmac, sz_hmacLen, hashAlgo);
+//	     i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_label, c_labelLen, hashAlgo);
+//	     i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_seed,c_seedLen, hashAlgo);
+//	     if (c_xSeedLen != 0)
+//	     {
+//	         i_retCheck += cr_digestUpdate(&cwt_hmacCtx, pc_xSeed,c_xSeedLen, hashAlgo);
+//	     }
+//
+//	     i_retCheck += cr_digestFinish(&cwt_hmacCtx, &pc_out[sz_realLen],&sz_hmacLen, hashAlgo);
+//
+//	     sz_realLen += sz_hmacLen;
+//
+//	     if (sz_realLen >= sz_outLen)
+//	     {
+//	         break;
+//	     }
+//
+//	     i_retCheck += cw_hmac(hashAlgo, pc_secret, sz_secLen,
+//	                           ac_hmac, sz_hmacLen,
+//	                           ac_hmac, &sz_hmacLen);
 //	 }
-//
-//	 i_retCheck += cr_digestFinish(&cwt_hmacCtx, &pc_out[sz_realLen],&sz_hmacLen, hashAlgo);
-//
-//	 sz_realLen += sz_hmacLen;
-//
-//	 if (sz_realLen >= sz_outLen)
-//	 {
-//	 break;
-//	 }
-//
-//	 i_retCheck += cw_hmac(hashAlgo, pc_secret, sz_secLen,
-//	 ac_hmac, sz_hmacLen,
-//	 ac_hmac, &sz_hmacLen);
-//	 }
-
 
 	//See page 138 "SSL and TLS - Theory and practice" from Rolf Oppliger
-
-	secretKey.un_key.keySym.len = sz_secLen;
-	memcpy(secretKey.un_key.keySym.data, pc_secret, sz_secLen);
-
-	/* Random research */
-	secretKeyID = -1;
-
-	err = gciKeyPut(&secretKey, &secretKeyID);
-	if (err != en_gciResult_Ok) {
-		//TODO: return from error state
-
-	}
-
-	hmacConf.algo = en_gciSignAlgo_HMAC;
-	hmacConf.hash = hashAlgo;
 
 	//HMAC is defined as a signature in gci
 	err = gciSignGenNewCtx(&hmacConf, secretKeyID, &hmacCtx);
@@ -2124,10 +2135,6 @@ static void loc_pHash(en_gciHashAlgo_t hashAlgo, uint8_t* pc_secret,
 	        break;
 	    }
 
-	    /* Compute the ac_hmac to begin with it */
-//	    cw_hmac(hashAlgo, pc_secret, sz_secLen,
-//	         ac_hmac, sz_hmacLen,
-//	         ac_hmac, &sz_hmacLen);
         err = gciSignGenNewCtx(&hmacConf, secretKeyID, &hmacCtx);
         if (err != en_gciResult_Ok) {
             //TODO: return from error state
@@ -2143,13 +2150,16 @@ static void loc_pHash(en_gciHashAlgo_t hashAlgo, uint8_t* pc_secret,
             //TODO: return from error state
         }
 
+        //Release the context
+        err = gciCtxRelease(hmacCtx);
+        if (err != en_gciResult_Ok) {
+            //TODO: return from error state
+        }
+
 
 	}
 
 	gciKeyDelete(secretKeyID);
-
-	memcpy(pc_out, ac_hmac, sz_hmacLen);
-	sz_outLen = sz_hmacLen;
 
 }
 
@@ -5106,12 +5116,19 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 //								return (E_PENDACT_COM_CIPHER_CLOSE);
 //							}
 
+
+				LOG_INFO("Pub Key export manual:");
+                LOG_HEX(pc_write, cwt_hashLen+1);
+
+
 				/* Add length which must be written before the key */
 				*pc_write = cwt_hashLen;
 
 				ssl_writeInteger(pc_rec + 1, cwt_hashLen + 1, 3);
 				pc_write += (cwt_hashLen + 1);
 				cwt_hashLen = *pcwt_recLen = pc_write - pc_rec;
+
+
 
 				ps_sslGut->e_asmCtrl = E_SSL_ASM_STEP2;
 				ps_sslGut->e_recordType = E_SSL_RT_HANDSHAKE;
@@ -6925,6 +6942,7 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 					err = gciKeyPut(&dhPubKey, &ps_hsElem->gci_dheSrvPubKey);
 					if (err != en_gciResult_Ok)
 					{
+					    printf("GCI Info: try again\r\n");
 						/* try to get an automatic key ID */
 					    ps_hsElem->gci_dheSrvPubKey = -1;
 
@@ -6932,6 +6950,11 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 					    if(err != en_gciResult_Ok)
 					    {
 					        //return error from state
+					    }
+
+					    else
+					    {
+					        printf("GCI Info: OK\r\n");
 					    }
 					}
 
@@ -7475,6 +7498,9 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 		uint8_t *pc_rawTxt, size_t cwt_rawTxtLen, uint8_t *pc_rec,
 		size_t *pcwt_recLen, e_sslRecType_t e_recType) {
 	size_t len;
+
+	int cpCtx = 0;
+
 	size_t cwt_maxLen = 0;
 	uint32_t l_IVLen = 0;
 	s_sslGut_t* ps_guts = NULL;
@@ -7532,8 +7558,14 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 
 			/* Init of the cipher done in loc_compKey */
 
+		    LOG_INFO("MAC before encrypting:");
+		    LOG_HEX(pc_rec, len);
+
 			err = gciCipherEncrypt(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx,
 					pc_rec, len, pc_rec, len);
+
+            LOG_INFO("MAC after encrypting:");
+            LOG_HEX(pc_rec, len);
 
 			if (err != en_gciResult_Ok) {
 				//TODO return state
@@ -7545,7 +7577,7 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 		    /* Init of the cipher done in loc_compKey */
 
 			err = gciCipherEncrypt(ps_sslCtx->s_secParams.u_srvKey.srvRc4Ctx,
-					pc_rec, sizeof(pc_rec), pc_rec, len);
+					pc_rec, len, pc_rec, len);
 			if (err != en_gciResult_Ok) {
 				//TODO return state
 			}
@@ -7566,14 +7598,14 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 		if (ps_sslCtx->b_isCli == TRUE) {
 			//OLD-CW: cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx, pc_rec, pc_rec, len);
 
-		    if(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx != -1)
-			{
-				err = gciCtxRelease(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx);
-				if(err != en_gciResult_Ok)
-				{
-					//Return error from state
-				}
-			}
+//		    if(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx != -1)
+//			{
+//				err = gciCtxRelease(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx);
+//				if(err != en_gciResult_Ok)
+//				{
+//					//Return error from state
+//				}
+//			}
 
 
 			/* Init of the context done in loc_compKey */
@@ -7587,14 +7619,14 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 		} else {
 			//OLD-CW: cw_rc4(&ps_sslCtx->s_secParams.u_srvKey.srvRc4Ctx, pc_rec, pc_rec, len);
 
-			if(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx != -1)
-			{
-				err = gciCtxRelease(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx);
-				if(err != en_gciResult_Ok)
-				{
-					//Return error from state
-				}
-			}
+//			if(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx != -1)
+//			{
+//				err = gciCtxRelease(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx);
+//				if(err != en_gciResult_Ok)
+//				{
+//					//Return error from state
+//				}
+//			}
 
 			/* Init of the context done in loc_compKey */
 
@@ -7617,8 +7649,13 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 	case TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA:
 		if (ps_sslCtx->b_isCli == TRUE) {
 			cwt_cipCtx = ps_sslCtx->s_secParams.u_cliKey.cli3DesCtx;
-		} else {
+			cpCtx = 1;
+		}
+
+		else
+		{
 			cwt_cipCtx = ps_sslCtx->s_secParams.u_srvKey.srv3DesCtx;
+			cpCtx = 1;
 		}
 
 		//AES
@@ -7635,15 +7672,17 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 	case TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA: //vpy
 	case TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA: //vpy
 
-		if ((ps_sslCtx->b_isCli == TRUE) && (cwt_cipCtx < 0)) //OLD-CW: (cwt_cipCtx == NULL)
-				{
+		if ((ps_sslCtx->b_isCli == TRUE) && (cpCtx == 0)) //OLD-CW: (cwt_cipCtx == NULL)
+		{
 			cwt_cipCtx = ps_sslCtx->s_secParams.u_cliKey.cliAesCtx;
 		}
 
-		else if (cwt_cipCtx <0 ) //OLD-CW: (cwt_cipCtx == NULL)
+		else if (cwt_cipCtx == 0 ) //OLD-CW: (cwt_cipCtx == NULL)
 				{
 			cwt_cipCtx = ps_sslCtx->s_secParams.u_srvKey.srvAesCtx;
 		}
+
+		cpCtx = 0;
 
 		len += loc_compMac(ps_sslCtx, pc_rec + len, cwt_maxLen, pc_rec, len,
 				e_recType,
@@ -7671,7 +7710,8 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 
 		/* l_IVLen will only be different from 0 if protocol version >= TLS v1.1 */
 		if (l_IVLen > 0) {
-			//OLD-CW: cw_cbc_setiv(cwt_cipCtx, pc_rec - l_IVLen, l_IVLen);
+
+		    //OLD-CW: cw_cbc_setiv(cwt_cipCtx, pc_rec - l_IVLen, l_IVLen);
 
 		}
 
@@ -7762,9 +7802,9 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 			//OLD-CW: cw_rc4(&ps_sslCtx->s_secParams.u_srvKey.srvRc4Ctx, pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
 
 			err = gciCipherDecrypt(ps_sslCtx->s_secParams.u_srvKey.srvRc4Ctx,
-					pc_rawTxt + REC_HEADERLEN,
-					sizeof(pc_rawTxt + REC_HEADERLEN), pc_rec + REC_HEADERLEN,
-					cwt_recLen - REC_HEADERLEN);
+			                       pc_rec + REC_HEADERLEN,
+					cwt_recLen - REC_HEADERLEN, pc_rawTxt + REC_HEADERLEN,
+					NULL);
 
 			if (err != en_gciResult_Ok) {
 				//TODO return state
@@ -7773,12 +7813,15 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 			//OLD-CW: cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx, pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
 			err = gciCipherDecrypt(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx,
 					pc_rawTxt + REC_HEADERLEN,
-					sizeof(pc_rawTxt + REC_HEADERLEN), pc_rec + REC_HEADERLEN,
-					cwt_recLen - REC_HEADERLEN);
+					cwt_recLen - REC_HEADERLEN, pc_rec + REC_HEADERLEN,
+					NULL);
 			if (err != en_gciResult_Ok) {
 				//TODO return state
 			}
 		}
+
+		LOG_INFO("Decrypted data:");
+		LOG_HEX(pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
 
 		TIME_STAMP(TS_STREAM_DECRYPT_END);
 
@@ -8445,6 +8488,9 @@ e_sslPendAct_t ssl_serverFSM(s_sslCtx_t *ps_sslCtx, e_sslPendAct_t e_event,
 			/* Calculate MAC, Encrypt Message */
 			e_action = loc_smMacEncrypt(ps_sslCtx, pc_wDataStart, cwt_wDataLen,
 					pc_wDataStart, &cwt_wDataLen, e_recordType);
+
+            LOG2_INFO("Data to encrypt after calling loc_smMacEncrypt:");
+            LOG2_HEX(pc_wDataStart, cwt_wDataLen);
 
 			/* Dont fall through. Therefore error handling is possible */
 			pc_wDataStart += cwt_wDataLen;

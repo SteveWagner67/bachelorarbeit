@@ -26,7 +26,7 @@
 #define TC_DBG
 
 /** Maximal size in bits of symmetric key */
-#define TC_SYM_KEY_SIZE_MAX_BITS            192
+#define TC_SYM_KEY_SIZE_MAX_BITS            512
 
 /** Maximal size in bytes of a symmetric key */
 #define TC_SYM_KEY_SIZE_MAX_BYTES           (TC_SYM_KEY_SIZE_MAX_BITS / 8)
