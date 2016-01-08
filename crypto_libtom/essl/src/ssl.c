@@ -1908,6 +1908,9 @@ static size_t loc_compMacTLS(s_sslCtx_t *ps_sslCtx, uint8_t *pc_out,
 				//TODO: return from error state
 			}
 
+			/* Delete the key */
+			gciKeyDelete(keyID);
+
 		}
 	}
 
@@ -2654,11 +2657,13 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey) {
 	s_sslHsElem_t* ps_hsElem;
 	s_sslSecParams_t* ps_secPar;
 	//OLD-CW: cw_rc4Ctx_t*        cwt_rc4Ctx;
-	GciCtxId_t rc4Ctx;
+	GciCtxId_t rc4Ctx = -1;
 	//OLD-CW: gci_aesCtx_t*        cwt_aesCtx;
-	GciCtxId_t aesCtx;
-	//OLD-CW: gci_3desCtx*         cwt_tdesCtx;
-	GciCtxId_t tdesCtx;
+	GciCtxId_t aesCtx = -1;
+
+	//TODO sw - delete below
+	cw_3desCtx*         cwt_tdesCtx;
+	GciCtxId_t tdesCtx = -1;
 	uint8_t c_macOff;
 	uint8_t c_keyOff;
 	uint8_t c_ivOff;
@@ -2702,7 +2707,7 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey) {
 	if (b_srvKey == TRUE) {
 		//OLD-CW: cwt_rc4Ctx = &(ps_secPar->u_srvKey.gci_srvRc4Ctx);
 		//rc4Ctx = &(ps_secPar->u_srvKey.srvRc4Ctx);
-		//OLD-CW: cwt_tdesCtx = &(ps_secPar->u_srvKey.gci_srv3DesCtx);
+		//cwt_tdesCtx = &(ps_secPar->u_srvKey.srv3DesCtx);
 		//tdesCtx = &(ps_secPar->u_srvKey.srv3DesCtx);
 		//OLD-CW: cwt_aesCtx = &(ps_secPar->u_srvKey.gci_srvAesCtx);
 		//aesCtx = &(ps_secPar->u_srvKey.srvAesCtx);
@@ -2721,7 +2726,7 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey) {
 		//OLD-CW: cwt_rc4Ctx = &(ps_secPar->u_cliKey.gci_cliRc4Ctx);
 		//rc4Ctx = &(ps_secPar->u_cliKey.cliRc4Ctx);
 		//OLD-CW: cwt_tdesCtx = &(ps_secPar->u_cliKey.gci_cli3DesCtx);
-		//tdesCtx = &(ps_secPar->u_cliKey.cli3DesCtx);
+		cwt_tdesCtx = &(ps_secPar->u_cliKey.cw_cli3DesCtx);
 		//OLD-CW: cwt_aesCtx = &(ps_secPar->u_cliKey.gci_cliAesCtx);
 		//aesCtx = &(ps_secPar->u_cliKey.cliAesCtx);
 
@@ -2792,14 +2797,14 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey) {
 	case TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA: //vpy
 	case TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA: //vpy
 	{
-		//OLD-CW: cw_3des_init(cwt_tdesCtx,&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen, &(ac_keyBlk[c_ivOff]), ps_secPar->c_blockLen, 0);
+		//cw_3des_init(cwt_tdesCtx,&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen, &(ac_keyBlk[c_ivOff]), ps_secPar->c_blockLen, 0);
 
         /* Initialize the cipher 3DES with the symmetric key for the future use (in loc_smMacEncrypt for example) */
         ciphConf.algo = en_gciCipherAlgo_3DES;
         ciphConf.blockMode = en_gciBlockMode_CBC;
         ciphConf.padding = en_gciPadding_None;
         ciphConf.iv.data = a_allocIV;
-        memcpy(ciphConf.iv.data, &(ac_keyBlk[c_keyOff]), ps_secPar->c_blockLen);
+        memcpy(ciphConf.iv.data, &(ac_keyBlk[c_ivOff]), ps_secPar->c_blockLen);
         ciphConf.iv.len = ps_secPar->c_blockLen;
         err = gciCipherNewCtx(&ciphConf, keyID, &tdesCtx);
 
@@ -2823,7 +2828,7 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey) {
 		LOG2_INFO("Key");
 		LOG2_HEX(&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen);
 		LOG2_INFO("IV");
-		LOG2_HEX(&(ac_keyBlk[c_keyOff]), ps_secPar->c_blockLen);
+		LOG2_HEX(&(ac_keyBlk[c_ivOff]), ps_secPar->c_blockLen);
 		break;
 	}
 	case TLS_RSA_WITH_AES_128_CBC_SHA:
@@ -2846,7 +2851,7 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey) {
         ciphConf.blockMode = en_gciBlockMode_CBC;
         ciphConf.padding = en_gciPadding_None;
         ciphConf.iv.data = a_allocIV;
-        memcpy(ciphConf.iv.data, &(ac_keyBlk[c_keyOff]), ps_secPar->c_blockLen);
+        memcpy(ciphConf.iv.data, &(ac_keyBlk[c_ivOff]), ps_secPar->c_blockLen);
         ciphConf.iv.len = ps_secPar->c_blockLen;
         err = gciCipherNewCtx(&ciphConf, keyID, &aesCtx);
 
@@ -2870,7 +2875,7 @@ static void loc_compKey(s_sslCtx_t * ps_sslCtx, uint8_t b_srvKey) {
 		LOG2_INFO("Key");
 		LOG2_HEX(&(ac_keyBlk[c_keyOff]), ps_secPar->c_keyLen);
 		LOG2_INFO("IV");
-		LOG2_HEX(&(ac_keyBlk[c_keyOff]), ps_secPar->c_blockLen);
+		LOG2_HEX(&(ac_keyBlk[c_ivOff]), ps_secPar->c_blockLen);
 		break;
 	}
 #endif
@@ -4551,6 +4556,9 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 
 				*pc_write++ = ecdhSrvPubKey.un_key.keyEcdhPub.coord.x.len;
 
+				/* Delete the key ID */
+				gciKeyDelete(ps_secPar->ecdhSrvPubKey);
+
 				break;
 
 			default:
@@ -4601,6 +4609,9 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 				memcpy(pc_write, dhSrvPubKey.un_key.keyDhPub.key.data,
 						dhSrvPubKey.un_key.keyDhPub.key.len);
 				*pc_write += dhSrvPubKey.un_key.keyDhPub.key.len;
+
+				/* Delete the key */
+				gciKeyDelete(ps_secPar->dhePeerPubKey);
 
 				break;
 			}
@@ -4842,7 +4853,7 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 				/* The premaster secret is encrypted in PKCS#1 V1.5 Style */
 
 				//OLD-CW: if (cw_rsa_encrypt(ps_hsElem->s_sessElem.ac_msSec, PREMSSEC_SIZE, pc_write + IFSSL30_LENOFF(ps_sslCtx->e_ver), &cwt_hashLen, &ps_hsElem->gci_peerPubKey) != CW_OK)
-				GciCtxId_t rsaCtx;
+				GciCtxId_t rsaCtx = -1;
 				//Just the initialization of the padding for an asymmetric cipher
 				//Public key coming from the certificate from the server
 				err = gciCipherNewCtx(&rsaConf, ps_hsElem->gci_rsaPeerKey, &rsaCtx);
@@ -4928,6 +4939,11 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 				//Get the big number of the secret key
 				err = gciKeyGet(ps_hsElem->gci_dheSecKey, &dhSecretKey);
 
+				if(err != en_gciResult_Ok)
+				{
+				    //TODO return error from state
+				}
+
 			//	cwt_hashLen = dhSecretKey.un_key.keyDhSecret.len;
 
 				/* transform DHE shared secret to MasterSecret */
@@ -4995,6 +5011,8 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 				ps_sslGut->e_recordType = E_SSL_RT_HANDSHAKE;
 				e_pendAct = E_PENDACT_MAC_ENCRYPT_REC;
 
+				gciKeyDelete(ps_hsElem->gci_dheSecKey);
+
 				TIME_STAMP(TS_SENT_HS_CLI_KEY_EX);
 				break;
 
@@ -5041,8 +5059,8 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 					return (E_PENDACT_COM_CIPHER_CLOSE);
 				}
 
-				//ecdhSecretKey.un_key.keyEcdhSecret.data = a_allocEcdhSecKey;
-				ecdhSecretKey.un_key.keyEcdhSecret.data = pc_write;
+				ecdhSecretKey.un_key.keyEcdhSecret.data = a_allocEcdhSecKey;
+				//ecdhSecretKey.un_key.keyEcdhSecret.data = pc_write;
 
 				//Get the bytes buffer of the secret key
 				err = gciKeyGet(ps_hsElem->gci_ecdheSecKey, &ecdhSecretKey);
@@ -5051,35 +5069,35 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 				}
 
 				//memcpy(pc_write, ecdhSecretKey.un_key.keyEcdhSecret.data, ecdhSecretKey.un_key.keyEcdhSecret.len);
-				cwt_hashLen = ecdhSecretKey.un_key.keyEcdhSecret.len;
+				//cwt_hashLen = ecdhSecretKey.un_key.keyEcdhSecret.len;
 
 				TIME_STAMP(TS_ECDHE_CALC_SHARED_SEC_END);
 
-				/* transform ECDHE shared secret to MasterSecret */
-				ps_sslCtx->e_lastError =
-				    loc_prf(ps_sslCtx,
-				            pc_write, cwt_hashLen,
-				            rac_TLSlabelMsSec, strlen((const char *)rac_TLSlabelMsSec),
-				            ps_hsElem->ac_cliRand, CLI_RANDSIZE,
-				            ps_hsElem->ac_srvRand, SRV_RANDSIZE,
-				            ps_hsElem->s_sessElem.ac_msSec, MSSEC_SIZE);
+//				/* transform ECDHE shared secret to MasterSecret */
+//				ps_sslCtx->e_lastError =
+//				    loc_prf(ps_sslCtx,
+//				            pc_write, cwt_hashLen,
+//				            rac_TLSlabelMsSec, strlen((const char *)rac_TLSlabelMsSec),
+//				            ps_hsElem->ac_cliRand, CLI_RANDSIZE,
+//				            ps_hsElem->ac_srvRand, SRV_RANDSIZE,
+//				            ps_hsElem->s_sessElem.ac_msSec, MSSEC_SIZE);
 
 
-//				ps_sslCtx->e_lastError = loc_prf(ps_sslCtx,
-//						ecdhSecretKey.un_key.keyEcdhSecret.data,
-//						ecdhSecretKey.un_key.keyEcdhSecret.len, rac_TLSlabelMsSec,
-//						strlen((const char *) rac_TLSlabelMsSec),
-//						ps_hsElem->ac_cliRand, CLI_RANDSIZE,
-//						ps_hsElem->ac_srvRand, SRV_RANDSIZE,
-//						ps_hsElem->s_sessElem.ac_msSec, MSSEC_SIZE);
+				ps_sslCtx->e_lastError = loc_prf(ps_sslCtx,
+						ecdhSecretKey.un_key.keyEcdhSecret.data,
+						ecdhSecretKey.un_key.keyEcdhSecret.len, rac_TLSlabelMsSec,
+						strlen((const char *) rac_TLSlabelMsSec),
+						ps_hsElem->ac_cliRand, CLI_RANDSIZE,
+						ps_hsElem->ac_srvRand, SRV_RANDSIZE,
+						ps_hsElem->s_sessElem.ac_msSec, MSSEC_SIZE);
 
 				if (ps_sslCtx->e_lastError < 0)
 					return (E_PENDACT_COM_CIPHER_CLOSE);
 
 
-				cwt_hashLen = (size_t) (sizeof(ps_sslCtx->ac_socBuf)
-				    - ((size_t) pc_write
-				        - (size_t) ps_sslCtx->ac_socBuf));
+//				cwt_hashLen = (size_t) (sizeof(ps_sslCtx->ac_socBuf)
+//				    - ((size_t) pc_write
+//				        - (size_t) ps_sslCtx->ac_socBuf));
 
 //				cwt_hashLen = (size_t) (sizeof(ps_sslCtx->ac_socBuf)
 //						- (ecdhSecretKey.un_key.keyEcdhSecret.len
@@ -5117,10 +5135,6 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 //							}
 
 
-				LOG_INFO("Pub Key export manual:");
-                LOG_HEX(pc_write, cwt_hashLen+1);
-
-
 				/* Add length which must be written before the key */
 				*pc_write = cwt_hashLen;
 
@@ -5133,6 +5147,8 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 				ps_sslGut->e_asmCtrl = E_SSL_ASM_STEP2;
 				ps_sslGut->e_recordType = E_SSL_RT_HANDSHAKE;
 				e_pendAct = E_PENDACT_MAC_ENCRYPT_REC;
+
+				gciKeyDelete(ps_hsElem->gci_ecdheSecKey);
 
 				TIME_STAMP(TS_SENT_HS_CLI_KEY_EX);
 
@@ -7505,7 +7521,7 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 	uint32_t l_IVLen = 0;
 	s_sslGut_t* ps_guts = NULL;
 	s_sslSecParams_t* ps_secParams = NULL;
-	//OLD-CW: gci_symCbcCtx*       cwt_cipCtx = NULL;
+	cw_symCbcCtx*       test_cwt_cipCtx = NULL;
 	GciCtxId_t cwt_cipCtx;
 
     uint8_t a_allocIV[GCI_BUFFER_MAX_SIZE];
@@ -7557,10 +7573,6 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 			//OLD-CW: cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx, pc_rec, pc_rec, len);
 
 			/* Init of the cipher done in loc_compKey */
-
-		    LOG_INFO("MAC before encrypting:");
-		    LOG_HEX(pc_rec, len);
-
 			err = gciCipherEncrypt(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx,
 					pc_rec, len, pc_rec, len);
 
@@ -7595,7 +7607,8 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 
 		TIME_STAMP(TS_STREAM_ENCRYPT_BEGIN);
 
-		if (ps_sslCtx->b_isCli == TRUE) {
+		if (ps_sslCtx->b_isCli == TRUE)
+		{
 			//OLD-CW: cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx, pc_rec, pc_rec, len);
 
 //		    if(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx != -1)
@@ -7611,7 +7624,7 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 			/* Init of the context done in loc_compKey */
 
 			err = gciCipherEncrypt(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx,
-					pc_rec, sizeof(pc_rec), pc_rec, len);
+					pc_rec, len, pc_rec, len);
 
 			if (err != en_gciResult_Ok) {
 				//TODO return state
@@ -7631,7 +7644,7 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 			/* Init of the context done in loc_compKey */
 
 			err = gciCipherEncrypt(ps_sslCtx->s_secParams.u_srvKey.srvRc4Ctx,
-					pc_rec, sizeof(pc_rec), pc_rec, len);
+					pc_rec, len, pc_rec, len);
 			if (err != en_gciResult_Ok) {
 				//TODO return state
 			}
@@ -7647,8 +7660,10 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 	case TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA:
 	case TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA:
 	case TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA:
-		if (ps_sslCtx->b_isCli == TRUE) {
+		if (ps_sslCtx->b_isCli == TRUE)
+		{
 			cwt_cipCtx = ps_sslCtx->s_secParams.u_cliKey.cli3DesCtx;
+			test_cwt_cipCtx = &ps_sslCtx->s_secParams.u_cliKey.cw_cli3DesCtx;
 			cpCtx = 1;
 		}
 
@@ -7678,7 +7693,7 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 		}
 
 		else if (cwt_cipCtx == 0 ) //OLD-CW: (cwt_cipCtx == NULL)
-				{
+		{
 			cwt_cipCtx = ps_sslCtx->s_secParams.u_srvKey.srvAesCtx;
 		}
 
@@ -7698,6 +7713,7 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 		/* add IVs for versions >= TLS 1.1 here ?? */
 
 		//OLD-CW: cw_prng_read(pc_rec, l_IVLen);
+
 		err = gciRngGen(l_IVLen, pc_rec);
 		if (err != en_gciResult_Ok) {
 			//TODO return state
@@ -7713,6 +7729,18 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 
 		    //OLD-CW: cw_cbc_setiv(cwt_cipCtx, pc_rec - l_IVLen, l_IVLen);
 
+		    /* Add the new IV by passing an context ID > 0 (which means that it's already initialized */
+		    memset(a_allocIV, 0, GCI_BUFFER_MAX_SIZE);
+		    ciphConf.iv.data = a_allocIV;
+		    memcpy(ciphConf.iv.data, pc_rec - l_IVLen, l_IVLen);
+		    ciphConf.iv.len = l_IVLen;
+		    err = gciCipherNewCtx(&ciphConf, 0, &cwt_cipCtx);
+
+		    if(err != en_gciResult_Ok)
+		    {
+		        //TODO return error from state
+		    }
+
 		}
 
 		LOG2_INFO("%p| Data including MAC and padding", ps_sslCtx);
@@ -7720,9 +7748,12 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 
 		TIME_STAMP(TS_CBC_ENCRYPT_BEGIN);
 
-		//OLD-CW: cw_cbc_encrypt(cwt_cipCtx, pc_rec, pc_rec, len);
+//		cw_cbc_encrypt(test_cwt_cipCtx, pc_rec, pc_rec, len);
+//
+//        LOG2_INFO("CW Encrypt", ps_sslCtx);
+//        LOG2_HEX(pc_rec, len);
 
-		err = gciCipherEncrypt(cwt_cipCtx, pc_rec, len, pc_rec, 0);
+		err = gciCipherEncrypt(cwt_cipCtx, pc_rec, len, pc_rec, &len);
 		if (err != en_gciResult_Ok) {
 			//TODO return state
 		}
@@ -7803,18 +7834,18 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 
 			err = gciCipherDecrypt(ps_sslCtx->s_secParams.u_srvKey.srvRc4Ctx,
 			                       pc_rec + REC_HEADERLEN,
-					cwt_recLen - REC_HEADERLEN, pc_rawTxt + REC_HEADERLEN,
-					NULL);
+			                       cwt_recLen - REC_HEADERLEN, pc_rawTxt + REC_HEADERLEN,
+			                       NULL);
 
 			if (err != en_gciResult_Ok) {
 				//TODO return state
 			}
 		} else {
 			//OLD-CW: cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx, pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
-			err = gciCipherDecrypt(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx,
-					pc_rawTxt + REC_HEADERLEN,
-					cwt_recLen - REC_HEADERLEN, pc_rec + REC_HEADERLEN,
-					NULL);
+		    err = gciCipherDecrypt(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx,
+		                           pc_rec + REC_HEADERLEN,
+		                           cwt_recLen - REC_HEADERLEN, pc_rawTxt + REC_HEADERLEN,
+		                           NULL);
 			if (err != en_gciResult_Ok) {
 				//TODO return state
 			}
@@ -7840,9 +7871,9 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 		if (ps_sslCtx->b_isCli == TRUE) {
 			//OLD-CW: cw_rc4(&ps_sslCtx->s_secParams.u_srvKey.srvRc4Ctx, pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
 			err = gciCipherDecrypt(ps_sslCtx->s_secParams.u_srvKey.srvRc4Ctx,
-					pc_rawTxt + REC_HEADERLEN,
-					sizeof(pc_rawTxt + REC_HEADERLEN), pc_rec + REC_HEADERLEN,
-					cwt_recLen - REC_HEADERLEN);
+			                       pc_rec + REC_HEADERLEN,
+			                       cwt_recLen - REC_HEADERLEN, pc_rawTxt + REC_HEADERLEN,
+			                       NULL);
 
 			if (err != en_gciResult_Ok) {
 				//TODO return state
@@ -7851,9 +7882,9 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 			//OLD-CW: cw_rc4(&ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx, pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
 
 			err = gciCipherDecrypt(ps_sslCtx->s_secParams.u_cliKey.cliRc4Ctx,
-					pc_rawTxt + REC_HEADERLEN,
-					sizeof(pc_rawTxt + REC_HEADERLEN), pc_rec + REC_HEADERLEN,
-					cwt_recLen - REC_HEADERLEN);
+			                       pc_rec + REC_HEADERLEN,
+			                       cwt_recLen - REC_HEADERLEN, pc_rawTxt + REC_HEADERLEN,
+			                       NULL);
 
 			if (err != en_gciResult_Ok) {
 				//TODO return state
@@ -7901,10 +7932,10 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 				/* TODO: should catch encryption error */
 				//OLD-CW: cw_cbc_decrypt(&ps_sslCtx->s_secParams.u_srvKey.srv3DesCtx, pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
 				err = gciCipherDecrypt(
-						ps_sslCtx->s_secParams.u_srvKey.srv3DesCtx,
-						pc_rawTxt + REC_HEADERLEN,
-						sizeof(pc_rawTxt + REC_HEADERLEN),
-						pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
+				    ps_sslCtx->s_secParams.u_srvKey.srv3DesCtx,
+				    pc_rec + REC_HEADERLEN,
+				    cwt_recLen - REC_HEADERLEN, pc_rawTxt + REC_HEADERLEN,
+				    NULL);
 				if (err != en_gciResult_Ok) {
 					//TODO return state
 				}
@@ -7912,10 +7943,10 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 				/* TODO: should catch encryption error */
 				//OLD-CW: cw_cbc_decrypt(&ps_sslCtx->s_secParams.u_cliKey.cli3DesCtx, pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
 				err = gciCipherDecrypt(
-						ps_sslCtx->s_secParams.u_cliKey.cli3DesCtx,
-						pc_rawTxt + REC_HEADERLEN,
-						sizeof(pc_rawTxt + REC_HEADERLEN),
-						pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
+				    ps_sslCtx->s_secParams.u_cliKey.cli3DesCtx,
+				    pc_rec + REC_HEADERLEN,
+				    cwt_recLen - REC_HEADERLEN, pc_rawTxt + REC_HEADERLEN,
+				    NULL);
 				if (err != en_gciResult_Ok) {
 					//TODO return state
 				}
@@ -7935,9 +7966,9 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 				//OLD-CW: cw_cbc_decrypt(&ps_sslCtx->s_secParams.u_srvKey.srvAesCtx, pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
 				err = gciCipherDecrypt(
 						ps_sslCtx->s_secParams.u_srvKey.srvAesCtx,
-						pc_rawTxt + REC_HEADERLEN,
-						sizeof(pc_rawTxt + REC_HEADERLEN),
-						pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
+						pc_rec + REC_HEADERLEN,
+						cwt_recLen - REC_HEADERLEN, pc_rawTxt + REC_HEADERLEN,
+						NULL);
 				if (err != en_gciResult_Ok) {
 					//TODO return state
 				}
@@ -7946,9 +7977,9 @@ static e_sslPendAct_t loc_smDecryptMacCheck(s_sslCtx_t * ps_sslCtx,
 				//OLD-CW: cw_cbc_decrypt(&ps_sslCtx->s_secParams.u_cliKey.cliAesCtx, pc_rawTxt + REC_HEADERLEN, pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
 				err = gciCipherDecrypt(
 						ps_sslCtx->s_secParams.u_cliKey.cliAesCtx,
-						pc_rawTxt + REC_HEADERLEN,
-						sizeof(pc_rawTxt + REC_HEADERLEN),
-						pc_rec + REC_HEADERLEN, cwt_recLen - REC_HEADERLEN);
+						pc_rec + REC_HEADERLEN,
+						cwt_recLen - REC_HEADERLEN, pc_rawTxt + REC_HEADERLEN,
+						NULL);
 
 				if (err != en_gciResult_Ok) {
 					//TODO return state

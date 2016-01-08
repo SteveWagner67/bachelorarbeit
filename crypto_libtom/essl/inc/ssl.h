@@ -833,7 +833,7 @@ typedef struct ssl_securityParameters
 	   GciCtxId_t 		cliRc4Ctx;
 	   //OLD-CW: gci_aesCtx_t      gci_cliAesCtx;
 	   GciCtxId_t		cliAesCtx;
-	   //OLD-CW: gci_3desCtx       gci_cli3DesCtx;
+	   cw_3desCtx       cw_cli3DesCtx;
 	   GciCtxId_t		cli3DesCtx;
 
    } u_cliKey;

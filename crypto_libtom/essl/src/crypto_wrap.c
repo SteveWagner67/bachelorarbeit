@@ -2212,7 +2212,7 @@ int cw_3des_init(cw_3desCtx* p_ctx, uint8_t* p_keyData, size_t cwt_keyLen,
 #elif defined(TOMLIB_CRYPTO)
 
     int err;
-    cbc_done(p_ctx);
+    //cbc_done(p_ctx);
     if ((err = cbc_start(find_cipher(CR_3DES_NAME), p_initVect, p_keyData,
             cwt_keyLen, 0, p_ctx)) != CRYPT_OK)
     {
