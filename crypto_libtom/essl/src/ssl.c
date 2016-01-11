@@ -598,6 +598,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t* ps_sslCtx, uint8_t* pc_tbvParams,
 		    rsaConf.blockMode = en_gciBlockMode_None;
 		    rsaConf.padding = en_gciPadding_PKCS1_EMSA;
 		    rsaConf.iv.data = NULL;
+		    rsaCtx = -1;
 
 			//RSA public key coming from a Certificate -> see sslCert_verifyChain in ssl_certHelper.c
 			err = gciCipherNewCtx(&rsaConf, ps_hsElem->gci_rsaPeerKey, &rsaCtx);
@@ -6761,29 +6762,30 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 					eccPub.un_key.keyEcdhPub.coord.x.data = a_allocCoordX;
                     eccPub.un_key.keyEcdhPub.coord.y.data = a_allocCoordY;
 
+
 					//read/import pubkey from the buffer (ANSI x9.63)
 
 					//Read the first byte to be sure the incoming buffer has the value 4, 6 or 7 (to be valid)
-					if ((*pc_hsBuff != 4) && (*pc_hsBuff != 6) && (*pc_hsBuff != 7)) {
+					if ((*pc_hsBuff != 4) && (*pc_hsBuff != 6) && (*pc_hsBuff != 7))
+					{
 						//TODO return state from error
 					}
 
 					pc_hsBuff++;
 
 					//the x-coordinate has a length of the half of the public key's length
-					eccPub.un_key.keyEcdhPub.coord.x.len = cwt_len/2;
+					eccPub.un_key.keyEcdhPub.coord.x.len = (cwt_len-1)>>1;
 
 					memcpy(eccPub.un_key.keyEcdhPub.coord.x.data, pc_hsBuff, eccPub.un_key.keyEcdhPub.coord.x.len);
 
 					pc_hsBuff += eccPub.un_key.keyEcdhPub.coord.x.len;
 
 					//the y-coordinate has a length of the rest of the half of the public key's length
-					eccPub.un_key.keyEcdhPub.coord.y.len = cwt_len/2;
+					eccPub.un_key.keyEcdhPub.coord.y.len = (cwt_len-1)>>1;
 
 					memcpy(eccPub.un_key.keyEcdhPub.coord.y.data, pc_hsBuff, eccPub.un_key.keyEcdhPub.coord.y.len);
 
 					pc_hsBuff += eccPub.un_key.keyEcdhPub.coord.y.len;
-
 
                     /* Create a context with the curve elliptic as domain parameter */
 					st_gciDhConfig_t ecdhConf = {.type = en_gciDhType_Ecdh};
@@ -6810,10 +6812,6 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 						//TODO return state from error
 					}
 
-
-
-
-
 //						OLD-CW: if(cw_ecc_import_public(pc_hsBuff, cwt_len, &(ps_hsElem->eccPubKeyPeer)) != CRYPT_OK)
 //						if(err != GCI_OK)
 //						{
@@ -6823,7 +6821,6 @@ static e_sslPendAct_t loc_protocolHand(s_sslCtx_t * ps_sslCtx, uint8_t c_event,
 //							return (E_PENDACT_PROTOERR);
 //						}
 
-					//TODO sw - not sure that will work
 					cwt_len = pc_hsBuff - pc_ecc;
 
 					/* at first hash

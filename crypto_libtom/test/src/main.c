@@ -26,7 +26,7 @@
 /* ===== application specific headers ===== */
 #include "netGlobal.h"
 #include "ssl_client.h"
-#include "ssl_server.h"a
+#include "ssl_server.h"
 #include "timeout.h"
 #include "tools.h"
 
@@ -910,25 +910,125 @@ int main(int argc , char *argv[])
 	}
 
 #else
-    typedef struct con
-    {
-        int* a;
-        int *b;
-    }con;
 
 	int main(int argc , char *argv[])
 	{
+	    /* HMAC configuration */
+	    st_gciSignConfig_t hmacConfig = {.algo = en_gciSignAlgo_HMAC,
+	                                     .hash = en_gciHashAlgo_MD5
+	                                    };
+
+	    /* Error Management */
+	    en_gciResult_t err;
+
+	    /* MD5 context ID */
+	    GciCtxId_t md5CtxID, md5CloneCtxID;
+
+	    /* Messages to hash */
+	    uint8_t a_data1[10] = {"Hello!"};
+	    uint8_t a_data2[30] = {"This is a HMAC Signature test"};
+	    uint8_t a_data3[10] = {"Thank you."};
+
+	    size_t data1Len = strlen(a_data1);
+	    size_t data2Len = strlen(a_data2);
+	    size_t data3Len = strlen(a_data3);
+
+	    int i;
+
+	    /* a MD5 digest is always 128 bits -> 16 bytes */
+	    uint8_t a_digest[GCI_MD5_SIZE_BYTES];
+
+	    /* Initialize the buffer */
+	    memset(a_digest, 0, GCI_MD5_SIZE_BYTES);
+
+	    size_t digestLen = 0;
+
+	    /* Create a new hash MD5 context */
+	    err = gciHashNewCtx(en_gciHashAlgo_MD5, &md5CtxID);
+
+	    /* Error coming from the creation of a new MD5-Hash context */
+	    if(err != en_gciResult_Ok)
+	    {
+	        printf("GCI Error in gciHashNewCtx: MD5");
+	    }
+
+	    /* Add the first data by updating the hash context */
+	    err = gciHashUpdate(md5CtxID, a_data1, data1Len);
+
+	    /* Error coming from the updating of the hash context with data1 */
+	    if(err != en_gciResult_Ok)
+	    {
+	        printf("GCI Error in gciHashUpdate: MD5");
+	    }
+
+	    /* Add the second data by updating the hash context */
+	    err = gciHashUpdate(md5CtxID, a_data2, data2Len);
+
+	    /* Error coming from the updating of the hash context with data2 */
+	    if(err != en_gciResult_Ok)
+	    {
+	        printf("GCI Error in gciHashUpdate: MD5");
+	    }
 
 
-	    con Con;
+	    /* Clone the context */
+	    err = gciHashCtxClone(md5CtxID, &md5CloneCtxID);
+        if(err != en_gciResult_Ok)
+        {
+            printf("GCI Error in gciHashCtxClone: MD5");
+        }
 
-	    int c = 12;
+        /* Get the digest of this message */
+        err = gciHashFinish(md5CtxID, a_digest, &digestLen);
+        if(err != en_gciResult_Ok)
+        {
+            printf("GCI Error in gciHashFinish: MD5");
+        }
 
-	    Con.a = &c;
+        else
+        {
+            printf("GCI Info: Digest1 = ");
+            for(i = 0; i < GCI_MD5_SIZE_BYTES; i++)
+            {
+                printf("%d", a_digest[i]);
+            }
+        }
 
-	    printf("c = %d\r\n struct = %d", c, *Con.a);
+        /* Initialize the buffer */
+        memset(a_digest, 0, GCI_MD5_SIZE_BYTES);
 
-		return 0;
+	    /* Add the third data by updating the hash context */
+	    err = gciHashUpdate(md5CloneCtxID, a_data3, data3Len);
+
+	    /* Error coming from the updating of the hash context with data3 */
+	    if(err != en_gciResult_Ok)
+	    {
+	        printf("GCI Error in gciHashUpdate: MD5");
+	    }
+
+	    /* Get the digest of this message */
+	    err = gciHashFinish(md5CloneCtxID, a_digest, &digestLen);
+	    if(err != en_gciResult_Ok)
+	    {
+	        printf("GCI Error in gciHashFinish: MD5");
+	    }
+
+	    else
+	    {
+            printf("\r\nGCI Info: Digest2 = ");
+            for(i=0; i<GCI_MD5_SIZE_BYTES; i++)
+            {
+                printf("%d", a_digest[i]);
+            }
+
+	    }
+
+	    printf("\r\n");
+
+	    /* Delete the contexts */
+	    gciCtxRelease(md5CtxID);
+	    gciCtxRelease(md5CloneCtxID);
+
 	}
 
 #endif

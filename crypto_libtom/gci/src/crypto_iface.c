@@ -21,10 +21,7 @@
 #include "ssl_record.h"
 #include "tomcrypt.h"
 
-#define LOGGER_ENABLE       DBG_SSL_PROTO_MODULE
-#include "logger.h"
-
-
+/* Display the GCI Info of each function uses in the project */
 #define GCI_DBG_INFO 0
 
 
@@ -137,7 +134,6 @@ static uint8_t ga_allocRsaPrivD[GCI_NB_KEY_MAX][TC_RSA_KEY_SIZE_MAX_BYTES];
 
 /* RSA public exponent (e) */
 static uint8_t ga_allocRsaPubE[GCI_NB_KEY_MAX][TC_RSA_KEY_SIZE_MAX_BYTES];
-
 
 
 /*---------------------------------------------Prototype of local functions----------------------------------------------*/
@@ -1812,9 +1808,6 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 
 	            return err;
 	        }
-
-	        LOG_INFO("Key after gciKeyGet:");
-	        LOG_HEX(symKey.un_key.keySym.data, symKey.un_key.keySym.len);
 
 	    }
 
@@ -4602,7 +4595,7 @@ en_gciResult_t _genDhKeyPair( GciCtxId_t ctxID, GciKeyId_t* p_pubKeyID )
 
 
     /* Allocate memory */
-    dhPubKey.un_key.keyDhPub.key.data = &ga_allocDhPubKey[*p_pubKeyID];
+    dhPubKey.un_key.keyDhPub.key.data = ga_allocDhPubKey;
     dhParamG = ga_allocDhDomainG;
     dhParamP = ga_allocDhDomainP;
 
@@ -4681,6 +4674,8 @@ en_gciResult_t _genDhKeyPair( GciCtxId_t ctxID, GciKeyId_t* p_pubKeyID )
         err = en_gciResult_Err;
         printf("GCI Error in _genDhKeyPair: Convert big number to bytes buffer\r\n");
     }
+
+
 
     /* Get an ID for the public key */
     gciKeyPut(&dhPubKey, p_pubKeyID);
@@ -4859,18 +4854,21 @@ en_gciResult_t _calcDhSecret( GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciKeyId_t*
     en_gciResult_t err = en_gciResult_Ok;
 
     int tmpErr = MP_OKAY;
+
+    uint8_t a_allocDhPubKey[TC_DH_KEY_SIZE_MAX_BYTES];
+    uint8_t a_allocDhSecretKey[TC_DH_KEY_SIZE_MAX_BYTES];
+
     st_gciKey_t pubKey = {.type = en_gciKeyType_DhPub};
     st_gciKey_t secretKey = {.type = en_gciKeyType_DhSecret};
 
     mp_int bnPubKey, bnParamP, bnSecretKey;
 
-
     /* Allocate memory */
     mp_init(&bnPubKey);
     mp_init(&bnParamP);
     mp_init(&bnSecretKey);
-    pubKey.un_key.keyDhPub.key.data = &ga_allocDhPubKey[ctxID];
-    secretKey.un_key.keyDhSecret.data = &ga_allocDhSecretKey[ctxID];
+    pubKey.un_key.keyDhPub.key.data = a_allocDhPubKey;
+    secretKey.un_key.keyDhSecret.data = a_allocDhSecretKey;
 
 #if GCI_DBG_INFO
     printf("GCI Info: DH Calc Shared Secret with context ID %d\r\n", ctxID);
@@ -4938,29 +4936,48 @@ en_gciResult_t _calcDhSecret( GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciKeyId_t*
 en_gciResult_t _calcEcdhSecret( GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciKeyId_t* p_secretKeyID)
 {
     en_gciResult_t err = en_gciResult_Ok;
+    int tmpErr = CRYPT_OK;
     int x;
 
-    uint8_t a_allocEcdhCoordX[TC_ECDH_KEY_SIZE_MAX_BYTES/2];
-    uint8_t a_allocEcdhCoordY[TC_ECDH_KEY_SIZE_MAX_BYTES/2];
     st_gciKey_t ecdhPubKey;
 
-    uint8_t a_allocSecretKey[TC_ECDH_KEY_SIZE_MAX_BYTES];
     st_gciKey_t secretKey = {.type = en_gciKeyType_EcdhSecret};
 
     ecc_key bnEcdhPubKey;
 
+    uint8_t a_allocEcdhPubCoordX[TC_ECDH_KEY_SIZE_MAX_BYTES/2];
+    uint8_t a_allocEcdhPubCoordY[TC_ECDH_KEY_SIZE_MAX_BYTES/2];
+    uint8_t a_allocEcdhSecret[TC_ECDH_KEY_SIZE_MAX_BYTES/2];
+
+
     /* Allocate memory */
-    ecdhPubKey.un_key.keyEcdhPub.coord.x.data = a_allocEcdhCoordX;
-    ecdhPubKey.un_key.keyEcdhPub.coord.y.data = a_allocEcdhCoordY;
-    secretKey.un_key.keyEcdhSecret.data = a_allocSecretKey;
+    ecdhPubKey.un_key.keyEcdhPub.coord.x.data = a_allocEcdhPubCoordX;
+    ecdhPubKey.un_key.keyEcdhPub.coord.y.data = a_allocEcdhPubCoordY;
+    secretKey.un_key.keyEcdhSecret.data = a_allocEcdhSecret;
+
     ltc_init_multi(&bnEcdhPubKey.pubkey.x, &bnEcdhPubKey.pubkey.y, &bnEcdhPubKey.pubkey.z, NULL);
 
     /* Get the public key from the ID */
     err = gciKeyGet(pubKeyID, &ecdhPubKey);
 
     /* Convert the key as bytes buffer to a big number */
-    mp_read_unsigned_bin(bnEcdhPubKey.pubkey.x, ecdhPubKey.un_key.keyEcdhPub.coord.x.data, ecdhPubKey.un_key.keyEcdhPub.coord.x.len);
-    mp_read_unsigned_bin(bnEcdhPubKey.pubkey.y, ecdhPubKey.un_key.keyEcdhPub.coord.y.data, ecdhPubKey.un_key.keyEcdhPub.coord.y.len);
+    tmpErr = mp_read_unsigned_bin(bnEcdhPubKey.pubkey.x, ecdhPubKey.un_key.keyEcdhPub.coord.x.data, ecdhPubKey.un_key.keyEcdhPub.coord.x.len);
+
+    if(tmpErr != CRYPT_OK)
+    {
+        printf("GCI Error in _calcEcdhSecret: Convert x-coordinate of the public key to a big number\r\n");
+        err = en_gciResult_Err;
+        return err;
+    }
+
+    tmpErr = mp_read_unsigned_bin(bnEcdhPubKey.pubkey.y, ecdhPubKey.un_key.keyEcdhPub.coord.y.data, ecdhPubKey.un_key.keyEcdhPub.coord.y.len);
+
+    if(tmpErr != CRYPT_OK)
+    {
+        printf("GCI Error in _calcEcdhSecret: Convert y-coordinate of the public key to a big number\r\n");
+        err = en_gciResult_Err;
+        return err;
+    }
 
     mp_set(bnEcdhPubKey.pubkey.z, 1);
 
@@ -4975,7 +4992,9 @@ en_gciResult_t _calcEcdhSecret( GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciKeyId_
         }
     }
 
-    if (ltc_ecc_sets[x].size == 0) {
+
+    if (ltc_ecc_sets[x].size == 0)
+    {
         printf("GCI Error in  _calcEcdhSecret: Invalid public key\r\n");
         err = en_gciResult_Err;
         return err;
@@ -4984,6 +5003,9 @@ en_gciResult_t _calcEcdhSecret( GciCtxId_t ctxID, GciKeyId_t pubKeyID, GciKeyId_
     bnEcdhPubKey.idx  = x;
     bnEcdhPubKey.dp = &ltc_ecc_sets[x];
     bnEcdhPubKey.type = PK_PUBLIC;
+
+    /* Length of the secret is the same length as one of the coordinate of the public key */
+    secretKey.un_key.keyEcdhSecret.len = ecdhPubKey.un_key.keyEcdhPub.coord.x.len;
 
     ecc_shared_secret(&g_ecdhPrivKey, &bnEcdhPubKey, secretKey.un_key.keyEcdhSecret.data, (long unsigned int*)&secretKey.un_key.keyEcdhSecret.len);
 
