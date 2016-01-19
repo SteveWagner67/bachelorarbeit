@@ -212,7 +212,7 @@ E_SERVER_FSM_RESULT ssl_server_entry(SSL_SERVER_PARS parameters)
 		/*
 		 * Initialisation of keymanager for DHE and DHE private key generation
 		 */
-		//OLD-CW: km_dhe_init(); //TODO sw - this step in gci_init
+		km_dhe_init();
 
 		/*============================================================================*/
 		/*
