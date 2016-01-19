@@ -226,7 +226,7 @@ typedef enum en_gciPadding
 	/** PKCS1 V1_5 padding */
 	en_gciPadding_Pkcs1_V1_5,
     /** PKCS1 EMSA padding */
-    en_gciPadding_Pkcs1_EMSA,
+    en_gciPadding_Pkcs1_Emsa,
 	/** PKCS5 padding */
 	en_gciPadding_Pkcs5,
 	/** PKCS7 padding */
@@ -619,7 +619,7 @@ typedef enum en_gciKeyPairType
 	en_gciKeyPairType_Ecdsa,
 	/**No key pair */
 	en_gciKeyPairType_None=0xFF
-} Sect;
+} en_gciKeyPairType_t;
 
 
 

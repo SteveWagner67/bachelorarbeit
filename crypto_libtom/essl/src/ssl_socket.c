@@ -248,13 +248,13 @@ void sslSoc_initSett(s_sslSett_t* ps_sslSett, e_sslKeyType_t keyType)
 	if(keyType == E_SSL_KEY_EC)
 	{
 		//OLD-CW: ps_sslSett->s_certSignHashAlg.c_hash = E_SSL_HASH_SHA256;
-		ps_sslSett->s_certSignHashAlg.c_hash = en_gciHashAlgo_SHA256;
+		ps_sslSett->s_certSignHashAlg.c_hash = en_gciHashAlgo_Sha256;
 		ps_sslSett->s_certSignHashAlg.c_sign = E_SSL_SIGN_RSA;
 	}
 	else
 	{
 		//OLD-CW: ps_sslSett->s_certSignHashAlg.c_hash = E_SSL_HASH_SHA256;
-		ps_sslSett->s_certSignHashAlg.c_hash = en_gciHashAlgo_SHA256;
+		ps_sslSett->s_certSignHashAlg.c_hash = en_gciHashAlgo_Sha256;
 		ps_sslSett->s_certSignHashAlg.c_sign = E_SSL_SIGN_ECDSA;
 	}
 

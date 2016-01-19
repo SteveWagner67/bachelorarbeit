@@ -496,7 +496,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 	/* Init the hash */
 	switch(hashAlgo)
 	{
-	    case en_gciHashAlgo_MD5:
+	    case en_gciHashAlgo_Md5:
 #if GCI_DBG_INFO
 	        printf("GCI Info: Hash MD5 context ID = %d\r\n", *p_ctxID);
 #endif
@@ -511,7 +511,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 
 	    break;
 
-	    case en_gciHashAlgo_SHA1:
+	    case en_gciHashAlgo_Sha1:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Hash SHA1 context ID = %d\r\n", *p_ctxID);
@@ -527,7 +527,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 
 	    break;
 
-	    case en_gciHashAlgo_SHA224:
+	    case en_gciHashAlgo_Sha224:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Hash SHA224 context ID = %d\r\n", *p_ctxID);
@@ -542,7 +542,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 	        }
 	    break;
 
-	    case en_gciHashAlgo_SHA256:
+	    case en_gciHashAlgo_Sha256:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Hash SHA256 context ID = %d\r\n", *p_ctxID);
@@ -557,7 +557,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 	        }
 	    break;
 
-	    case en_gciHashAlgo_SHA384:
+	    case en_gciHashAlgo_Sha384:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Hash SHA384 context ID = %d\r\n", *p_ctxID);
@@ -572,7 +572,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
 	        }
 	    break;
 
-	    case en_gciHashAlgo_SHA512:
+	    case en_gciHashAlgo_Sha512:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Hash SHA512 context ID = %d\r\n", *p_ctxID);
@@ -629,37 +629,37 @@ en_gciResult_t gciHashCtxClone( GciCtxId_t idSrc, GciCtxId_t* p_idDest )
     /* Copy the state of the hash used */
     switch(ga_ctxID[*p_idDest].un_ctxConfig.ctxConfigHash)
     {
-        case en_gciHashAlgo_MD5:
+        case en_gciHashAlgo_Md5:
 
             memcpy(&ga_hashMd5[*p_idDest], &ga_hashMd5[idSrc], sizeof(hash_state));
 
         break;
 
-        case en_gciHashAlgo_SHA1:
+        case en_gciHashAlgo_Sha1:
 
             memcpy(&ga_hashSha1[*p_idDest], &ga_hashSha1[idSrc], sizeof(hash_state));
 
         break;
 
-        case en_gciHashAlgo_SHA224:
+        case en_gciHashAlgo_Sha224:
 
             memcpy(&ga_hashSha224[*p_idDest], &ga_hashSha224[idSrc], sizeof(hash_state));
 
         break;
 
-        case en_gciHashAlgo_SHA256:
+        case en_gciHashAlgo_Sha256:
 
             memcpy(&ga_hashSha256[*p_idDest], &ga_hashSha256[idSrc], sizeof(hash_state));
 
         break;
 
-        case en_gciHashAlgo_SHA384:
+        case en_gciHashAlgo_Sha384:
 
             memcpy(&ga_hashSha384[*p_idDest], &ga_hashSha384[idSrc], sizeof(hash_state));
 
         break;
 
-        case en_gciHashAlgo_SHA512:
+        case en_gciHashAlgo_Sha512:
 
             memcpy(&ga_hashSha512[*p_idDest], &ga_hashSha512[idSrc], sizeof(hash_state));
 
@@ -696,7 +696,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 	/* Hash the block message */
 	switch(ga_ctxID[ctxID].un_ctxConfig.ctxConfigHash)
 	{
-	    case en_gciHashAlgo_MD5:
+	    case en_gciHashAlgo_Md5:
 
 	        tmpErr = md5_process(&ga_hashMd5[ctxID], p_blockMsg, blockLen);
 
@@ -715,7 +715,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
 	    break;
 
-	    case en_gciHashAlgo_SHA1:
+	    case en_gciHashAlgo_Sha1:
 
 	        tmpErr = sha1_process(&ga_hashSha1[ctxID], p_blockMsg, blockLen);
 
@@ -734,7 +734,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
 	    break;
 
-	    case en_gciHashAlgo_SHA224:
+	    case en_gciHashAlgo_Sha224:
 
 	        tmpErr = sha224_process(&ga_hashSha224[ctxID], p_blockMsg, blockLen);
 
@@ -753,7 +753,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
 	    break;
 
-	    case en_gciHashAlgo_SHA256:
+	    case en_gciHashAlgo_Sha256:
 
 	        tmpErr = sha256_process(&ga_hashSha256[ctxID], p_blockMsg, blockLen);
 
@@ -772,7 +772,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
 	    break;
 
-	    case en_gciHashAlgo_SHA384:
+	    case en_gciHashAlgo_Sha384:
 
 	        tmpErr = sha384_process(&ga_hashSha384[ctxID], p_blockMsg, blockLen);
 
@@ -791,7 +791,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
 	    break;
 
-	    case en_gciHashAlgo_SHA512:
+	    case en_gciHashAlgo_Sha512:
 
 	        tmpErr = sha512_process(&ga_hashSha512[ctxID], p_blockMsg, blockLen);
 
@@ -840,7 +840,7 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
 	/* Hash the block message */
 	switch(ga_ctxID[ctxID].un_ctxConfig.ctxConfigHash)
 	{
-	    case en_gciHashAlgo_MD5:
+	    case en_gciHashAlgo_Md5:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Finish MD5\r\n");
@@ -865,7 +865,7 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
 
 	    break;
 
-	    case en_gciHashAlgo_SHA1:
+	    case en_gciHashAlgo_Sha1:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Finish SHA1\r\n");
@@ -890,7 +890,7 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
 
 	    break;
 
-	    case en_gciHashAlgo_SHA224:
+	    case en_gciHashAlgo_Sha224:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Finish SHA224\r\n");
@@ -915,7 +915,7 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
 
 	    break;
 
-	    case en_gciHashAlgo_SHA256:
+	    case en_gciHashAlgo_Sha256:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Finish SHA256\r\n");
@@ -940,7 +940,7 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
 
 	    break;
 
-	    case en_gciHashAlgo_SHA384:
+	    case en_gciHashAlgo_Sha384:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Finish SHA384\r\n");
@@ -965,7 +965,7 @@ en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_dig
 
 	    break;
 
-	    case en_gciHashAlgo_SHA512:
+	    case en_gciHashAlgo_Sha512:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Finish SHA512\r\n");
@@ -1061,7 +1061,7 @@ en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyI
 	/* Init the algorithm uses to sign */
 	switch(p_signConfig->algo)
 	{
-	    case en_gciSignAlgo_CMAC_AES:
+	    case en_gciSignAlgo_Cmac_Aes:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Cipher Message Authentication code (CMAC)\r\n");
@@ -1070,7 +1070,7 @@ en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyI
 
 	    break;
 
-	    case en_gciSignAlgo_DSA:
+	    case en_gciSignAlgo_Dsa:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm DSA\r\n");
@@ -1079,9 +1079,9 @@ en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyI
 
 	    break;
 
-	    case en_gciSignAlgo_ECDSA:
-	    case en_gciSignAlgo_ECDSA_GF2M:
-	    case en_gciSignAlgo_ECDSA_GFP:
+	    case en_gciSignAlgo_Ecdsa:
+	    case en_gciSignAlgo_Ecdsa_Gf2m:
+	    case en_gciSignAlgo_Ecdsa_Gfp:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm ECDSA\r\n");
@@ -1092,7 +1092,7 @@ en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyI
 	    break;
 
 
-	    case en_gciSignAlgo_HMAC:
+	    case en_gciSignAlgo_Hmac:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code HMAC\r\n");
@@ -1112,7 +1112,7 @@ en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyI
             /* Hash */
             switch(p_signConfig->hash)
             {
-                case en_gciHashAlgo_MD5:
+                case en_gciHashAlgo_Md5:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Hash MD5\r\n");
@@ -1123,7 +1123,7 @@ en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyI
 
                 break;
 
-                case en_gciHashAlgo_SHA1:
+                case en_gciHashAlgo_Sha1:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Hash SHA1\r\n");
@@ -1134,7 +1134,7 @@ en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyI
 
                 break;
 
-                case en_gciHashAlgo_SHA224:
+                case en_gciHashAlgo_Sha224:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Hash SHA224\r\n");
@@ -1145,7 +1145,7 @@ en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyI
 
                 break;
 
-                case en_gciHashAlgo_SHA256:
+                case en_gciHashAlgo_Sha256:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Hash SHA256\r\n");
@@ -1156,7 +1156,7 @@ en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyI
 
                 break;
 
-                case en_gciHashAlgo_SHA384:
+                case en_gciHashAlgo_Sha384:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Hash SHA384\r\n");
@@ -1168,7 +1168,7 @@ en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyI
                 break;
 
 
-                case en_gciHashAlgo_SHA512:
+                case en_gciHashAlgo_Sha512:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Hash SHA512\r\n");
@@ -1211,8 +1211,8 @@ en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyI
 
 	    break;
 
-	    case en_gciSignAlgo_MAC_ISO9797_ALG1:
-	    case en_gciSignAlgo_MAC_ISO9797_ALG3:
+	    case en_gciSignAlgo_Mac_Iso9797_Alg1:
+	    case en_gciSignAlgo_Mac_Iso9797_Alg3:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code (MAC)\r\n");
@@ -1222,10 +1222,10 @@ en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig, GciKeyI
 	    break;
 
 
-	    case en_gciSignAlgo_RSA:
-	    case en_gciSignAlgo_RSASSA_PKCS:
-	    case en_gciSignAlgo_RSASSA_PSS:
-	    case en_gciSignAlgo_RSASSA_X509:
+	    case en_gciSignAlgo_Rsa:
+	    case en_gciSignAlgo_Rsassa_Pkcs:
+	    case en_gciSignAlgo_Rsassa_Pss:
+	    case en_gciSignAlgo_Rsassa_X509:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Signature algorithm RSA\r\n");
@@ -1311,7 +1311,7 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
     /* Init the algorithm uses to sign */
     switch(p_signConfig->algo)
     {
-        case en_gciSignAlgo_CMAC_AES:
+        case en_gciSignAlgo_Cmac_Aes:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Cipher Message Authentication code CMAC\r\n");
@@ -1320,7 +1320,7 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
 
         break;
 
-        case en_gciSignAlgo_DSA:
+        case en_gciSignAlgo_Dsa:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm DSA\r\n");
@@ -1330,9 +1330,9 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
 
         break;
 
-        case en_gciSignAlgo_ECDSA:
-        case en_gciSignAlgo_ECDSA_GF2M:
-        case en_gciSignAlgo_ECDSA_GFP:
+        case en_gciSignAlgo_Ecdsa:
+        case en_gciSignAlgo_Ecdsa_Gf2m:
+        case en_gciSignAlgo_Ecdsa_Gfp:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm ECDSA\r\n");
@@ -1342,7 +1342,7 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
         break;
 
 
-        case en_gciSignAlgo_HMAC:
+        case en_gciSignAlgo_Hmac:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code HMAC\r\n");
@@ -1362,7 +1362,7 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
             /* Hash */
             switch(p_signConfig->hash)
             {
-                case en_gciHashAlgo_MD5:
+                case en_gciHashAlgo_Md5:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Hash MD5\r\n");
@@ -1373,7 +1373,7 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
 
                 break;
 
-                case en_gciHashAlgo_SHA1:
+                case en_gciHashAlgo_Sha1:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Hash SHA1\r\n");
@@ -1384,7 +1384,7 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
 
                 break;
 
-                case en_gciHashAlgo_SHA224:
+                case en_gciHashAlgo_Sha224:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Hash SHA224\r\n");
@@ -1395,7 +1395,7 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
 
                 break;
 
-                case en_gciHashAlgo_SHA256:
+                case en_gciHashAlgo_Sha256:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Hash SHA256\r\n");
@@ -1406,7 +1406,7 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
 
                 break;
 
-                case en_gciHashAlgo_SHA384:
+                case en_gciHashAlgo_Sha384:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Hash SHA384\r\n");
@@ -1418,7 +1418,7 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
                 break;
 
 
-                case en_gciHashAlgo_SHA512:
+                case en_gciHashAlgo_Sha512:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Hash SHA512\r\n");
@@ -1452,8 +1452,8 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
 
         break;
 
-        case en_gciSignAlgo_MAC_ISO9797_ALG1:
-        case en_gciSignAlgo_MAC_ISO9797_ALG3:
+        case en_gciSignAlgo_Mac_Iso9797_Alg1:
+        case en_gciSignAlgo_Mac_Iso9797_Alg3:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code MAC\r\n");
@@ -1464,10 +1464,10 @@ en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig, GciK
         break;
 
 
-        case en_gciSignAlgo_RSA:
-        case en_gciSignAlgo_RSASSA_PKCS:
-        case en_gciSignAlgo_RSASSA_PSS:
-        case en_gciSignAlgo_RSASSA_X509:
+        case en_gciSignAlgo_Rsa:
+        case en_gciSignAlgo_Rsassa_Pkcs:
+        case en_gciSignAlgo_Rsassa_Pss:
+        case en_gciSignAlgo_Rsassa_X509:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm RSA\r\n");
@@ -1538,7 +1538,7 @@ en_gciResult_t gciSignUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 	switch(ga_ctxID[ctxID].un_ctxConfig.ctxConfigSign.algo)
 	{
 
-	    case en_gciSignAlgo_CMAC_AES:
+	    case en_gciSignAlgo_Cmac_Aes:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code CMAC\r\n");
@@ -1547,7 +1547,7 @@ en_gciResult_t gciSignUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
         break;
 
-        case en_gciSignAlgo_DSA:
+        case en_gciSignAlgo_Dsa:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm DSA\r\n");
@@ -1556,9 +1556,9 @@ en_gciResult_t gciSignUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
         break;
 
-        case en_gciSignAlgo_ECDSA:
-        case en_gciSignAlgo_ECDSA_GF2M:
-        case en_gciSignAlgo_ECDSA_GFP:
+        case en_gciSignAlgo_Ecdsa:
+        case en_gciSignAlgo_Ecdsa_Gf2m:
+        case en_gciSignAlgo_Ecdsa_Gfp:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm ECDSA\r\n");
@@ -1568,7 +1568,7 @@ en_gciResult_t gciSignUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
         break;
 
 
-        case en_gciSignAlgo_HMAC:
+        case en_gciSignAlgo_Hmac:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code HMAC\r\n");
@@ -1584,8 +1584,8 @@ en_gciResult_t gciSignUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
         break;
 
-        case en_gciSignAlgo_MAC_ISO9797_ALG1:
-        case en_gciSignAlgo_MAC_ISO9797_ALG3:
+        case en_gciSignAlgo_Mac_Iso9797_Alg1:
+        case en_gciSignAlgo_Mac_Iso9797_Alg3:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code MAC\r\n");
@@ -1595,10 +1595,10 @@ en_gciResult_t gciSignUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
         break;
 
 
-        case en_gciSignAlgo_RSA:
-        case en_gciSignAlgo_RSASSA_PKCS:
-        case en_gciSignAlgo_RSASSA_PSS:
-        case en_gciSignAlgo_RSASSA_X509:
+        case en_gciSignAlgo_Rsa:
+        case en_gciSignAlgo_Rsassa_Pkcs:
+        case en_gciSignAlgo_Rsassa_Pss:
+        case en_gciSignAlgo_Rsassa_X509:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm RSA\r\n");
@@ -1696,7 +1696,7 @@ en_gciResult_t gciSignGenFinish( GciCtxId_t ctxID, uint8_t* p_sign, size_t* p_si
     switch(ga_ctxID[ctxID].un_ctxConfig.ctxConfigSign.algo)
     {
 
-        case en_gciSignAlgo_CMAC_AES:
+        case en_gciSignAlgo_Cmac_Aes:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code CMAC\r\n");
@@ -1705,7 +1705,7 @@ en_gciResult_t gciSignGenFinish( GciCtxId_t ctxID, uint8_t* p_sign, size_t* p_si
 
         break;
 
-        case en_gciSignAlgo_DSA:
+        case en_gciSignAlgo_Dsa:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm DSA\r\n");
@@ -1714,9 +1714,9 @@ en_gciResult_t gciSignGenFinish( GciCtxId_t ctxID, uint8_t* p_sign, size_t* p_si
 
         break;
 
-        case en_gciSignAlgo_ECDSA:
-        case en_gciSignAlgo_ECDSA_GF2M:
-        case en_gciSignAlgo_ECDSA_GFP:
+        case en_gciSignAlgo_Ecdsa:
+        case en_gciSignAlgo_Ecdsa_Gf2m:
+        case en_gciSignAlgo_Ecdsa_Gfp:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm ECDSA\r\n");
@@ -1726,7 +1726,7 @@ en_gciResult_t gciSignGenFinish( GciCtxId_t ctxID, uint8_t* p_sign, size_t* p_si
         break;
 
 
-        case en_gciSignAlgo_HMAC:
+        case en_gciSignAlgo_Hmac:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code HMAC\r\n");
@@ -1749,8 +1749,8 @@ en_gciResult_t gciSignGenFinish( GciCtxId_t ctxID, uint8_t* p_sign, size_t* p_si
 
         break;
 
-        case en_gciSignAlgo_MAC_ISO9797_ALG1:
-        case en_gciSignAlgo_MAC_ISO9797_ALG3:
+        case en_gciSignAlgo_Mac_Iso9797_Alg1:
+        case en_gciSignAlgo_Mac_Iso9797_Alg3:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code MAC\r\n");
@@ -1760,10 +1760,10 @@ en_gciResult_t gciSignGenFinish( GciCtxId_t ctxID, uint8_t* p_sign, size_t* p_si
         break;
 
 
-        case en_gciSignAlgo_RSA:
-        case en_gciSignAlgo_RSASSA_PKCS:
-        case en_gciSignAlgo_RSASSA_PSS:
-        case en_gciSignAlgo_RSASSA_X509:
+        case en_gciSignAlgo_Rsa:
+        case en_gciSignAlgo_Rsassa_Pkcs:
+        case en_gciSignAlgo_Rsassa_Pss:
+        case en_gciSignAlgo_Rsassa_X509:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm RSA\r\n");
@@ -1813,7 +1813,7 @@ en_gciResult_t gciSignGenFinish( GciCtxId_t ctxID, uint8_t* p_sign, size_t* p_si
 
             switch(ga_ctxID[ctxID].un_ctxConfig.ctxConfigSign.un_signConfig.signConfigRsa.padding)
             {
-                case en_gciPadding_PKCS1_EMSA:
+                case en_gciPadding_Pkcs1_Emsa:
 #if GCI_DBG_INFO
                     printf("GCI Info: Padding PKCS1_EMSA\r\n");
 
@@ -1869,7 +1869,7 @@ en_gciResult_t gciSignVerifyFinish( GciCtxId_t ctxID, const uint8_t* p_sign, siz
     /* Compare the generate signature with this in the parameter of the function */
     switch(ga_ctxID[ctxID].un_ctxConfig.ctxConfigSign.algo)
     {
-        case en_gciSignAlgo_CMAC_AES:
+        case en_gciSignAlgo_Cmac_Aes:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code CMAC\r\n");
@@ -1878,7 +1878,7 @@ en_gciResult_t gciSignVerifyFinish( GciCtxId_t ctxID, const uint8_t* p_sign, siz
 
         break;
 
-        case en_gciSignAlgo_DSA:
+        case en_gciSignAlgo_Dsa:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm DSA\r\n");
@@ -1887,9 +1887,9 @@ en_gciResult_t gciSignVerifyFinish( GciCtxId_t ctxID, const uint8_t* p_sign, siz
 
         break;
 
-        case en_gciSignAlgo_ECDSA:
-        case en_gciSignAlgo_ECDSA_GF2M:
-        case en_gciSignAlgo_ECDSA_GFP:
+        case en_gciSignAlgo_Ecdsa:
+        case en_gciSignAlgo_Ecdsa_Gf2m:
+        case en_gciSignAlgo_Ecdsa_Gfp:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm ECDSA\r\n");
@@ -1899,7 +1899,7 @@ en_gciResult_t gciSignVerifyFinish( GciCtxId_t ctxID, const uint8_t* p_sign, siz
         break;
 
 
-        case en_gciSignAlgo_HMAC:
+        case en_gciSignAlgo_Hmac:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code HMAC\r\n");
@@ -1908,8 +1908,8 @@ en_gciResult_t gciSignVerifyFinish( GciCtxId_t ctxID, const uint8_t* p_sign, siz
 
         break;
 
-        case en_gciSignAlgo_MAC_ISO9797_ALG1:
-        case en_gciSignAlgo_MAC_ISO9797_ALG3:
+        case en_gciSignAlgo_Mac_Iso9797_Alg1:
+        case en_gciSignAlgo_Mac_Iso9797_Alg3:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Message Authentication code MAC\r\n");
@@ -1919,10 +1919,10 @@ en_gciResult_t gciSignVerifyFinish( GciCtxId_t ctxID, const uint8_t* p_sign, siz
         break;
 
 
-        case en_gciSignAlgo_RSA:
-        case en_gciSignAlgo_RSASSA_PKCS:
-        case en_gciSignAlgo_RSASSA_PSS:
-        case en_gciSignAlgo_RSASSA_X509:
+        case en_gciSignAlgo_Rsa:
+        case en_gciSignAlgo_Rsassa_Pkcs:
+        case en_gciSignAlgo_Rsassa_Pss:
+        case en_gciSignAlgo_Rsassa_X509:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Signature algorithm RSA\r\n");
@@ -2017,7 +2017,7 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 	    ga_ctxID[*p_ctxID].un_ctxConfig.ctxConfigCipher.padding = p_ciphConfig->padding;
 
 	    /* Get the symmetric key with the ID in input */
-	    if(p_ciphConfig->algo != en_gciCipherAlgo_RSA)
+	    if(p_ciphConfig->algo != en_gciCipherAlgo_Rsa)
 	    {
 	        err = gciKeyGet(keyID, &symKey);
 
@@ -2055,7 +2055,7 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 	switch(ga_ctxID[*p_ctxID].un_ctxConfig.ctxConfigCipher.algo)
 	{
 	    /* Symmetric Stream Cipher */
-	    case en_gciCipherAlgo_RC4:
+	    case en_gciCipherAlgo_Rc4:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: New symmetric cipher context ID %d, with algorithm RC4\r\n", *p_ctxID);
@@ -2106,7 +2106,7 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 	    break;
 
 	    /* Symmetric Block Cipher */
-	    case en_gciCipherAlgo_AES:
+	    case en_gciCipherAlgo_Aes:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: New symmetric cipher ID %d with algorithm AES\r\n", *p_ctxID);
@@ -2118,7 +2118,7 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 	    break;
 
 	    /* Symmetric Block Cipher */
-	    case en_gciCipherAlgo_DES:
+	    case en_gciCipherAlgo_Des:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: New symmetric cipher ID %d with algorithm DES\r\n", *p_ctxID);
@@ -2129,7 +2129,7 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 	    break;
 
 	    /* Symmetric Block Cipher */
-	    case en_gciCipherAlgo_3DES:
+	    case en_gciCipherAlgo_3des:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: New symmetric cipher ID %d with algorithm 3DES\r\n", *p_ctxID);
@@ -2140,7 +2140,7 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 	    break;
 
 	    /* Asymmetric cipher */
-	    case en_gciCipherAlgo_RSA:
+	    case en_gciCipherAlgo_Rsa:
 	        if(addConfig == 1)
 	        {
 	            /* Case the keyID entered in the function is different to this saved (but >= 0) -> save it in secKeyID */
@@ -2176,7 +2176,7 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 	{
 	    printf("GCI Info: Block mode\r\n");
 
-	    case en_gciBlockMode_CBC:
+	    case en_gciBlockMode_Cbc:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Block mode CBC\r\n");
@@ -2211,7 +2211,7 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 
 	    break;
 
-	    case en_gciBlockMode_CFB:
+	    case en_gciBlockMode_Cfb:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Block mode CFB\r\n");
@@ -2227,7 +2227,7 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 
 	    break;
 
-	    case en_gciBlockMode_ECB:
+	    case en_gciBlockMode_Ecb:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Block mode ECB\r\n");
@@ -2243,7 +2243,7 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 
 	    break;
 
-	    case en_gciBlockMode_GCM:
+	    case en_gciBlockMode_Gcm:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Block mode GCM\r\n");
@@ -2259,7 +2259,7 @@ en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig, GciKey
 
 	    break;
 
-	    case en_gciBlockMode_OFB:
+	    case en_gciBlockMode_Ofb:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Block mode OFB\r\n");
@@ -2336,7 +2336,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 	switch(ga_ctxID[ctxId].un_ctxConfig.ctxConfigCipher.algo)
 	{
 	    /* Symmetric Stream cipher */
-	    case en_gciCipherAlgo_RC4:
+	    case en_gciCipherAlgo_Rc4:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Symmetric encryption with algorithm RC4\r\n");
@@ -2366,7 +2366,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 	    break;
 
 	    /* Symmetric Block Cipher */
-	    case en_gciCipherAlgo_AES:
+	    case en_gciCipherAlgo_Aes:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Symmetric encryption with algorithm AES\r\n");
@@ -2375,7 +2375,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 	    break;
 
 	    /* Symmetric Block Cipher */
-	    case en_gciCipherAlgo_DES:
+	    case en_gciCipherAlgo_Des:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Symmetric encryption with algorithm DES\r\n");
@@ -2384,7 +2384,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 	    break;
 
 	    /* Symmetric Block Cipher */
-	    case en_gciCipherAlgo_3DES:
+	    case en_gciCipherAlgo_3des:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Symmetric encryption with algorithm 3DES\r\n");
@@ -2393,7 +2393,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 	    break;
 
 	    /* Asymmetric cipher */
-	    case en_gciCipherAlgo_RSA:
+	    case en_gciCipherAlgo_Rsa:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: Asymmetric encryption with algorithm RSA\r\n");
@@ -2425,7 +2425,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 	        /* Padding */
 	        switch(ga_ctxID[ctxId].un_ctxConfig.ctxConfigCipher.padding)
 	        {
-	            case en_gciPadding_PKCS1_V1_5:
+	            case en_gciPadding_Pkcs1_V1_5:
 
 #if GCI_DBG_INFO
 	                printf("GCI Info: Padding PKCS1\r\n");
@@ -2473,7 +2473,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 	/* Block mode for symmetric block cipher */
 	switch(ga_ctxID[ctxId].un_ctxConfig.ctxConfigCipher.blockMode)
 	{
-	    case en_gciBlockMode_CBC:
+	    case en_gciBlockMode_Cbc:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: CBC block mode encryption\r\n");
@@ -2498,7 +2498,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 
 	    break;
 
-	    case en_gciBlockMode_CFB:
+	    case en_gciBlockMode_Cfb:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: CFB block mode encryption\r\n");
@@ -2523,7 +2523,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 
 	    break;
 
-	    case en_gciBlockMode_ECB:
+	    case en_gciBlockMode_Ecb:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: ECB block mode encryption\r\n");
@@ -2548,7 +2548,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 
 	    break;
 
-	    case en_gciBlockMode_GCM:
+	    case en_gciBlockMode_Gcm:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: GCM block mode encryption\r\n");
@@ -2574,7 +2574,7 @@ en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt, si
 
 	    break;
 
-	    case en_gciBlockMode_OFB:
+	    case en_gciBlockMode_Ofb:
 
 #if GCI_DBG_INFO
 	        printf("GCI Info: OFB block mode encryption\r\n");
@@ -2667,7 +2667,7 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
 
     switch(ga_ctxID[ctxId].un_ctxConfig.ctxConfigCipher.algo)
     {
-        case en_gciCipherAlgo_RC4:
+        case en_gciCipherAlgo_Rc4:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Symmetric decryption with algorithm RC4\r\n");
@@ -2695,7 +2695,7 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
 
         break;
 
-        case en_gciCipherAlgo_AES:
+        case en_gciCipherAlgo_Aes:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Symmetric decryption with algorithm AES\r\n");
@@ -2703,7 +2703,7 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
 
         break;
 
-        case en_gciCipherAlgo_DES:
+        case en_gciCipherAlgo_Des:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Symmetric decryption with algorithm DES\r\n");
@@ -2711,7 +2711,7 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
 
         break;
 
-        case en_gciCipherAlgo_3DES:
+        case en_gciCipherAlgo_3des:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Symmetric decryption with algorithm 3DES\r\n");
@@ -2719,7 +2719,7 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
 
         break;
 
-        case en_gciCipherAlgo_RSA:
+        case en_gciCipherAlgo_Rsa:
 
 #if GCI_DBG_INFO
             printf("GCI Info: Asymmetric decryption with algorithm RSA\r\n");
@@ -2753,7 +2753,7 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
             switch(ga_ctxID[ctxId].un_ctxConfig.ctxConfigCipher.padding)
             {
                 /* Use to decrypt a message (with the private key) */
-                case en_gciPadding_PKCS1_V1_5:
+                case en_gciPadding_Pkcs1_V1_5:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Padding PKCS1 V1_5\r\n");
@@ -2824,7 +2824,7 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
                 break;
 
                 /* Use to decrypt a signature (with the public key) */
-                case en_gciPadding_PKCS1_EMSA:
+                case en_gciPadding_Pkcs1_Emsa:
 
 #if GCI_DBG_INFO
                     printf("GCI Info: Padding PKCS1 EMSA\r\n");
@@ -2920,7 +2920,7 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
     /* Symmetric cipher block mode */
     switch(ga_ctxID[ctxId].un_ctxConfig.ctxConfigCipher.blockMode)
     {
-        case en_gciBlockMode_CBC:
+        case en_gciBlockMode_Cbc:
 
 #if GCI_DBG_INFO
             printf("GCI Info: CBC block mode decryption\r\n");
@@ -2947,7 +2947,7 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
         break;
 
 
-        case en_gciBlockMode_CFB:
+        case en_gciBlockMode_Cfb:
 
 #if GCI_DBG_INFO
             printf("GCI Info: CFB block mode decryption\r\n");
@@ -2975,7 +2975,7 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
         break;
 
 
-        case en_gciBlockMode_ECB:
+        case en_gciBlockMode_Ecb:
 
 #if GCI_DBG_INFO
             printf("GCI Info: ECB block mode decryption\r\n");
@@ -3002,7 +3002,7 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
         break;
 
 
-        case en_gciBlockMode_GCM:
+        case en_gciBlockMode_Gcm:
 
 #if GCI_DBG_INFO
             printf("GCI Info: GCM block mode decryption\r\n");
@@ -3029,7 +3029,7 @@ en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt, siz
         break;
 
 
-        case en_gciBlockMode_OFB:
+        case en_gciBlockMode_Ofb:
 
 #if GCI_DBG_INFO
             printf("GCI Info: OFB block mode decryption\r\n");
@@ -3270,7 +3270,7 @@ en_gciResult_t gciDhNewCtx( const st_gciDhConfig_t* p_dhConfig, GciCtxId_t* p_ct
 			else
 			{
 				/* Choose a default elliptic curve */
-				ga_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamCurveName = en_gciNamedCurve_SECP384R1;
+				ga_ctxID[*p_ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamCurveName = en_gciNamedCurve_Secp384R1;
 			}
 
 		break;
@@ -5232,76 +5232,76 @@ en_gciResult_t _getCurveSize(en_gciNamedCurve_t curve,  size_t* p_curveSize)
 
    switch(curve)
    {
-       case en_gciNamedCurve_SECP521R1:
+       case en_gciNamedCurve_Secp521R1:
 
            *p_curveSize = 66;
 
        break;
 
 
-       case en_gciNamedCurve_BRAINPOOLP512R1:
+       case en_gciNamedCurve_BrainpoolP512R1:
 
            *p_curveSize = 64;
 
        break;
 
 
-       case en_gciNamedCurve_SECP384R1:
-       case en_gciNamedCurve_BRAINPOOLP384R1:
+       case en_gciNamedCurve_Secp384R1:
+       case en_gciNamedCurve_BrainpoolP384R1:
 
            *p_curveSize = 48;
 
        break;
 
 
-       case en_gciNamedCurve_SECP256R1:
-       case en_gciNamedCurve_BRAINPOOLP256R1:
-       case en_gciNamedCurve_SECP256K1:
+       case en_gciNamedCurve_Secp256R1:
+       case en_gciNamedCurve_BrainpoolP256R1:
+       case en_gciNamedCurve_Secp256K1:
 
            *p_curveSize = 32;
 
        break;
 
 
-       case en_gciNamedCurve_SECP224R1:
-       case en_gciNamedCurve_SECP224K1:
+       case en_gciNamedCurve_Secp224R1:
+       case en_gciNamedCurve_Secp224K1:
 
            *p_curveSize = 28;
 
        break;
 
 
-       case en_gciNamedCurve_SECP192R1:
-       case en_gciNamedCurve_SECP192K1:
+       case en_gciNamedCurve_Secp192R1:
+       case en_gciNamedCurve_Secp192K1:
 
            *p_curveSize = 24;
 
        break;
 
 
-       case en_gciNamedCurve_SECP160K1:
-       case en_gciNamedCurve_SECP160R1:
-       case en_gciNamedCurve_SECP160R2:
+       case en_gciNamedCurve_Secp160K1:
+       case en_gciNamedCurve_Secp160R1:
+       case en_gciNamedCurve_Secp160R2:
 
            *p_curveSize = 20;
 
        break;
 
 
-       case en_gciNamedCurve_SECT163K1:
-       case en_gciNamedCurve_SECT163R1:
-       case en_gciNamedCurve_SECT163R2:
-       case en_gciNamedCurve_SECT193R1:
-       case en_gciNamedCurve_SECT193R2:
-       case en_gciNamedCurve_SECT233K1:
-       case en_gciNamedCurve_SECT233R1:
-       case en_gciNamedCurve_SECT239K1:
-       case en_gciNamedCurve_SECT283K1:
-       case en_gciNamedCurve_SECT283R1:
-       case en_gciNamedCurve_SECT409K1:
-       case en_gciNamedCurve_SECT409R1:
-       case en_gciNamedCurve_SECT571K1:
-       case en_gciNamedCurve_SECT571R1:
+       case en_gciNamedCurve_Sect163K1:
+       case en_gciNamedCurve_Sect163R1:
+       case en_gciNamedCurve_Sect163R2:
+       case en_gciNamedCurve_Sect193R1:
+       case en_gciNamedCurve_Sect193R2:
+       case en_gciNamedCurve_Sect233K1:
+       case en_gciNamedCurve_Sect233R1:
+       case en_gciNamedCurve_Sect239K1:
+       case en_gciNamedCurve_Sect283K1:
+       case en_gciNamedCurve_Sect283R1:
+       case en_gciNamedCurve_Sect409K1:
+       case en_gciNamedCurve_Sect409R1:
+       case en_gciNamedCurve_Sect571K1:
+       case en_gciNamedCurve_Sect571R1:
 
            printf("GCI Error: ECC not implemented in LibTomCrypt\r\n");
            err = en_gciResult_Err;
@@ -5522,7 +5522,7 @@ en_gciResult_t _genEchKeyPair( GciCtxId_t ctxID, GciKeyId_t* p_pubKeyID )
     ltc_init_multi(g_ecdhPrivKey[ctxID].pubkey.x, g_ecdhPrivKey[ctxID].pubkey.y, NULL);
 
     /* Get the curve size */
-    _getCurveSize(*ga_ctxID[ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamCurveName, &curveSize);
+    _getCurveSize(ga_ctxID[ctxID].un_ctxConfig.ctxConfigDh.un_dhParam.dhParamCurveName, &curveSize);
 
     /* Generate the key pair */
     ecc_make_key(&g_fortuna_prng, g_fortunaID, curveSize, &g_ecdhPrivKey[ctxID]);

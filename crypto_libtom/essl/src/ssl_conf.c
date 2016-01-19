@@ -655,10 +655,10 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
        //OLD-CW: l_result = cw_pkcs1_v15_decrypt(pc_inData, cwt_inLen, pc_outData, pcwt_outLen, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey);
 
-       rsaConf.algo = en_gciCipherAlgo_RSA;
+       rsaConf.algo = en_gciCipherAlgo_Rsa;
        rsaConf.blockMode = en_gciBlockMode_None;
        rsaConf.iv.data = NULL;
-       rsaConf.padding = en_gciPadding_PKCS1_V1_5;
+       rsaConf.padding = en_gciPadding_Pkcs1_V1_5;
 
        ciphCtx = -1;
 

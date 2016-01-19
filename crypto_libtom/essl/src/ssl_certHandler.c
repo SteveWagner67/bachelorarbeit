@@ -980,23 +980,23 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
     switch(ps_certInfo->l_sigAlgOId)
     {
     case SSL_OID_MD5_WITH_RSA_ENC:
-    	hashAlgo = en_gciHashAlgo_MD5;
+    	hashAlgo = en_gciHashAlgo_Md5;
     	break;
 
     case SSL_OID_SHA1_WITH_RSA_ENC:
-    	hashAlgo = en_gciHashAlgo_SHA1;
+    	hashAlgo = en_gciHashAlgo_Sha1;
 		break;
 
     case SSL_OID_SHA256_WITH_RSA_ENC:
-    	hashAlgo = en_gciHashAlgo_SHA256;
+    	hashAlgo = en_gciHashAlgo_Sha256;
     	break;
 
     case SSL_OID_SHA384_WITH_RSA_ENC:
-    	hashAlgo = en_gciHashAlgo_SHA384;
+    	hashAlgo = en_gciHashAlgo_Sha384;
     	break;
 
     case SSL_OID_SHA512_WITH_RSA_ENC:
-    	hashAlgo = en_gciHashAlgo_SHA512;
+    	hashAlgo = en_gciHashAlgo_Sha512;
 		break;
 
     default:
@@ -1034,9 +1034,9 @@ e_sslCertErr_t ssl_verifyCertSign(s_sslKeyCertInfo_t *ps_certInfo,
     }
 
 
-    rsaConf.algo = en_gciSignAlgo_RSA;
+    rsaConf.algo = en_gciSignAlgo_Rsa;
     rsaConf.hash = hashAlgo;
-    rsaConf.un_signConfig.signConfigRsa.padding = en_gciPadding_PKCS1_V1_5;
+    rsaConf.un_signConfig.signConfigRsa.padding = en_gciPadding_Pkcs1_V1_5;
 
     err = gciSignVerifyNewCtx(&rsaConf, &ps_caPubKey, &signCtx);
     if(err != en_gciResult_Ok)
