@@ -586,7 +586,9 @@ typedef struct st_gciSignConfig
 
 		/** CMAC Configuration */
 		st_gciSignCmacConfig_t signConfigCmac;
+		
 	} un_signConfig;
+	
 } st_gciSignConfig_t;
 
 

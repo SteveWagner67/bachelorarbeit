@@ -1,0 +1,90 @@
+
+\section{Goal of the project}
+\begin{frame}
+
+%\frametitle{Goal of the project}
+
+
+
+%Columns which are aligned with the first ligne for basis
+\begin{columns}[t]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	CRYPTO WRAP									 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{column}{0.375\textwidth}
+
+%\input{figures/intro_cw.tex}
+% trim: left, bottom, right, up
+\includegraphics[trim=1cm 1cm 14cm 0cm, height=8cm]{figures/intro_cw.pdf}
+
+
+\end{column}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	GCI											 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{column}{0.725\textwidth}
+
+%\input{figures/intro_gci.tex}
+\includegraphics[trim=0.5cm 1cm 14cm 0cm, height=8cm]{figures/intro_gci.pdf}
+
+\end{column}
+
+\end{columns}
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Requirements}
+
+\underline{Old cryptographic interface}:
+\begin{itemize}
+
+	\item Cannot be use in other application without changing some functions
+	\item No other library can be use without rewriting the interface
+	\item To old regarding the evolution of the cryptograhy
+
+\end{itemize}
+
+\vspace{0.5cm}
+
+\underline{New cryptographc interface GCI}:
+\begin{itemize}
+  \item Possibility to use other cryptographic libraries
+  \item Possibility to use it in hardware-coded-based cryptographic  
+  modules
+  \item Possibility to easily add new cryptographic algorithms
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Scheduling of the project}
+
+\begin{enumerate}
+  \item Acquisition of the basic cryptographic algorithms
+  \vspace{0.25cm}
+  \item Acquisition of TLS's princip and the implementation \embtls
+  \vspace{0.25cm}
+  \item Understanding the design of old cryptographic interface (Crypto Wrap)
+  \vspace{0.25cm}
+  \item Analysis of the cryptographic requirements imposed by TLS
+  \vspace{0.25cm}
+  \item Integration of the new interface in the application \embtls
+  \vspace{0.25cm}
+  \item Implementation of the provider \tomcrypt 
+\end{enumerate}
+
+
+
+
+
+\end{frame}
+
+
+
+

@@ -1,0 +1,141 @@
+\begin{tikzpicture}[node distance=3cm]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CLIENT					  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node (crypt1) [txtblk, text width=6em]  {\tiny{Hash}};
+
+\path (crypt1.north)+(0,0.25) node (cli) [txtblk]
+{\scriptsize{{\color{blue!10!black}Client \embtls} /
+{\color{yellow!20!red}Client Curl} } };
+
+\path (crypt1.south)+(0,-0.4) node (crypt2) [txtblk, text width=6em]
+{\tiny{Hash}};
+
+\path (crypt2.south)+(0,-0.4) node (crypt3) [txtblk, text width=6em]
+{\tiny{Verification (?)}};
+
+\path (crypt3.south)+(0,-0.6) node (crypt4) [txtblk, text width=6em]
+{\tiny{Hash}};
+
+\path (crypt4.south)+(0,-0.25) node (crypt5) [txtblk, text width=6em]
+{\tiny{Encrypt (RSA)}};
+
+\path (crypt5.south)+(0,-0.25) node (crypt6) [txtblk, text width=6em]
+{\tiny{Gen MAC}};
+
+\path (crypt6.south)+(0,-0.4) node (crypt7) [txtblk, text width=6em]
+{\tiny{Gen key pair}};
+
+\path (crypt7.south)+(0,-0.25) node (info1) [txtblk, text width=6em]
+{\tiny{(if Srv Key Exchg)}};
+
+\path (info1.south)+(0,-0.25) node (crypt8) [txtblk, text width=6em]
+{\tiny{Compute secret key}};
+
+\path (crypt8.south)+(0,-0.25) node (info2) [txtblk, text width=6em]
+{\tiny{(if Srv Key Exchg)}};
+
+\path (info2.south)+(0,-0.6) node (crypt9) [txtblk, text width=6em]
+{\tiny{Gen MAC}};
+
+\path (crypt9.south)+(0,-0.25) node (crypt10) [txtblk, text width=6em]
+{\tiny{Encrypt}};
+
+\path (crypt10.south)+(0,-0.25) node (crypt11) [txtblk, text width=6em]
+{\tiny{Hash}};
+
+\path (crypt11.south)+(0,-0.4) node (crypt12) [txtblk, text width=6em]
+{\tiny{Gen MAC}};
+
+\path (crypt12.south)+(0,-0.25) node (crypt13) [txtblk, text width=6em]
+{\tiny{Decrypt}};
+
+\path (crypt13.south)+(0,-0.25) node (crypt14) [txtblk, text width=6em]
+{\tiny{Hash}};
+
+\path (crypt14.south)+(0,-0.4) node (crypt15) [txtblk, text width=6em]
+{\tiny{Gen MAC}};
+
+\path (crypt15.south)+(0,-0.25) node (crypt16) [txtblk, text width=6em]
+{\tiny{Encrypt/Decrypt}};
+
+\path (crypt16.south)+(0,-0.25) node (crypt17) [txtblk, text width=5em]
+{\tiny{Hash}};
+
+% This allow to create the rectangle
+\begin{pgfonlayer}{background}
+	  
+  	%create  the lines of the rectangle  with an offset (x,y)         
+	\path (crypt1.west |- crypt1.north)+(-0.5,0.25) node (a) {};
+  	\path (crypt17.south -|  crypt1.east)+(0.5,0) node (b) {};      
+          
+    % Combine the twos nodes above for creating the rectangle      
+    \path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
+    (a) rectangle (b);  
+            
+\end{pgfonlayer}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SERVER					  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\path (crypt1.east)+(5.75,-0.15) node (crypt20) [txtblk, text width=6em]
+{\tiny{Hash}};
+
+\path (crypt2.east)+(5.75,-0.15) node (crypt21) [txtblk, text width=6em]
+{\tiny{Hash}};
+
+\path (crypt4.east)+(5.75,-0.15) node (crypt22) [txtblk, text width=6em]
+{\tiny{Hash}};
+
+\path (crypt5.east)+(5.75,-0.15) node (crypt23) [txtblk, text width=6em]
+{\tiny{Decrypt (RSA)}};
+
+\path (crypt6.east)+(5.75,-0.15) node (crypt24) [txtblk, text width=6em]
+{\tiny{Gen MAC}};
+
+\path (info1.east)+(5.75,-0.15) node (crypt25) [txtblk, text width=6em]
+{\tiny{Gen key pair}};
+
+\path (crypt9.east)+(5.75,-0.15) node (crypt26) [txtblk, text width=6em]
+{\tiny{Gen MAC}};
+
+\path (crypt10.east)+(5.75,-0.15) node (crypt27) [txtblk, text width=6em]
+{\tiny{Decrypt}};
+
+\path (crypt11.east)+(5.75,-0.15) node (crypt28) [txtblk, text width=6em]
+{\tiny{Hash}};
+
+
+
+
+\path (cli.east)+(5,-0.25) node (srv) [txtblk]
+{\scriptsize{{\color{blue!10!black}Server OpenSSL} /
+{\color{yellow!20!red}Server \embtls} }};
+
+\path (srv.west |- crypt1.north)+(0,0.25) node (c) {};
+\path (crypt8.south -|  crypt1.east)+(6.25,0) node (d) {};      
+          
+% Combine the twos nodes above for creating the rectangle      
+%\path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
+%(c) rectangle (d);
+
+% TODO - Take the texts of the client and shift it to be in the good place for
+% the server
+% Put the rectangle around the text like done in client
+% Put some dashed line to separate the communication in server and client
+% Add the spire and the text for the communication
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EXCHANGE					  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\aboverightCli{(2.25,0.75)}
+
+\path [draw, ->] (crypt1.east) -- \aboverightCli;
+%\path [draw, ->] (keyPrivA.south) -- (calc1.north);
+
+
+\end{tikzpicture}
