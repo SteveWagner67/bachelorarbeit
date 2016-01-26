@@ -571,8 +571,8 @@ int cw_dhe_export_Y(uint8_t* p_dest, size_t* pcwt_destLen, cw_dhKey_t* p_privKey
 */
 /*============================================================================*/
 //TODO sw unused in the new interface
-int cw_dhe_export_pgY(uint8_t*      p_dest,    size_t*       pcwt_destLen,
-                      cw_dhKey_t*   p_privKey, cw_bigNum_t**     pcwt_dheP);
+int cw_dhe_export_pgY(uint8_t* p_dest, size_t* pcwt_destLen,
+                      cw_dhKey_t* p_key, cw_bigNum_t* pcwt_dheP); /* TODO sw - p should be a double pointer (add * in all use of pcwt_dheP)*/
 
 /*============================================================================*/
 /*!

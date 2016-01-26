@@ -4195,6 +4195,8 @@ void ssl_destroyKeys(s_sslCtx_t * ps_sslCtx) {
 /* *********************************************************************** */
 /* *********************************************************************** */
 
+extern dh_key g_dhPrivKey[GCI_NB_CTX_MAX];
+
 static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 		size_t *pcwt_recLen, uint8_t *pc_inData, size_t cwt_inDataLen) {
 	/* What should be done on next step */
@@ -4533,15 +4535,21 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 			case en_gciKeyPairType_Ecdh:
 
 				dhConf.type = en_gciDhType_Ecdh;
-				//TODO sw - fix a curve intern
+
+				/* Allocate memory */
+				ecdhSrvPubKey.un_key.keyEcdhPub.coord.x.data = a_allocEcdhCoordX;
+				ecdhSrvPubKey.un_key.keyEcdhPub.coord.y.data = a_allocEcdhCoordY;
 
 				err = gciDhNewCtx(&dhConf, &ps_secPar->eccCtx);
 				if (err != en_gciResult_Ok) {
 					//TODO return an error
 				}
 
+				/* Generate automatic key ID */
+				ps_secPar->ecdhSrvPubKey = -1;
+
 				err = gciDhGenKey(ps_secPar->eccCtx,
-						ps_secPar->ecdhSrvPubKey);
+						&ps_secPar->ecdhSrvPubKey);
 
 				//OLD-CW: if(cw_ecc_makeKey(&(ps_secPar->eccKey), ps_secPar->eccChoosenCurve)!=CRYPT_OK)
 				if (err != en_gciResult_Ok) {
@@ -4716,64 +4724,81 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 				cwt_exportLen = (sizeof(ps_sslCtx->ac_socBuf)
 						- ((size_t) pc_write - (size_t) ps_sslCtx->ac_socBuf));
 
+				mp_int p;
+				uint8_t test[400];
+
+				memset(test, 0, 400);
+
 				/* export the formerly generated public DHE values */
 				//OLD-CW: cw_dhe_export_pgY(pc_write, &cwt_exportLen, ps_secPar->pgci_dheKey, &ps_hsElem->pgci_dheP);
+
+				g_dhPrivKey[ps_sslCtx->s_secParams.dheCtx].type = PK_PRIVATE;
+
+				cw_dhe_export_pgY(pc_write, &cwt_exportLen, &g_dhPrivKey[ps_sslCtx->s_secParams.dheCtx], &p);
+
+				LOG_INFO("export cw:");
+				LOG_HEX(test, 400);
+
+				memset(test, 0, 400);
 
                 cwt_exportLen = 0;
 				/* Add the length of the domain parameter p (prime) */
 
 				/* MSB of p-length */
 
-				*(pc_write+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->p.len) >> 8;
+                /* TODO sw - replace test with pc_write */
+
+				*(test+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->p.len) >> 8;
 
 				cwt_exportLen += 1;
 
 				/* LSB of p-length */
-				*(pc_write+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->p.len) & 0xFF;
+				*(test+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->p.len) & 0xFF;
 
 				cwt_exportLen += 1;
 
 				/* Add p data */
-				memcpy(pc_write+cwt_exportLen, dhSrvPubKey.un_key.keyDhPub.param->p.data, dhSrvPubKey.un_key.keyDhPub.param->p.len);
+				memcpy(test+cwt_exportLen, dhSrvPubKey.un_key.keyDhPub.param->p.data, dhSrvPubKey.un_key.keyDhPub.param->p.len);
 
 				cwt_exportLen += dhSrvPubKey.un_key.keyDhPub.param->p.len;
 
 				/* Add the length of the domain parameter g (generator) */
 
 				/* MSB of g-length */
-				*(pc_write+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->g.len) >> 8;
+				*(test+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->g.len) >> 8;
 
 				cwt_exportLen += 1;
 
 				/* LSB of g-length */
-				*(pc_write+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->g.len) & 0xFF;
+				*(test+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->g.len) & 0xFF;
 
 				cwt_exportLen += 1;
 
 				/* Add g-data */
-				memcpy(pc_write+cwt_exportLen, dhSrvPubKey.un_key.keyDhPub.param->g.data, dhSrvPubKey.un_key.keyDhPub.param->g.len);
+				memcpy(test+cwt_exportLen, dhSrvPubKey.un_key.keyDhPub.param->g.data, dhSrvPubKey.un_key.keyDhPub.param->g.len);
 
 				cwt_exportLen += dhSrvPubKey.un_key.keyDhPub.param->g.len;
 
 				/* Add the server public key length */
 
 				/* MSB of key-length */
-				*(pc_write+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.key.len) >> 8;
+				*(test+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.key.len) >> 8;
 
 				cwt_exportLen += 1;
 
 				/* LSB of key-length */
 
-				*(pc_write+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.key.len) & 0xFF;
+				*(test+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.key.len) & 0xFF;
 
 				cwt_exportLen += 1;
 
 				/* Add public key data */
-				memcpy(pc_write+cwt_exportLen, dhSrvPubKey.un_key.keyDhPub.key.data, dhSrvPubKey.un_key.keyDhPub.key.len);
+				memcpy(test+cwt_exportLen, dhSrvPubKey.un_key.keyDhPub.key.data, dhSrvPubKey.un_key.keyDhPub.key.len);
 
 				cwt_exportLen += dhSrvPubKey.un_key.keyDhPub.key.len;
 
-
+				LOG_INFO("export cw:");
+				LOG_HEX(test, 400);
 
 				//pc_write+=cwt_exportLen;
 
@@ -7828,7 +7853,7 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 		if (ps_sslCtx->b_isCli == TRUE)
 		{
 			cwt_cipCtx = ps_sslCtx->s_secParams.u_cliKey.cli3DesCtx;
-			test_cwt_cipCtx = &ps_sslCtx->s_secParams.u_cliKey.cw_cli3DesCtx;
+			//test_cwt_cipCtx = &ps_sslCtx->s_secParams.u_cliKey.cw_cli3DesCtx;
 			cpCtx = 1;
 		}
 
@@ -7855,11 +7880,13 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 		if ((ps_sslCtx->b_isCli == TRUE) && (cpCtx == 0)) //OLD-CW: (cwt_cipCtx == NULL)
 		{
 			cwt_cipCtx = ps_sslCtx->s_secParams.u_cliKey.cliAesCtx;
+			cpCtx = 1;
 		}
 
-		else if (cwt_cipCtx == 0 ) //OLD-CW: (cwt_cipCtx == NULL)
+		else if (cpCtx == 0 ) //OLD-CW: (cwt_cipCtx == NULL)
 		{
 			cwt_cipCtx = ps_sslCtx->s_secParams.u_srvKey.srvAesCtx;
+			cpCtx = 1;
 		}
 
 		cpCtx = 0;

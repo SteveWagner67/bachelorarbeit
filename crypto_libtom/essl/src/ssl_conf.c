@@ -611,22 +611,22 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     s_sslHsElem_t *ps_handshElem;
     int32_t l_result;
     uint8_t ac_rndBuf[46];
-    //OLD-CW: gci_dhKey_t cwt_dhKeyCliY;
+    cw_dhKey_t cwt_dhKeyCliY;
     // GciKeyId_t cwt_dhKeyCliY;
     s_sslCertList_t *ps_caList = NULL;
     e_sslCertErr_t e_ret;
 
-    en_gciResult_t err;
+    en_gciResult_t err = en_gciResult_Ok;
 
     GciCtxId_t ciphCtx;
 
     st_gciKey_t ecdhPeerPubKey = {.type = en_gciKeyType_EcdhPub};
 
-    uint8_t a_allocDhePeerPubKey[TC_DH_KEY_SIZE_MAX_BYTES];
+    uint8_t a_allocDhePeerPubKey[TC_DH_KEY_SIZE_MAX_BYTES+2];
     st_gciKey_t dhePeerPubKey 	= {.type = en_gciKeyType_DhPub};
     GciKeyId_t dhSecretKeyID;
 
-    uint8_t a_allocDhSecretKey[TC_DH_KEY_SIZE_MAX_BYTES];
+    uint8_t a_allocDhSecretKey[TC_DH_KEY_SIZE_MAX_BYTES+2];
     st_gciKey_t dhSecretKey = {.type = en_gciKeyType_DhSecret};
 
     st_gciCipherConfig_t rsaConf;
@@ -758,7 +758,15 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
     	//pc_inData++;
 
-        dhePeerPubKey.un_key.keyDhPub.key.len = cwt_inLen;
+        //dhePeerPubKey.un_key.keyDhPub.key.len = cwt_inLen;
+
+        cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY);
+
+        mp_to_unsigned_bin(cwt_dhKeyCliY.y, dhePeerPubKey.un_key.keyDhPub.key.data);
+        dhePeerPubKey.un_key.keyDhPub.key.len = mp_unsigned_bin_size(cwt_dhKeyCliY.y);
+
+        LOG_INFO("cli pub key cw:");
+        LOG_HEX(dhePeerPubKey.un_key.keyDhPub.key.data, dhePeerPubKey.un_key.keyDhPub.key.len);
 
 
     	memcpy(dhePeerPubKey.un_key.keyDhPub.key.data, pc_inData, dhePeerPubKey.un_key.keyDhPub.key.len);
@@ -772,6 +780,19 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
     	//Store the key and become an ID
     	err = gciKeyPut(&dhePeerPubKey, &ps_sslCtx->s_secParams.dhePeerPubKey);
+
+    	LOG_INFO("cli pub key gci:");
+    	LOG_HEX(dhePeerPubKey.un_key.keyDhPub.key.data, dhePeerPubKey.un_key.keyDhPub.key.len);
+
+    	//memset(dhePeerPubKey.un_key.keyDhPub.key.data, 0, 192);
+
+//    	cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY);
+//
+//    	mp_to_unsigned_bin(cwt_dhKeyCliY.y, dhePeerPubKey.un_key.keyDhPub.key.data);
+//    	dhePeerPubKey.un_key.keyDhPub.key.len = mp_unsigned_bin_size(cwt_dhKeyCliY.y);
+//
+//    	LOG_INFO("cli pub key cw:");
+//    	LOG_HEX(dhePeerPubKey.un_key.keyDhPub.key.data, dhePeerPubKey.un_key.keyDhPub.key.len);
 
        // if (cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY) != CW_OK)
     	if(err != en_gciResult_Ok)

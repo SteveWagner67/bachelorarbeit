@@ -589,7 +589,7 @@ int cw_dhe_export_Y(uint8_t* p_dest, size_t* pcwt_destLen, cw_dhKey_t* p_key)
 /*  cw_dhe_export_pqY()                                                       */
 /*============================================================================*/
 int cw_dhe_export_pgY(uint8_t* p_dest, size_t* pcwt_destLen,
-                      cw_dhKey_t* p_key, cw_bigNum_t** pcwt_dheP)
+                      cw_dhKey_t* p_key, cw_bigNum_t* pcwt_dheP) /* TODO sw - p should be a double pointer (add * in all use of pcwt_dheP)*/
 {
     int8_t          err = 0;
     /* As we use statically allocated arrays of p and g
@@ -603,11 +603,11 @@ int cw_dhe_export_pgY(uint8_t* p_dest, size_t* pcwt_destLen,
     assert(p_dest != NULL);
     assert(pcwt_destLen != NULL);
     assert(p_key != NULL);
-    if (*pcwt_dheP == NULL)
-    	ltc_mp.init((void **)pcwt_dheP);
+    if (pcwt_dheP == NULL)
+    	ltc_mp.init((void *)pcwt_dheP);
 
     /* init */
-    if ((err = mp_init_multi(&cwt_dheG,*pcwt_dheP,NULL)) != CRYPT_OK) {
+    if ((err = mp_init_multi(&cwt_dheG,pcwt_dheP,NULL)) != CRYPT_OK) {
         LOG_ERR("mp_create_multi failed");
         return CW_ERROR;
     }
@@ -634,13 +634,13 @@ int cw_dhe_export_pgY(uint8_t* p_dest, size_t* pcwt_destLen,
     }
 
     /* Get p material part */
-    if ((err = mp_read_radix(*pcwt_dheP, (char *)sets[c_kIdx].prime, 64)) != CRYPT_OK){
+    if ((err = mp_read_radix(pcwt_dheP, (char *)sets[c_kIdx].prime, 64)) != CRYPT_OK){
         err = CW_ERROR;
         goto exportPGYError;
     }
 
     /* Get p length part */
-    l_tmpLen = mp_unsigned_bin_size(*pcwt_dheP);
+    l_tmpLen = mp_unsigned_bin_size(pcwt_dheP);
 
     if (l_tmpLen > (*pcwt_destLen - 2)) {
         LOG_ERR("mp_unsigned_bin_size failed");
@@ -653,7 +653,7 @@ int cw_dhe_export_pgY(uint8_t* p_dest, size_t* pcwt_destLen,
     p_dest[i_pckOff++] = l_tmpLen & 0xFF;
 
     /* Store p material part */
-    if ((err = mp_to_unsigned_bin(*pcwt_dheP, p_dest + i_pckOff)) != CRYPT_OK) {
+    if ((err = mp_to_unsigned_bin(pcwt_dheP, p_dest + i_pckOff)) != CRYPT_OK) {
         LOG_ERR("mp_to_unsigned_bin failed. Reason: %s", error_to_string(err));
         err = CW_ERROR;
         goto exportPGYError;
