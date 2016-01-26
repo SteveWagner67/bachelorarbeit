@@ -1,0 +1,48 @@
+%_____________________________________________________________________________________
+%
+%       Filename:  beamer.tex
+%
+%    Description:  Thesis Template HS Offenburg
+%
+%        Version:  1.0
+%        Created:  13.11.2015
+%       Revision:  none
+%
+%         Author:  B.Eng. Oliver Kehret, okehret@stud.hs-offenburg.de
+%   Organization:  HS Offenburg, Offenburg, Germany
+%      Copyright:  Copyright (c) 2015, B.Eng. Oliver Kehret
+%
+%                
+%_____________________________________________________________________________________
+
+\input{template/macros}
+\input{template/preamble}
+
+\begin{document}
+\title{\mysubject}   
+\author{\mytitle~\myauthor} 
+\date{\today} 
+
+\frame{\titlepage} 
+
+%\frame{\frametitle{Table of Contents}\tableofcontents} 
+
+\include{chapter/tableOfContents}
+\include{chapter/introduction}
+\include{chapter/int_intro}
+\include{chapter/int_crypto_hash}
+\include{chapter/int_crypto_cipher_sym}
+\include{chapter/int_crypto_cipher_asym}
+\include{chapter/int_crypto_signature}
+\include{chapter/int_crypto_dh}
+\include{chapter/int_context}
+\include{chapter/int_key_manag}
+\include{chapter/embTLS}
+\include{chapter/implementation}
+\include{chapter/result_client}
+\include{chapter/result_server}
+\include{chapter/conclusion}
+
+
+
+\end{document}

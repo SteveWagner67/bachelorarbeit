@@ -1,0 +1,119 @@
+\input{../template/macros}
+
+\documentclass{beamer}
+
+
+%%=====================================================================================
+%% drawing tikz
+%%=====================================================================================
+%
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows}%
+\tikzstyle{memblock} = [draw, fill=blue!20, rectangle, 
+    minimum height=6em, minimum width=3em]%
+\definecolor{mygray}{cmyk}{0,0,0,0.4}%
+\definecolor{mydarkgray}{cmyk}{0,0,0,0.7}%
+\definecolor{mylightgray}{cmyk}{0,0,0,0.1}%
+
+%________________________________________________________________
+%tikz flow chart
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=4.25em, text badly centered, node distance=2cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{block2} = [rectangle, draw, fill=orange!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{block3} = [rectangle, draw, fill=green!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{rect} = [rectangle, draw, fill=blue!20, text centered, minimum
+height=1.5em, minimum width=5em]
+    
+    
+    
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=2cm,
+    minimum height=1em]
+    
+\tikzstyle{txtblk} = [above, text centered]
+
+% Define the layers to draw the diagram
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\begin{document}
+
+\begin{tikzpicture}[node distance=2.25cm]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	Application									 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Create a node
+\node (embtls) [block, text width=5.5em]{\embtls};
+
+
+% Create a text which in coordinate (-2,-0.5) of the middle of the south of
+% embtls node
+\path (embtls.south) +(-1.85,-0.4) node (app) [text width=0.5] {Application};
+
+
+% This allow to create the rectangle
+\begin{pgfonlayer}{background}
+	  
+  	%create  the lines of the rectangle  with an offset (x,y)         
+	\path (embtls.west |- embtls.north)+(-0.75,0.65) node (a) {};
+  	\path (embtls.south -|  embtls.east)+(0.75,-0.65) node (b) {};      
+          
+    % Combine the twos nodes above for creating the rectangle      
+    \path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
+    (a) rectangle (b);  
+            
+\end{pgfonlayer}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	Interface									 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\node (cryptw) [block, below of=embtls, text width=5.5em, fill=green!60]{GCI};
+
+\path (cryptw.south) +(-1.85,-0.4) node (int1) [text width=0.5] {Interface};
+
+\begin{pgfonlayer}{background}
+          
+   	\path (cryptw.west |- cryptw.north)+(-0.75,0.65) node (c) {};
+   	\path (cryptw.south -|  cryptw.east)+(0.75,-0.65) node (d) {};
+          
+	\path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
+    (c) rectangle (d);           
+            
+\end{pgfonlayer}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	Crypto provider								 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\node (tomcr) [block, below of=cryptw, text width=5.5em]{\tomcrypt};
+
+\path (tomcr.south) +(-0.65,-0.4) node (lib){Crypto provider};
+
+\begin{pgfonlayer}{background}
+          
+   \path (tomcr.west |- tomcr.north)+(-0.75,0.65)  node (e) {};
+   \path (tomcr.south -|  tomcr.east)+(0.75,-0.65) node (f) {};  
+                   
+   \path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
+   (e) rectangle (f);           
+            
+\end{pgfonlayer}
+
+
+\path [draw, ->, color=blue] (tomcr.north) -- (cryptw.south);
+\path [draw, ->] (cryptw.north) -- (embtls.south);
+
+
+\end{tikzpicture}
+
+\end{document}

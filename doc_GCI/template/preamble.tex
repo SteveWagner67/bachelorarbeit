@@ -46,8 +46,10 @@
 \usepackage[%
             autostyle,          % adapts language setting
             strict,             % turns warnings into errors 
-            english=american    % use american quotes style
+            english=american,   % use american quotes style
 ]{csquotes}
+
+\usepackage{todonotes}
 
 %%=====================================================================================
 %% Style and Embedded-Lab-look-alike
@@ -61,7 +63,6 @@
 %% includes pictures --> possible to include them in header/footer
 %%=====================================================================================
 \usepackage[pdftex]{graphicx}										
-
 
 
 %%=====================================================================================
@@ -166,7 +167,12 @@
   tabsize=2,                       % sets default tabsize to 2 spaces
   title=\lstname,                  % show the filename of files included with \lstinputlisting; also try caption instead of title
   %numberbychapter=false
+  %keywordstyle=\bfseries\color{green!40!black},
+  %commentstyle=\itshape\color{purple!40!black},
+  %identifierstyle=\color{blue},
+  %stringstyle=\color{orange}
 }
+
 \renewcommand\lstlistingname{Quelltext}	% change caption of listings
 %%=====================================================================================
 %% Math 
@@ -298,6 +304,14 @@ osf,%
 	hidelinks,							% removes color and porder
 	%breaklinks=true,
 ]{hyperref}								% should be the last package to be inlcuded!
+
+\usepackage{lipsum}
+\usepackage{titlesec}
+
+\titlespacing\chapter{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\section{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\subsection{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\subsubsection{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
 
 
 

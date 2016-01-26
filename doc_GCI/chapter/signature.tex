@@ -1,11 +1,125 @@
-\chapter{Signature algorithms}
+\chapter{Signature/MAC algorithms}
+\label{signature}
+
+The complete structure of the signatures/MAC's configuration:
+\begin{lstlisting}
+
+/**
+ * \struct 					st_gciSignConfig
+ * \brief					Structure for the configuration of a signature
+ */
+typedef struct st_gciSignConfig
+{
+	/**
+	 * en_gciSignAlgo_Invalid
+	 * en_gciSignAlgo_RSA
+	 * en_gciSignAlgo_DSA
+	 * en_gciSignAlgo_ECDSA
+	 * en_gciSignAlgo_MAC_ISO9797_ALG1
+	 * en_gciSignAlgo_MAC_ISO9797_ALG3
+	 * en_gciSignAlgo_CMAC_AES
+	 * en_gciSignAlgo_HMAC
+	 * en_gciSignAlgo_RSASSA_PSS
+	 * en_gciSignAlgo_RSASSA_PKCS
+	 * en_gciSignAlgo_RSASSA_X509
+	 * en_gciSignAlgo_ECDSA_GFP
+	 * en_gciSignAlgo_ECDSA_GF2M
+	 * en_gciSignAlgo_None = 0xFF
+	 */
+	en_gciSignAlgo_t algo;
+
+
+	/**
+	 * en_gciHashAlgo_Invalid
+	 * en_gciHashAlgo_MD5
+	 * en_gciHashAlgo_SHA1
+	 * en_gciHashAlgo_SHA224
+	 * en_gciHashAlgo_SHA256
+	 * en_gciHashAlgo_SHA384
+	 * en_gciHashAlgo_SHA512
+	 * en_gciHashAlgo_None=0xFF
+	 */
+	en_gciHashAlgo_t hash;
+
+	/**
+	 * \union 				un_signConfig
+	 * \brief				Union for the configuration of each signature
+	 */
+	union un_signConfig
+	{
+		/** RSA Configuration */
+		st_gciSignRsaConfig_t signConfigRsa;
+
+		/** CMAC Configuration */
+		st_gciSignCmacConfig_t signConfigCmac;
+		
+	} un_signConfig;
+	
+} st_gciSignConfig_t;
+
+\end{lstlisting}
+
+
+
 
 \section{Signature configuration}
+Each signature/MAC has a different configuration depending on the
+implementation.
+
+The configuration does not change between the creation (with
+gciSignGenNewCtx) and the verification (with gciSignVerifyNewCtx) of a
+signature.
+The difference is in the last step, in gciSignGenFinish for the creation (see
+section \ref{signGen} for more details) and gciSignVerifyFinish for the
+verification (see section \ref{signVfy} for more details)
+
 \subsection{RSA}
+
+\todo[inline]{Test RSA gen sign with LibTomCrypt before writing this part}
+
+\label{signRsa}
 \subsection{Digital Signature Algorithm (DSA)}
+\label{signDsa}
+
+\todo[inline]{Test DSA gen sign with LibTomCrypt before writing this part}
+
 \subsection{Elliptic Curve Digital Signature Algorithm (ECDSA)}
+\label{signEcdsa}
+
+\todo[inline]{Test ECDSA gen sign with LibTomCrypt before writing this part}
+
 \subsection{Block-Cipher-Based Message Authentication Code (CBC-MAC / CMAC)}
+\label{signCmac}
+
+\todo[inline]{Test CMAC gen sign with LibTomCrypt before writing this part}
+
 \subsection{keyed-Hash Message Authentication Code (HMAC)}
+\label{signHmac}
+
+For the HMAC, only the Hash has to be specified:
+
+\begin{lstlisting}
+
+/* HMAC Configuration */
+st_gciSignConfig_t hmacConfig;
+
+/* HMAC Algorithm */
+hmacConfig.algo = en_gciSignAlgo_HMAC;
+
+/* Hash MD5 Algorithm */
+hmacConfig.hash = en_gciHashAlgo_MD5;
+
+\end{lstlisting}
 
 
-\section{Steps to sign}
+\section{Steps to generate a signature/MAC}
+\label{signGen}
+
+\todo[inline]{Sign gen example with HMAC}
+\todo[inline]{Implement gciSignCtxClone for the example}
+
+\section{Steps to verify a signature/MAC}
+\label{signVfy}
+
+\todo[inline]{Sign vry example with HMAC}
+\todo[inline]{Implement gciSignCtxClone for the example}

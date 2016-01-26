@@ -1,5 +1,224 @@
 \chapter{Hash functions}
+\label{hashfx}
 
 \section{Algorithm of hash}
 
-\section{Steps to hash}
+\begin{lstlisting}
+
+/**
+ * \enum 					en_GciHashAlgo
+ * \brief					Enumeration for Hash algorithms
+ */
+typedef enum en_GciHashAlgo
+{
+	/** Invalid Hash */
+	en_gciHashAlgo_Invalid,
+	/** MD5 Hash */
+	en_gciHashAlgo_MD5,
+	/** SHA1 Hash */
+	en_gciHashAlgo_SHA1,
+	/** SHA224 Hash */
+	en_gciHashAlgo_SHA224,
+	/** SHA256 Hash */
+	en_gciHashAlgo_SHA256,
+	/** SHA384 Hash */
+	en_gciHashAlgo_SHA384,
+	/** SHA512 Hash */
+	en_gciHashAlgo_SHA512,
+	/** No hash algorithm used */
+	en_gciHashAlgo_None=0xFF
+} en_gciHashAlgo_t;
+
+\end{lstlisting}
+
+
+\section{Prototypes}
+
+Create a new Hash context:
+\begin{lstlisting}
+
+/**
+ * \fn							en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID )
+ * \brief						Create a new hash context and become an ID of it
+ * \param [in]  hashAlgo 		Algorithm of the hash context
+ * \param [out] p_ctxID			Pointer to the context's ID
+ * @return						en_gciResult_Ok on success
+ * @return						en_gciResult_Err on error
+ */
+en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID );
+
+\end{lstlisting}
+
+Update the Hash context with data:
+\begin{lstlisting}
+
+/**
+ * \fn							en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_t blockLen )
+ * \brief						Add block of the message
+ * \param [in]  ctxID	 		Context's ID
+ * \param [in]  p_blockMsg		Pointer to the block of the message
+ * \param [in]  blockLen		Block message's length
+ * @return						en_gciResult_Ok on success
+ * @return						en_gciResult_Err on error
+ */
+en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_t blockLen );
+
+\end{lstlisting}
+
+Clone the context:
+\begin{lstlisting}
+
+/*!
+ * \fn 							en_gciResult_t gciHashCtxClone( GciCtxId_t idSrc, GciCtxId_t* p_idDest )
+ * \brief						Clone a context
+ * \param [in]  idSrc			The context which will be cloned
+ * \param [out] p_idDest		Pointer to the context ID where the source context is cloned
+ * @return						en_gciResult_Ok on success
+ * @return						en_gciResult_Err on error
+ */
+en_gciResult_t gciHashCtxClone( GciCtxId_t idSrc, GciCtxId_t* p_idDest );
+
+\end{lstlisting}
+
+
+Get the digest of the Hash:
+\begin{lstlisting}
+
+/**
+ * \fn							en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_digestLen )
+ * \brief						Get the digest of the message after adding all the block of the message
+ * \param [in]  ctxID	 		Context's ID
+ * \param [out] p_digest		Pointer to the digest of the complete message added
+ * \param [out] p_digestLen		Pointer to the length of the digest in bytes
+ * @return						en_gciResult_Ok on success
+ * @return						en_gciResult_Err on error
+ */
+en_gciResult_t gciHashFinish( GciCtxId_t ctxID, uint8_t* p_digest, size_t* p_digestLen );
+
+\end{lstlisting}
+
+\newpage
+
+\section{Steps to hash (Example)}
+
+\begin{lstlisting}
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "crypto_iface.h"
+
+int main(int argc , char *argv[])
+{
+    /* Error Management */
+    en_gciResult_t err;
+
+    /* MD5 context ID */
+    GciCtxId_t md5CtxID, md5CloneCtxID;
+
+    /* Messages to hash */
+    uint8_t a_data1[10] = {"Hello!"};
+    uint8_t a_data2[30] = {"This is a Hash MD5 test"};
+    uint8_t a_data3[10] = {"Thank you."};
+
+    size_t data1Len = strlen(a_data1);
+    size_t data2Len = strlen(a_data2);
+    size_t data3Len = strlen(a_data3);
+
+    int i;
+
+    /* a MD5 digest is always 128 bits -> 16 bytes */
+    uint8_t a_digest[GCI_MD5_SIZE_BYTES];
+
+    /* Initialize the buffer */
+    memset(a_digest, 0, GCI_MD5_SIZE_BYTES);
+
+    size_t digestLen = 0;
+
+    /* Create a new hash MD5 context */
+    err = gciHashNewCtx(en_gciHashAlgo_MD5, &md5CtxID);
+
+    /* Error coming from the creation of a new MD5-Hash context */
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciHashNewCtx: MD5");
+    }
+
+    /* Add the first data by updating the hash context */
+    err = gciHashUpdate(md5CtxID, a_data1, data1Len);
+
+    /* Error coming from the updating of the hash context with data1 */
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciHashUpdate: MD5");
+    }
+
+    /* Add the second data by updating the hash context */
+    err = gciHashUpdate(md5CtxID, a_data2, data2Len);
+
+    /* Error coming from the updating of the hash context with data2 */
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciHashUpdate: MD5");
+    }
+
+    /* Clone the context */
+    err = gciHashCtxClone(md5CtxID, &md5CloneCtxID);
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciHashCtxClone: MD5");
+    }
+
+    /* Get the digest of this message */
+    err = gciHashFinish(md5CtxID, a_digest, &digestLen);
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciHashFinish: MD5");
+    }
+
+    else
+    {
+        printf("GCI Info: Digest1 = ");
+        for(i = 0; i < GCI_MD5_SIZE_BYTES; i++)
+        {
+            printf("%d", a_digest[i]);
+        }
+    }
+
+    /* Initialize the buffer */
+    memset(a_digest, 0, GCI_MD5_SIZE_BYTES);
+
+    /* Add the third data by updating the hash context */
+    err = gciHashUpdate(md5CloneCtxID, a_data3, data3Len);
+
+    /* Error coming from the updating of the hash context with data3 */
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciHashUpdate: MD5");
+    }
+
+    /* Get the digest of this message */
+    err = gciHashFinish(md5CloneCtxID, a_digest, &digestLen);
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciHashFinish: MD5");
+    }
+
+    else
+    {
+        printf("\r\nGCI Info: Digest2 = ");
+        for(i=0; i<GCI_MD5_SIZE_BYTES; i++)
+        {
+            printf("%d", a_digest[i]);
+        }
+
+    }
+
+    printf("\r\n");
+
+    /* Delete the contexts */
+    gciCtxRelease(md5CtxID);
+    gciCtxRelease(md5CloneCtxID);
+
+}
+
+\end{lstlisting}

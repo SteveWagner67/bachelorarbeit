@@ -11,7 +11,7 @@ PROJECTNAME = "Thesis_Template"
 ## http://www.ctan.org/tex-archive/help/uk-tex-faq/Makefile
 
 
-MAINDOCUMENTBASENAME = main
+MAINDOCUMENTBASENAME = test
 MAINDOCUMENTFILENAME = ${MAINDOCUMENTBASENAME}.tex
 ## COMMANDS:
 PDFLATEX_CMD = pdflatex
