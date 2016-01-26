@@ -605,7 +605,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 {
 
     //s_pubKey_t s_pubKeyInfo;
-	st_gciKey_t s_pubKeyInfo;;
+	st_gciKey_t s_pubKeyInfo;
     s_sslOctetStr_t s_octPeerCert;
     e_sslPendAct_t e_pendEvent;
     s_sslHsElem_t *ps_handshElem;
@@ -621,9 +621,15 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     GciCtxId_t ciphCtx;
 
     st_gciKey_t ecdhPeerPubKey = {.type = en_gciKeyType_EcdhPub};
-    st_gciKey_t dhePeerPubKey 	= {.type = en_gciKeyType_DhPub};
 
-    st_gciCipherConfig_t rsaConf = {.padding = en_gciPadding_PKCS1_V1_5};
+    uint8_t a_allocDhePeerPubKey[TC_DH_KEY_SIZE_MAX_BYTES];
+    st_gciKey_t dhePeerPubKey 	= {.type = en_gciKeyType_DhPub};
+    GciKeyId_t dhSecretKeyID;
+
+    uint8_t a_allocDhSecretKey[TC_DH_KEY_SIZE_MAX_BYTES];
+    st_gciKey_t dhSecretKey = {.type = en_gciKeyType_DhSecret};
+
+    st_gciCipherConfig_t rsaConf;
 
     assert(ps_sslCtx != NULL);
     assert(pc_inData != NULL);
@@ -649,14 +655,26 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
        //OLD-CW: l_result = cw_pkcs1_v15_decrypt(pc_inData, cwt_inLen, pc_outData, pcwt_outLen, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey);
 
+       rsaConf.algo = en_gciCipherAlgo_Rsa;
+       rsaConf.blockMode = en_gciBlockMode_None;
+       rsaConf.iv.data = NULL;
+       rsaConf.padding = en_gciPadding_Pkcs1_V1_5;
 
-       //TODO sw - in the implementation -> if no type  of cipher, see type of the key and take the padding if RSA (like in this case)
+       ciphCtx = -1;
+
+       /* New cipher context to configure the cipher and add the private key ID of RSA */
        err = gciCipherNewCtx(&rsaConf, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey, &ciphCtx);
        if(err != en_gciResult_Ok)
        {
     	   //TODO return error state
        }
 
+       /* "New" cipher context with the same context ID of this above to add the public key ID of RSA */
+       err = gciCipherNewCtx(&rsaConf, ps_sslCtx->ps_sslSett->pgci_rsaMyPubKey, &ciphCtx);
+       if(err != en_gciResult_Ok)
+       {
+           //TODO return error state
+       }
 
        err = gciCipherDecrypt(ciphCtx, pc_inData, cwt_inLen, pc_outData, pcwt_outLen);
 
@@ -721,15 +739,31 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
         /* reset this variable */
         //OLD-CW: memset(&cwt_dhKeyCliY, 0x00, sizeof(gci_dhKey_t));
 
+        /* Allocate memory */
+        dhePeerPubKey.un_key.keyDhPub.key.data = a_allocDhePeerPubKey;
+        dhSecretKey.un_key.keyDhSecret.data = a_allocDhSecretKey;
+
 
         /* read the Yc of the client that has been transmitted in the ClientKeyExchange */
 
     	//Read the length of the key
-    	dhePeerPubKey.un_key.keyDhPub.key.len = pc_inData;
 
-    	pc_inData++;
+        /* MSB of key-length */
+    	//dhePeerPubKey.un_key.keyDhPub.key.len = *pc_inData >> 8;
+
+    	//pc_inData++;
+
+    	/* LSB of the key-length */
+    	//dhePeerPubKey.un_key.keyDhPub.key.len += *pc_inData;
+
+    	//pc_inData++;
+
+        dhePeerPubKey.un_key.keyDhPub.key.len = cwt_inLen;
+
 
     	memcpy(dhePeerPubKey.un_key.keyDhPub.key.data, pc_inData, dhePeerPubKey.un_key.keyDhPub.key.len);
+    	LOG_INFO("client public key:");
+    	LOG_HEX(dhePeerPubKey.un_key.keyDhPub.key.data, dhePeerPubKey.un_key.keyDhPub.key.len);
 
     	pc_inData+=dhePeerPubKey.un_key.keyDhPub.key.len;
 
@@ -737,7 +771,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     	ps_sslCtx->s_secParams.dhePeerPubKey = -1;
 
     	//Store the key and become an ID
-    	err = gciKeyPut(dhePeerPubKey.un_key.keyDhPub.key.data, ps_sslCtx->s_secParams.dhePeerPubKey);
+    	err = gciKeyPut(&dhePeerPubKey, &ps_sslCtx->s_secParams.dhePeerPubKey);
 
        // if (cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY) != CW_OK)
     	if(err != en_gciResult_Ok)
@@ -754,7 +788,11 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
             /* now calculate the shared secret that will be used as PreMasterSecret */
 
-        	err = gciDhCalcSharedSecret(ps_sslCtx->s_secParams.dheCtx, ps_sslCtx->s_secParams.dhePeerPubKey, pc_outData);
+        	/* Random research */
+        	dhSecretKeyID = -1;
+
+        	/* The context contains the private key of the server (our private key) */
+        	err = gciDhCalcSharedSecret(ps_sslCtx->s_secParams.dheCtx, ps_sslCtx->s_secParams.dhePeerPubKey, &dhSecretKeyID);
 //            if (cw_dhe_sharedSec_with_p(ps_sslCtx->s_secParams.pgci_dheKey,
 //                                        &cwt_dhKeyCliY,
 //                                        &ps_sslCtx->ps_hsElem->pgci_dheP,
@@ -763,6 +801,18 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
             {
                 LOG_ERR("DHE sharedSecret error");
             }
+
+        	/* Get the secret key with the ID */
+
+        	err = gciKeyGet(dhSecretKeyID, &dhSecretKey);
+            if(err != en_gciResult_Ok)
+            {
+                LOG_ERR("DHE get sharedSecret error");
+            }
+
+            /* Copy the secret in the output */
+        	memcpy(pc_outData, dhSecretKey.un_key.keyDhSecret.data, dhSecretKey.un_key.keyDhSecret.len);
+        	*pcwt_outLen = dhSecretKey.un_key.keyDhSecret.len;
 
         	TIME_STAMP(TS_DHE_CALC_SHARED_SEC_END);
         }

@@ -377,11 +377,11 @@ char* sslDiag_getHashAlg (uint8_t hash)
         //OLD-CW: SSL_DIAG_NAME2CASE(E_SSL_HASH_NONE);
     	SSL_DIAG_NAME2CASE(en_gciHashAlgo_None);
     	//OLD-CW: SSL_DIAG_NAME2CASE(E_SSL_HASH_MD5);
-    	SSL_DIAG_NAME2CASE(en_gciHashAlgo_MD5);
+    	SSL_DIAG_NAME2CASE(en_gciHashAlgo_Md5);
     	//OLD-CW: SSL_DIAG_NAME2CASE(E_SSL_HASH_SHA1);
-    	SSL_DIAG_NAME2CASE(en_gciHashAlgo_SHA1);
+    	SSL_DIAG_NAME2CASE(en_gciHashAlgo_Sha1);
     	//OLD-CW: SSL_DIAG_NAME2CASE(E_SSL_HASH_SHA256);
-    	SSL_DIAG_NAME2CASE(en_gciHashAlgo_SHA256);
+    	SSL_DIAG_NAME2CASE(en_gciHashAlgo_Sha256);
         default: return NULL;
     }
 }

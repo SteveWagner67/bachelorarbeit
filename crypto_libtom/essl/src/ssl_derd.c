@@ -800,15 +800,15 @@ e_derdRet_t sslDerd_setSign(s_derdCtx_t *ps_derdCtx, uint8_t c_hashAlg,
     if (e_err == E_SSL_DER_OK) {
         switch (c_hashAlg) {
         	//OLD-CW: case E_SSL_HASH_MD5:
-        	case en_gciHashAlgo_MD5:
+        	case en_gciHashAlgo_Md5:
                 i_hashAlgOid = SSL_OID_MD5;
                 break;
             //OLD-CW: case E_SSL_HASH_SHA1:
-        	case en_gciHashAlgo_SHA1:
+        	case en_gciHashAlgo_Sha1:
                 i_hashAlgOid = SSL_OID_SHA1;
                 break;
             //OLD-CW: case E_SSL_HASH_SHA256:
-        	case en_gciHashAlgo_SHA256:
+        	case en_gciHashAlgo_Sha256:
                 i_hashAlgOid = SSL_OID_SHA256;
                 break;
             default:

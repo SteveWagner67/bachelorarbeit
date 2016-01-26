@@ -57,7 +57,7 @@ static s_sslHsElem_t as_hsElemBuf[SSL_MAX_SSL_CTX];
 //		gci_rsaPrivKey_t* pcwt_privKey);
 
 static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
-		GciKeyId_t* pcwt_privKey);
+		GciKeyId_t* pcwt_privKey, GciKeyId_t* p_pubKey);
 
 //static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
 //		ecc_key* pcwt_privKey, ltc_ecc_set_type* dp);
@@ -90,17 +90,15 @@ static int _sslSoc_sett_import_ECCprivKey(s_cdbCert_t* pcdt_privKey,
 //		gci_rsaPrivKey_t* pcwt_privKey)
 
 static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
-		GciKeyId_t* pcwt_privKey)
+		GciKeyId_t* pcwt_privKey, GciKeyId_t* p_pubKey)
 {
 	//OLD-CW: int err = E_SSL_ERROR;
 	size_t cwt_len;
 	unsigned char* p_buffer;
+	GciKeyId_t keyID = -1;
 
 	en_gciResult_t err = en_gciResult_Ok;
-	int iRet;
-	st_gciKey_t rsaPrivKey = {.type = en_gciKeyType_RsaPriv};
-
-	rsa_key rsaKey;
+	int iRet = E_SSL_OK;
 
 	/*
 	 * Read the cert into the cert_db buffer
@@ -111,44 +109,25 @@ static int _sslSoc_sett_import_RSAprivKey(s_cdbCert_t* pcdt_privKey,
 		/*
 		 * Import the privatekey
 		 */
-		//OLD-CW: iRet = cw_rsa_privatekey_init(p_buffer, (uint32_t) cwt_len, pcwt_privKey);
+		// OLD-CW: iRet = cw_rsa_privatekey_init(p_buffer, (uint32_t) cwt_len, pcwt_privKey);
+	    err = tcImportRsaPrivKey(p_buffer, cwt_len, pcwt_privKey, p_pubKey);
 
-	   // cw_rsa_privatekey_init(p_buffer, (uint32_t) cwt_len, &rsaKey);
+	    if(err != en_gciResult_Ok)
+	    {
+	        LOG_ERR("Importing the private key from cert_db was not successful");
+	        iRet = E_SSL_ERROR;
+	    }
 
-		//TODO sw - import the private by using a ASN1 Sequence
-
-		if (iRet == CRYPT_OK)
-		{
-
-			//OLD-CW: cw_rsa_privatekey_shrink(pcwt_privKey);
-		   // cw_rsa_privatekey_shrink(&rsaKey);
-		    rsaPrivKey.un_key.keyRsaPriv.n.data = rsaKey.N;
-		    rsaPrivKey.un_key.keyRsaPriv.n.len = strlen(rsaKey.N);
-		    rsaPrivKey.un_key.keyRsaPriv.d.data = rsaKey.d;
-		    rsaPrivKey.un_key.keyRsaPriv.d.len = strlen(rsaKey.d);
-
-		    //Get an ID of the key
-		    err = gciKeyPut(&rsaPrivKey, pcwt_privKey);
-
-
-			err = E_SSL_OK;
-		} /* if */
-
-		else
-		{
-//			LOG_ERR(
-//					"Import of the private key was't successful! Cryptolib says: %s",
-//					cw_error2string(iRet));
-		} /* else */
 
 		cdb_free();
 	} /* if */
 	else
 	{
 		LOG_ERR("Reading the private key from cert_db was not successful");
+		iRet = E_SSL_ERROR;
 	} /* else */
 
-	return err;
+	return iRet;
 } /* _sslSoc_sett_import_privKey() */
 
 
@@ -269,13 +248,13 @@ void sslSoc_initSett(s_sslSett_t* ps_sslSett, e_sslKeyType_t keyType)
 	if(keyType == E_SSL_KEY_EC)
 	{
 		//OLD-CW: ps_sslSett->s_certSignHashAlg.c_hash = E_SSL_HASH_SHA256;
-		ps_sslSett->s_certSignHashAlg.c_hash = en_gciHashAlgo_SHA256;
+		ps_sslSett->s_certSignHashAlg.c_hash = en_gciHashAlgo_Sha256;
 		ps_sslSett->s_certSignHashAlg.c_sign = E_SSL_SIGN_RSA;
 	}
 	else
 	{
 		//OLD-CW: ps_sslSett->s_certSignHashAlg.c_hash = E_SSL_HASH_SHA256;
-		ps_sslSett->s_certSignHashAlg.c_hash = en_gciHashAlgo_SHA256;
+		ps_sslSett->s_certSignHashAlg.c_hash = en_gciHashAlgo_Sha256;
 		ps_sslSett->s_certSignHashAlg.c_sign = E_SSL_SIGN_ECDSA;
 	}
 
@@ -299,7 +278,7 @@ void sslSoc_freeSett(s_sslSett_t* ps_sslSett)
 			//TODO return error state
 		}
 		//OLD-CW: cw_rsa_privatekey_free(ps_sslSett->pgci_rsaMyPrivKey);
-		free(ps_sslSett->pgci_rsaMyPrivKey);
+		//free(ps_sslSett->pgci_rsaMyPrivKey);
 	} /* if */
 
 	return;
@@ -444,10 +423,10 @@ int sslSoc_setRsaPrivKey(s_sslSett_t* ps_sslSett, s_cdbCert_t* pcdt_privKey)
 	/* Memory for my RSA Private Key */
 	//OLD-CW: ps_sslSett->pgci_rsaMyPrivKey = malloc(sizeof(gci_rsaPrivKey_t));
 
-	iRet = _sslSoc_sett_import_RSAprivKey(pcdt_privKey, ps_sslSett->pgci_rsaMyPrivKey);
+	iRet = _sslSoc_sett_import_RSAprivKey(pcdt_privKey, &ps_sslSett->pgci_rsaMyPrivKey, &ps_sslSett->pgci_rsaMyPubKey);
 	if (iRet != E_SSL_OK)
 	{
-		ps_sslSett->pgci_rsaMyPrivKey = NULL;
+		ps_sslSett->pgci_rsaMyPrivKey = -1;
 	}
 
 	return iRet;
@@ -953,20 +932,20 @@ int sslSoc_free(s_sslCtx_t* ps_sslCtx)
 
 
 	//OLD-cw:	cw_rsa_publickey_free(&ps_sslCtx->ps_hsElem->gci_peerPubKey);
-	err = gciKeyDelete(&ps_sslCtx->ps_hsElem->gci_rsaPeerKey);
-	if(err != en_gciResult_Ok)
-	{
-		//TODO return error state
-	}
+//	err = gciKeyDelete(&ps_sslCtx->ps_hsElem->gci_rsaPeerKey);
+//	if(err != en_gciResult_Ok)
+//	{
+//		//TODO return error state
+//	}
 
 	//OLD-cw:	cw_dh_free(&ps_sslCtx->ps_hsElem->gci_dheCliPrivKey);
 
 	//OLD-cw:	cw_dh_free(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
-	err = gciKeyDelete(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
-	if(err != en_gciResult_Ok)
-	{
-		//TODO return error state
-	}
+//	err = gciKeyDelete(&ps_sslCtx->ps_hsElem->gci_dheSrvPubKey);
+//	if(err != en_gciResult_Ok)
+//	{
+//		//TODO return error state
+//	}
 
 //	OLD-cw: if (ps_sslCtx->ps_hsElem->pgci_dheP.data != NULL)
 //	{

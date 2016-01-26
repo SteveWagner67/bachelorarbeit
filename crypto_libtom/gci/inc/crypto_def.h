@@ -168,17 +168,17 @@ typedef enum en_GciHashAlgo
 	/** Invalid Hash */
 	en_gciHashAlgo_Invalid,
 	/** MD5 Hash */
-	en_gciHashAlgo_MD5,
+	en_gciHashAlgo_Md5,
 	/** SHA1 Hash */
-	en_gciHashAlgo_SHA1,
+	en_gciHashAlgo_Sha1,
 	/** SHA224 Hash */
-	en_gciHashAlgo_SHA224,
+	en_gciHashAlgo_Sha224,
 	/** SHA256 Hash */
-	en_gciHashAlgo_SHA256,
+	en_gciHashAlgo_Sha256,
 	/** SHA384 Hash */
-	en_gciHashAlgo_SHA384,
+	en_gciHashAlgo_Sha384,
 	/** SHA512 Hash */
-	en_gciHashAlgo_SHA512,
+	en_gciHashAlgo_Sha512,
 	/** No hash algorithm used */
 	en_gciHashAlgo_None=0xFF
 } en_gciHashAlgo_t;
@@ -198,15 +198,15 @@ typedef enum en_GciBlockMode
 	/** Invalid block mode */
 	en_gciBlockMode_Invalid,
 	/** CBC block mode */
-	en_gciBlockMode_CBC,
+	en_gciBlockMode_Cbc,
 	/** ECB block mode */
-	en_gciBlockMode_ECB,
+	en_gciBlockMode_Ecb,
 	/** CFB block mode */
-	en_gciBlockMode_CFB,
+	en_gciBlockMode_Cfb,
 	/** OFB block mode */
-	en_gciBlockMode_OFB,
+	en_gciBlockMode_Ofb,
 	/** GCM block mode */
-	en_gciBlockMode_GCM,
+	en_gciBlockMode_Gcm,
 	/** No block mode used*/
 	en_gciBlockMode_None=0xFF
 } en_gciBlockMode_t;
@@ -222,15 +222,15 @@ typedef enum en_gciPadding
 	/**Invalid padding */
 	en_gciPadding_Invalid,
 	/** ISO9797 padding */
-	en_gciPadding_ISO9797,
+	en_gciPadding_Iso9797,
 	/** PKCS1 V1_5 padding */
-	en_gciPadding_PKCS1_V1_5,
+	en_gciPadding_Pkcs1_V1_5,
     /** PKCS1 EMSA padding */
-    en_gciPadding_PKCS1_EMSA,
+    en_gciPadding_Pkcs1_Emsa,
 	/** PKCS5 padding */
-	en_gciPadding_PKCS5,
+	en_gciPadding_Pkcs5,
 	/** PKCS7 padding */
-	en_gciPadding_PKCS7,
+	en_gciPadding_Pkcs7,
 	/** None padding */
 	en_gciPadding_None=0xFF
 } en_gciPadding_t;
@@ -246,15 +246,15 @@ typedef enum en_gciCipherAlgo
 	/** Cipher type invalid */
 	en_gciCipherAlgo_Invalid,
 	/** Symmetric Stream cipher RC4 */
-	en_gciCipherAlgo_RC4,
+	en_gciCipherAlgo_Rc4,
 	/** Symmetric Block cipher Triple DES */
-	en_gciCipherAlgo_3DES,
+	en_gciCipherAlgo_3des,
 	/** Symmetric Block cipher AES */
-	en_gciCipherAlgo_AES,
+	en_gciCipherAlgo_Aes,
 	/** Symmetric Block cipher DES */
-	en_gciCipherAlgo_DES,
+	en_gciCipherAlgo_Des,
 	/** Asymmetric cipher RSA */
-	en_gciCipherAlgo_RSA,
+	en_gciCipherAlgo_Rsa,
 	/** No cipher used */
 	en_gciCipherAlgo_None=0xFF
 } en_gciCipherAlgo_t;
@@ -269,32 +269,32 @@ typedef struct st_gciCipherConfig
 {
 	/**
 	 * en_gciCipherAlgo_Invalid
-	 * en_gciCipherAlgo_RC4
-	 * en_gciCipherAlgo_3DES
-	 * en_gciCipherAlgo_AES
-	 * en_gciCipherAlgo_DES
-	 * en_gciCipherAlgo_RSA
+	 * en_gciCipherAlgo_Rc4
+	 * en_gciCipherAlgo_3des
+	 * en_gciCipherAlgo_Aes
+	 * en_gciCipherAlgo_Des
+	 * en_gciCipherAlgo_Rsa
 	 * en_gciCipherAlgo_None=0xFF
 	 */
 	en_gciCipherAlgo_t algo;
 
 	/**
 	 * en_gciBlockMode_Invalid
-	 * en_gciBlockMode_CBC
-	 * en_gciBlockMode_ECB
-	 * en_gciBlockMode_CFB
-	 * en_gciBlockMode_OFB
-	 * en_gciBlockMode_GCM
+	 * en_gciBlockMode_Cbd
+	 * en_gciBlockMode_Ecb
+	 * en_gciBlockMode_Cfb
+	 * en_gciBlockMode_Ofb
+	 * en_gciBlockMode_Gcm
 	 * en_gciBlockMode_None=0xFF
  	 */
 	en_gciBlockMode_t blockMode;
 
 	/**
 	 * en_gciPadding_Invalid
-	 * en_gciPadding_ISO9797
-	 * en_gciPadding_PKCS1
-	 * en_gciPadding_PKCS5
-	 * en_gciPadding_PKCS7
+	 * en_gciPadding_Iso9797
+	 * en_gciPadding_Pkcs1
+	 * en_gciPadding_Pkcs5
+	 * en_gciPadding_Pkcs7
 	 * en_gciPadding_None=0xFF
 	 */
 	en_gciPadding_t padding;
@@ -361,62 +361,62 @@ typedef enum en_gciNamedCurve
 {
 	/** Invalid Elliptic Curve */
 	en_gciNamedCurve_Invalid,
-	/** SECT163K1 Elliptic Curve */
-	en_gciNamedCurve_SECT163K1,
+	/** Sect163K1 Elliptic Curve */
+	en_gciNamedCurve_Sect163K1,
 	/** SECT163R1 Elliptic Curve */
-	en_gciNamedCurve_SECT163R1,
+	en_gciNamedCurve_Sect163R1,
 	/** SECT163R2 Elliptic Curve */
-	en_gciNamedCurve_SECT163R2,
+	en_gciNamedCurve_Sect163R2,
 	/** SECT193R1 Elliptic Curve */
-	en_gciNamedCurve_SECT193R1,
+	en_gciNamedCurve_Sect193R1,
 	/** SECT193R2 Elliptic Curve */
-	en_gciNamedCurve_SECT193R2,
+	en_gciNamedCurve_Sect193R2,
 	/** SECT233K1 Elliptic Curve */
-	en_gciNamedCurve_SECT233K1,
+	en_gciNamedCurve_Sect233K1,
 	/** SECT233R1 Elliptic Curve */
-	en_gciNamedCurve_SECT233R1,
+	en_gciNamedCurve_Sect233R1,
 	/** SECT239K1 Elliptic Curve */
-	en_gciNamedCurve_SECT239K1,
+	en_gciNamedCurve_Sect239K1,
 	/** SECT283K1 Elliptic Curve */
-	en_gciNamedCurve_SECT283K1,
+	en_gciNamedCurve_Sect283K1,
 	/** SECT283R1 Elliptic Curve */
-	en_gciNamedCurve_SECT283R1,
+	en_gciNamedCurve_Sect283R1,
 	/** SECT409K1 Elliptic Curve */
-	en_gciNamedCurve_SECT409K1,
+	en_gciNamedCurve_Sect409K1,
 	/** SECT409R1 Elliptic Curve */
-	en_gciNamedCurve_SECT409R1,
+	en_gciNamedCurve_Sect409R1,
 	/** SECT571K1 Elliptic Curve */
-	en_gciNamedCurve_SECT571K1,
+	en_gciNamedCurve_Sect571K1,
 	/** SECT571R1 Elliptic Curve */
-	en_gciNamedCurve_SECT571R1,
+	en_gciNamedCurve_Sect571R1,
 	/** SECP160K1 Elliptic Curve */
-	en_gciNamedCurve_SECP160K1,
+	en_gciNamedCurve_Secp160K1,
 	/** SECP160R1 Elliptic Curve */
-	en_gciNamedCurve_SECP160R1,
+	en_gciNamedCurve_Secp160R1,
 	/** SECP160R2 Elliptic Curve */
-	en_gciNamedCurve_SECP160R2,
+	en_gciNamedCurve_Secp160R2,
 	/** SECP192K1 Elliptic Curve */
-	en_gciNamedCurve_SECP192K1,
+	en_gciNamedCurve_Secp192K1,
 	/** SECP192R1 (SECG) / PRIME192V1 (ANSI X9.62) Elliptic Curve */
-	en_gciNamedCurve_SECP192R1,
+	en_gciNamedCurve_Secp192R1,
 	/** SECP224K1 Elliptic Curve */
-	en_gciNamedCurve_SECP224K1,
+	en_gciNamedCurve_Secp224K1,
 	/** SECP224R1 Elliptic Curve */
-	en_gciNamedCurve_SECP224R1,
+	en_gciNamedCurve_Secp224R1,
 	/** SECP256K1 Elliptic Curve */
-	en_gciNamedCurve_SECP256K1,
+	en_gciNamedCurve_Secp256K1,
 	/** SECP256R1 (SECG) / PRIME256V1 (ANSI X9.62) Elliptic Curve */
-	en_gciNamedCurve_SECP256R1,
+	en_gciNamedCurve_Secp256R1,
 	/** SECP384R1 Elliptic Curve */
-	en_gciNamedCurve_SECP384R1,
+	en_gciNamedCurve_Secp384R1,
 	/** SECP521R1 Elliptic Curve */
-	en_gciNamedCurve_SECP521R1,
+	en_gciNamedCurve_Secp521R1,
 	/** BRAINPOOLP256R1 Elliptic Curve */
-	en_gciNamedCurve_BRAINPOOLP256R1,
+	en_gciNamedCurve_BrainpoolP256R1,
 	/** BRAINPOOLP384R1 Elliptic Curve */
-	en_gciNamedCurve_BRAINPOOLP384R1,
+	en_gciNamedCurve_BrainpoolP384R1,
 	/** BRAINPOOLP512R1 Elliptic Curve */
-	en_gciNamedCurve_BRAINPOOLP512R1
+	en_gciNamedCurve_BrainpoolP512R1
 } en_gciNamedCurve_t;
 
 
@@ -456,29 +456,29 @@ typedef enum en_gciSignAlgo
 	/** Invalid signature */
 	en_gciSignAlgo_Invalid,
 	/** RSA signature */
-	en_gciSignAlgo_RSA,
+	en_gciSignAlgo_Rsa,
 	/** DSA signature */
-	en_gciSignAlgo_DSA,
+	en_gciSignAlgo_Dsa,
 	/** ECDSA signature */
-	en_gciSignAlgo_ECDSA,
+	en_gciSignAlgo_Ecdsa,
 	/** ISO9797 ALG1 signature */
-	en_gciSignAlgo_MAC_ISO9797_ALG1,
+	en_gciSignAlgo_Mac_Iso9797_Alg1,
 	/** ISO9797 ALG3 signature */
-	en_gciSignAlgo_MAC_ISO9797_ALG3,
+	en_gciSignAlgo_Mac_Iso9797_Alg3,
 	/** CMAC AES signature */
-	en_gciSignAlgo_CMAC_AES,
+	en_gciSignAlgo_Cmac_Aes,
 	/** HMAC signature */
-	en_gciSignAlgo_HMAC,
+	en_gciSignAlgo_Hmac,
 	/** RSA SSA PSS signature */
-	en_gciSignAlgo_RSASSA_PSS,
+	en_gciSignAlgo_Rsassa_Pss,
 	/** RSA SSA PKCS signature */
-	en_gciSignAlgo_RSASSA_PKCS,
+	en_gciSignAlgo_Rsassa_Pkcs,
 	/** RSA SSA X509 signature */
-	en_gciSignAlgo_RSASSA_X509,
+	en_gciSignAlgo_Rsassa_X509,
 	/** ECDSA GFP signature */
-	en_gciSignAlgo_ECDSA_GFP,
+	en_gciSignAlgo_Ecdsa_Gfp,
 	/** ECDSA GF2M signature */
-	en_gciSignAlgo_ECDSA_GF2M,
+	en_gciSignAlgo_Ecdsa_Gf2m,
 	/**No algorithm signature*/
 	en_gciSignAlgo_None = 0xFF
 } en_gciSignAlgo_t;
@@ -491,14 +491,14 @@ typedef enum en_gciSignAlgo
  */
 typedef struct st_gciSignRsaConfig
 {
-	/**
-	 * en_gciPadding_Invalid
-	 * en_gciPadding_ISO9797
-	 * en_gciPadding_PKCS1
-	 * en_gciPadding_PKCS5
-	 * en_gciPadding_PKCS7
-	 * en_gciPadding_None=0xFF
-	 */
+    /**
+     * en_gciPadding_Invalid
+     * en_gciPadding_Iso9797
+     * en_gciPadding_Pkcs1
+     * en_gciPadding_Pkcs5
+     * en_gciPadding_Pkcs7
+     * en_gciPadding_None=0xFF
+     */
 	en_gciPadding_t padding;
 } st_gciSignRsaConfig_t;
 
@@ -511,23 +511,23 @@ typedef struct st_gciSignRsaConfig
 typedef struct st_gciSignCmacConfig
 {
 
-	/**
-	 * en_gciBlockMode_Invalid
-	 * en_gciBlockMode_CBC
-	 * en_gciBlockMode_ECB
-	 * en_gciBlockMode_CFB
-	 * en_gciBlockMode_OFB
-	 * en_gciBlockMode_GCM
-	 * en_gciBlockMode_None=0xFF
-	 */
+    /**
+     * en_gciBlockMode_Invalid
+     * en_gciBlockMode_Cbd
+     * en_gciBlockMode_Ecb
+     * en_gciBlockMode_Cfb
+     * en_gciBlockMode_Ofb
+     * en_gciBlockMode_Gcm
+     * en_gciBlockMode_None=0xFF
+     */
 	en_gciBlockMode_t block;
 
 	/**
 	 * en_gciPadding_Invalid
-	 * en_gciPadding_ISO9797
-	 * en_gciPadding_PKCS1
-	 * en_gciPadding_PKCS5
-	 * en_gciPadding_PKCS7
+	 * en_gciPadding_Iso9797
+	 * en_gciPadding_Pkcs1
+	 * en_gciPadding_Pkcs5
+	 * en_gciPadding_Pkcs7
 	 * en_gciPadding_None=0xFF
 	 */
 	en_gciPadding_t padding;
@@ -546,18 +546,18 @@ typedef struct st_gciSignConfig
 {
 	/**
 	 * en_gciSignAlgo_Invalid
-	 * en_gciSignAlgo_RSA
-	 * en_gciSignAlgo_DSA
-	 * en_gciSignAlgo_ECDSA
-	 * en_gciSignAlgo_MAC_ISO9797_ALG1
-	 * en_gciSignAlgo_MAC_ISO9797_ALG3
-	 * en_gciSignAlgo_CMAC_AES
-	 * en_gciSignAlgo_HMAC
-	 * en_gciSignAlgo_RSASSA_PSS
-	 * en_gciSignAlgo_RSASSA_PKCS
-	 * en_gciSignAlgo_RSASSA_X509
-	 * en_gciSignAlgo_ECDSA_GFP
-	 * en_gciSignAlgo_ECDSA_GF2M
+	 * en_gciSignAlgo_Rsa
+	 * en_gciSignAlgo_Dsa
+	 * en_gciSignAlgo_Ecdsa
+	 * en_gciSignAlgo_Mac_Iso9797_ALG1
+	 * en_gciSignAlgo_Mac_Iso9797_ALG3
+	 * en_gciSignAlgo_Cmac_Aes
+	 * en_gciSignAlgo_Hmac
+	 * en_gciSignAlgo_Rsassa_Pss
+	 * en_gciSignAlgo_Rsassa_Pkcs
+	 * en_gciSignAlgo_Rsassa_X509
+	 * en_gciSignAlgo_Ecdsa_Gfp
+	 * en_gciSignAlgo_Ecdsa_Gf2m
 	 * en_gciSignAlgo_None = 0xFF
 	 */
 	en_gciSignAlgo_t algo;
@@ -565,12 +565,12 @@ typedef struct st_gciSignConfig
 
 	/**
 	 * en_gciHashAlgo_Invalid
-	 * en_gciHashAlgo_MD5
-	 * en_gciHashAlgo_SHA1
-	 * en_gciHashAlgo_SHA224
-	 * en_gciHashAlgo_SHA256
-	 * en_gciHashAlgo_SHA384
-	 * en_gciHashAlgo_SHA512
+	 * en_gciHashAlgo_Md5
+	 * en_gciHashAlgo_Sha1
+	 * en_gciHashAlgo_Sha224
+	 * en_gciHashAlgo_Sha256
+	 * en_gciHashAlgo_Sha384
+	 * en_gciHashAlgo_Sha512
 	 * en_gciHashAlgo_None=0xFF
 	 */
 	en_gciHashAlgo_t hash;
@@ -606,19 +606,19 @@ typedef enum en_gciKeyPairType
 	/**Invalid key pair*/
 	en_gciKeyPairType_Invalid,
 	/**RSA key pair*/
-	en_gciKeyPairType_RSA,
+	en_gciKeyPairType_Rsa,
 	/**RSA key pair - sign*/
-	en_gciKeyPairType_RSA_SSA,
+	en_gciKeyPairType_Rsa_Ssa,
 	/**RSA key pair - encrypt*/
-	en_gciKeyPairType_RSA_ES,
+	en_gciKeyPairType_Rsa_Es,
 	/**DH key pair */
-	en_gciKeyPairType_DH,
+	en_gciKeyPairType_Dh,
 	/**ECDH key pair */
-	en_gciKeyPairType_ECDH,
+	en_gciKeyPairType_Ecdh,
 	/**DSA key pair*/
-	en_gciKeyPairType_DSA,
+	en_gciKeyPairType_Dsa,
 	/**EC DSA key pair*/
-	en_gciKeyPairType_ECDSA,
+	en_gciKeyPairType_Ecdsa,
 	/**No key pair */
 	en_gciKeyPairType_None=0xFF
 } en_gciKeyPairType_t;
@@ -645,13 +645,13 @@ typedef struct st_gciKeyPairConfig_t
 {
 	/**
 	 * en_gciKeyPairType_Invalid
-	 * en_gciKeyPairType_RSA
-	 * en_gciKeyPairType_RSA_SSA
-	 * en_gciKeyPairType_RSA_ES
-	 * en_gciKeyPairType_DH
-	 * en_gciKeyPairType_ECDH
-	 * en_gciKeyPairType_DSA
-	 * en_gciKeyPairType_ECDSA
+	 * en_gciKeyPairType_Rsa
+	 * en_gciKeyPairType_Rsa_Ssa
+	 * en_gciKeyPairType_Rsa_Es
+	 * en_gciKeyPairType_Dh
+	 * en_gciKeyPairType_Ecdh
+	 * en_gciKeyPairType_Dsa
+	 * en_gciKeyPairType_Ecdsa
 	 * en_gciKeyPairType_None=0xFF
 	 */
 	en_gciKeyPairType_t keyType;
@@ -667,36 +667,36 @@ typedef struct st_gciKeyPairConfig_t
 
 		/**
 		 * en_gciNamedCurve_Invalid
-		 * en_gciNamedCurve_SECT163K1
-		 * en_gciNamedCurve_SECT163R1
-		 * en_gciNamedCurve_SECT163R2
-		 * en_gciNamedCurve_SECT193R1
-		 * en_gciNamedCurve_SECT193R2
-		 * en_gciNamedCurve_SECT233K1
-		 * en_gciNamedCurve_SECT233R1
-		 * en_gciNamedCurve_SECT239K1
-		 * en_gciNamedCurve_SECT283K1
-		 * en_gciNamedCurve_SECT283R1
-		 * en_gciNamedCurve_SECT409K1
-		 * en_gciNamedCurve_SECT409R1
-		 * en_gciNamedCurve_SECT571K1
-		 * en_gciNamedCurve_SECT571R1
-		 * en_gciNamedCurve_SECP160K1
-		 * en_gciNamedCurve_SECP160R1
-		 * en_gciNamedCurve_SECP160R2
-		 * en_gciNamedCurve_SECP192K1
-		 * en_gciNamedCurve_SECP192R1
-		 * en_gciNamedCurve_SECP224K1
-		 * en_gciNamedCurve_SECP224R1
-		 * en_gciNamedCurve_SECP256K1
-		 * en_gciNamedCurve_SECP256R1
-		 * en_gciNamedCurve_SECP384R1
-		 * en_gciNamedCurve_SECP521R1
-		 * en_gciNamedCurve_BRAINPOOLP256R1
-		 * en_gciNamedCurve_BRAINPOOLP384R1
-		 * en_gciNamedCurve_BRAINPOOLP512R1
+		 * en_gciNamedCurve_Sect163K1
+		 * en_gciNamedCurve_Sect163R1
+		 * en_gciNamedCurve_Sect163R2
+		 * en_gciNamedCurve_Sect193R1
+		 * en_gciNamedCurve_Sect193R2
+		 * en_gciNamedCurve_Sect233K1
+		 * en_gciNamedCurve_Sect233R1
+		 * en_gciNamedCurve_Sect239K1
+		 * en_gciNamedCurve_Sect283K1
+		 * en_gciNamedCurve_Sect283R1
+		 * en_gciNamedCurve_Sect409K1
+		 * en_gciNamedCurve_Sect409R1
+		 * en_gciNamedCurve_Sect571K1
+		 * en_gciNamedCurve_Sect571R1
+		 * en_gciNamedCurve_Secp160K1
+		 * en_gciNamedCurve_Secp160R1
+		 * en_gciNamedCurve_Secp160R2
+		 * en_gciNamedCurve_Secp192K1
+		 * en_gciNamedCurve_Secp192R1
+		 * en_gciNamedCurve_Secp224K1
+		 * en_gciNamedCurve_Secp224R1
+		 * en_gciNamedCurve_Secp256K1
+		 * en_gciNamedCurve_Secp256R1
+		 * en_gciNamedCurve_Secp384R1
+		 * en_gciNamedCurve_Secp521R1
+		 * en_gciNamedCurve_BrainpoolP256R1
+		 * en_gciNamedCurve_BrainpoolP384R1
+		 * en_gciNamedCurve_BrainpoolP512R1
 		 */
-		en_gciNamedCurve_t* keyPairParamEcdsa;
+		en_gciNamedCurve_t keyPairParamEcdsa;
 
 		/**DSA domain parameter configuration*/
 		st_gciDsaDomainParam_t* keyPairParamDsa;
@@ -751,36 +751,36 @@ typedef struct st_gciDhConfig
 
 		/**
 		 * en_gciNamedCurve_Invalid
-		 * en_gciNamedCurve_SECT163K1
-		 * en_gciNamedCurve_SECT163R1
-		 * en_gciNamedCurve_SECT163R2
-		 * en_gciNamedCurve_SECT193R1
-		 * en_gciNamedCurve_SECT193R2
-		 * en_gciNamedCurve_SECT233K1
-		 * en_gciNamedCurve_SECT233R1
-		 * en_gciNamedCurve_SECT239K1
-		 * en_gciNamedCurve_SECT283K1
-		 * en_gciNamedCurve_SECT283R1
-		 * en_gciNamedCurve_SECT409K1
-		 * en_gciNamedCurve_SECT409R1
-		 * en_gciNamedCurve_SECT571K1
-		 * en_gciNamedCurve_SECT571R1
-		 * en_gciNamedCurve_SECP160K1
-		 * en_gciNamedCurve_SECP160R1
-		 * en_gciNamedCurve_SECP160R2
-		 * en_gciNamedCurve_SECP192K1
-		 * en_gciNamedCurve_SECP192R1
-		 * en_gciNamedCurve_SECP224K1
-		 * en_gciNamedCurve_SECP224R1
-		 * en_gciNamedCurve_SECP256K1
-		 * en_gciNamedCurve_SECP256R1
-		 * en_gciNamedCurve_SECP384R1
-		 * en_gciNamedCurve_SECP521R1
-		 * en_gciNamedCurve_BRAINPOOLP256R1
-		 * en_gciNamedCurve_BRAINPOOLP384R1
-		 * en_gciNamedCurve_BRAINPOOLP512R1
+		 * en_gciNamedCurve_Sect163K1
+		 * en_gciNamedCurve_Sect163R1
+		 * en_gciNamedCurve_Sect163R2
+		 * en_gciNamedCurve_Sect193R1
+		 * en_gciNamedCurve_Sect193R2
+		 * en_gciNamedCurve_Sect233K1
+		 * en_gciNamedCurve_Sect233R1
+		 * en_gciNamedCurve_Sect239K1
+		 * en_gciNamedCurve_Sect283K1
+		 * en_gciNamedCurve_Sect283R1
+		 * en_gciNamedCurve_Sect409K1
+		 * en_gciNamedCurve_Sect409R1
+		 * en_gciNamedCurve_Sect571K1
+		 * en_gciNamedCurve_Sect571R1
+		 * en_gciNamedCurve_Secp160K1
+		 * en_gciNamedCurve_Secp160R1
+		 * en_gciNamedCurve_Secp160R2
+		 * en_gciNamedCurve_Secp192K1
+		 * en_gciNamedCurve_Secp192R1
+		 * en_gciNamedCurve_Secp224K1
+		 * en_gciNamedCurve_Secp224R1
+		 * en_gciNamedCurve_Secp256K1
+		 * en_gciNamedCurve_Secp256R1
+		 * en_gciNamedCurve_Secp384R1
+		 * en_gciNamedCurve_Secp521R1
+		 * en_gciNamedCurve_BrainpoolP256R1
+		 * en_gciNamedCurve_BrainpoolP384R1
+		 * en_gciNamedCurve_BrainpoolP512R1
 		 */
-		en_gciNamedCurve_t* dhParamCurveName;
+		en_gciNamedCurve_t dhParamCurveName;
 	} un_dhParam;
 } st_gciDhConfig_t;
 
@@ -817,8 +817,8 @@ typedef struct st_gciRsaCrtPrivKey
 	st_gciBigInt_t dP;
 	/**dQ = d mod (q-1)*/
 	st_gciBigInt_t dQ;
-	/**qInv = q^-1 mod p*/
-	st_gciBigInt_t qInv;
+	/**qP = q^-1 mod p*/
+	st_gciBigInt_t qP;
 } st_gciRsaCrtPrivKey_t;
 
 
@@ -875,36 +875,36 @@ typedef struct st_gciEcdhPubKey
 {
 	/**
 	 * en_gciNamedCurve_Invalid
-	 * en_gciNamedCurve_SECT163K1
-	 * en_gciNamedCurve_SECT163R1
-	 * en_gciNamedCurve_SECT163R2
-	 * en_gciNamedCurve_SECT193R1
-	 * en_gciNamedCurve_SECT193R2
-	 * en_gciNamedCurve_SECT233K1
-	 * en_gciNamedCurve_SECT233R1
-	 * en_gciNamedCurve_SECT239K1
-	 * en_gciNamedCurve_SECT283K1
-	 * en_gciNamedCurve_SECT283R1
-	 * en_gciNamedCurve_SECT409K1
-	 * en_gciNamedCurve_SECT409R1
-	 * en_gciNamedCurve_SECT571K1
-	 * en_gciNamedCurve_SECT571R1
-	 * en_gciNamedCurve_SECP160K1
-	 * en_gciNamedCurve_SECP160R1
-	 * en_gciNamedCurve_SECP160R2
-	 * en_gciNamedCurve_SECP192K1
-	 * en_gciNamedCurve_SECP192R1
-	 * en_gciNamedCurve_SECP224K1
-	 * en_gciNamedCurve_SECP224R1
-	 * en_gciNamedCurve_SECP256K1
-	 * en_gciNamedCurve_SECP256R1
-	 * en_gciNamedCurve_SECP384R1
-	 * en_gciNamedCurve_SECP521R1
-	 * en_gciNamedCurve_BRAINPOOLP256R1
-	 * en_gciNamedCurve_BRAINPOOLP384R1
-	 * en_gciNamedCurve_BRAINPOOLP512R1
+	 * en_gciNamedCurve_Sect163K1
+	 * en_gciNamedCurve_Sect163R1
+	 * en_gciNamedCurve_Sect163R2
+	 * en_gciNamedCurve_Sect193R1
+	 * en_gciNamedCurve_Sect193R2
+	 * en_gciNamedCurve_Sect233K1
+	 * en_gciNamedCurve_Sect233R1
+	 * en_gciNamedCurve_Sect239K1
+	 * en_gciNamedCurve_Sect283K1
+	 * en_gciNamedCurve_Sect283R1
+	 * en_gciNamedCurve_Sect409K1
+	 * en_gciNamedCurve_Sect409R1
+	 * en_gciNamedCurve_Sect571K1
+	 * en_gciNamedCurve_Sect571R1
+	 * en_gciNamedCurve_Secp160K1
+	 * en_gciNamedCurve_Secp160R1
+	 * en_gciNamedCurve_Secp160R2
+	 * en_gciNamedCurve_Secp192K1
+	 * en_gciNamedCurve_Secp192R1
+	 * en_gciNamedCurve_Secp224K1
+	 * en_gciNamedCurve_Secp224R1
+	 * en_gciNamedCurve_Secp256K1
+	 * en_gciNamedCurve_Secp256R1
+	 * en_gciNamedCurve_Secp384R1
+	 * en_gciNamedCurve_Secp521R1
+	 * en_gciNamedCurve_BrainpoolP256R1
+	 * en_gciNamedCurve_BrainpoolP384R1
+	 * en_gciNamedCurve_BrainpoolP512R1
 	 */
-	en_gciNamedCurve_t* curve;
+	en_gciNamedCurve_t curve;
 	/**coordinate (x,y) of the curve*/
 	st_gciEcPoint_t coord;
 }st_gciEcdhPubKey_t;
@@ -919,36 +919,36 @@ typedef struct st_gciEcdhPrivKey
 {
 	/**
 	 * en_gciNamedCurve_Invalid
-	 * en_gciNamedCurve_SECT163K1
-	 * en_gciNamedCurve_SECT163R1
-	 * en_gciNamedCurve_SECT163R2
-	 * en_gciNamedCurve_SECT193R1
-	 * en_gciNamedCurve_SECT193R2
-	 * en_gciNamedCurve_SECT233K1
-	 * en_gciNamedCurve_SECT233R1
-	 * en_gciNamedCurve_SECT239K1
-	 * en_gciNamedCurve_SECT283K1
-	 * en_gciNamedCurve_SECT283R1
-	 * en_gciNamedCurve_SECT409K1
-	 * en_gciNamedCurve_SECT409R1
-	 * en_gciNamedCurve_SECT571K1
-	 * en_gciNamedCurve_SECT571R1
-	 * en_gciNamedCurve_SECP160K1
-	 * en_gciNamedCurve_SECP160R1
-	 * en_gciNamedCurve_SECP160R2
-	 * en_gciNamedCurve_SECP192K1
-	 * en_gciNamedCurve_SECP192R1
-	 * en_gciNamedCurve_SECP224K1
-	 * en_gciNamedCurve_SECP224R1
-	 * en_gciNamedCurve_SECP256K1
-	 * en_gciNamedCurve_SECP256R1
-	 * en_gciNamedCurve_SECP384R1
-	 * en_gciNamedCurve_SECP521R1
-	 * en_gciNamedCurve_BRAINPOOLP256R1
-	 * en_gciNamedCurve_BRAINPOOLP384R1
-	 * en_gciNamedCurve_BRAINPOOLP512R1
+	 * en_gciNamedCurve_Sect163K1
+	 * en_gciNamedCurve_Sect163R1
+	 * en_gciNamedCurve_Sect163R2
+	 * en_gciNamedCurve_Sect193R1
+	 * en_gciNamedCurve_Sect193R2
+	 * en_gciNamedCurve_Sect233K1
+	 * en_gciNamedCurve_Sect233R1
+	 * en_gciNamedCurve_Sect239K1
+	 * en_gciNamedCurve_Sect283K1
+	 * en_gciNamedCurve_Sect283R1
+	 * en_gciNamedCurve_Sect409K1
+	 * en_gciNamedCurve_Sect409R1
+	 * en_gciNamedCurve_Sect571K1
+	 * en_gciNamedCurve_Sect571R1
+	 * en_gciNamedCurve_Secp160K1
+	 * en_gciNamedCurve_Secp160R1
+	 * en_gciNamedCurve_Secp160R2
+	 * en_gciNamedCurve_Secp192K1
+	 * en_gciNamedCurve_Secp192R1
+	 * en_gciNamedCurve_Secp224K1
+	 * en_gciNamedCurve_Secp224R1
+	 * en_gciNamedCurve_Secp256K1
+	 * en_gciNamedCurve_Secp256R1
+	 * en_gciNamedCurve_Secp384R1
+	 * en_gciNamedCurve_Secp521R1
+	 * en_gciNamedCurve_BrainpoolP256R1
+	 * en_gciNamedCurve_BrainpoolP384R1
+	 * en_gciNamedCurve_BrainpoolP512R1
 	 */
-	en_gciNamedCurve_t* curve;
+	en_gciNamedCurve_t curve;
 	/**Big number of the key*/
 	st_gciBigInt_t key;
 }st_gciEcdhPrivKey_t;
@@ -963,36 +963,36 @@ typedef struct st_gciEcdsaPubKey
 {
 	/**
 	 * en_gciNamedCurve_Invalid
-	 * en_gciNamedCurve_SECT163K1
-	 * en_gciNamedCurve_SECT163R1
-	 * en_gciNamedCurve_SECT163R2
-	 * en_gciNamedCurve_SECT193R1
-	 * en_gciNamedCurve_SECT193R2
-	 * en_gciNamedCurve_SECT233K1
-	 * en_gciNamedCurve_SECT233R1
-	 * en_gciNamedCurve_SECT239K1
-	 * en_gciNamedCurve_SECT283K1
-	 * en_gciNamedCurve_SECT283R1
-	 * en_gciNamedCurve_SECT409K1
-	 * en_gciNamedCurve_SECT409R1
-	 * en_gciNamedCurve_SECT571K1
-	 * en_gciNamedCurve_SECT571R1
-	 * en_gciNamedCurve_SECP160K1
-	 * en_gciNamedCurve_SECP160R1
-	 * en_gciNamedCurve_SECP160R2
-	 * en_gciNamedCurve_SECP192K1
-	 * en_gciNamedCurve_SECP192R1
-	 * en_gciNamedCurve_SECP224K1
-	 * en_gciNamedCurve_SECP224R1
-	 * en_gciNamedCurve_SECP256K1
-	 * en_gciNamedCurve_SECP256R1
-	 * en_gciNamedCurve_SECP384R1
-	 * en_gciNamedCurve_SECP521R1
-	 * en_gciNamedCurve_BRAINPOOLP256R1
-	 * en_gciNamedCurve_BRAINPOOLP384R1
-	 * en_gciNamedCurve_BRAINPOOLP512R1
+	 * en_gciNamedCurve_Sect163K1
+	 * en_gciNamedCurve_Sect163R1
+	 * en_gciNamedCurve_Sect163R2
+	 * en_gciNamedCurve_Sect193R1
+	 * en_gciNamedCurve_Sect193R2
+	 * en_gciNamedCurve_Sect233K1
+	 * en_gciNamedCurve_Sect233R1
+	 * en_gciNamedCurve_Sect239K1
+	 * en_gciNamedCurve_Sect283K1
+	 * en_gciNamedCurve_Sect283R1
+	 * en_gciNamedCurve_Sect409K1
+	 * en_gciNamedCurve_Sect409R1
+	 * en_gciNamedCurve_Sect571K1
+	 * en_gciNamedCurve_Sect571R1
+	 * en_gciNamedCurve_Secp160K1
+	 * en_gciNamedCurve_Secp160R1
+	 * en_gciNamedCurve_Secp160R2
+	 * en_gciNamedCurve_Secp192K1
+	 * en_gciNamedCurve_Secp192R1
+	 * en_gciNamedCurve_Secp224K1
+	 * en_gciNamedCurve_Secp224R1
+	 * en_gciNamedCurve_Secp256K1
+	 * en_gciNamedCurve_Secp256R1
+	 * en_gciNamedCurve_Secp384R1
+	 * en_gciNamedCurve_Secp521R1
+	 * en_gciNamedCurve_BrainpoolP256R1
+	 * en_gciNamedCurve_BrainpoolP384R1
+	 * en_gciNamedCurve_BrainpoolP512R1
 	 */
-	en_gciNamedCurve_t* curve;
+	en_gciNamedCurve_t curve;
 	/**coordinate (x,y) of the curve*/
 	st_gciEcPoint_t coord;
 } st_gciEcdsaPubKey_t;
@@ -1007,36 +1007,36 @@ typedef struct st_gciEcdsaPrivKey
 {
 	/**
 	 * en_gciNamedCurve_Invalid
-	 * en_gciNamedCurve_SECT163K1
-	 * en_gciNamedCurve_SECT163R1
-	 * en_gciNamedCurve_SECT163R2
-	 * en_gciNamedCurve_SECT193R1
-	 * en_gciNamedCurve_SECT193R2
-	 * en_gciNamedCurve_SECT233K1
-	 * en_gciNamedCurve_SECT233R1
-	 * en_gciNamedCurve_SECT239K1
-	 * en_gciNamedCurve_SECT283K1
-	 * en_gciNamedCurve_SECT283R1
-	 * en_gciNamedCurve_SECT409K1
-	 * en_gciNamedCurve_SECT409R1
-	 * en_gciNamedCurve_SECT571K1
-	 * en_gciNamedCurve_SECT571R1
-	 * en_gciNamedCurve_SECP160K1
-	 * en_gciNamedCurve_SECP160R1
-	 * en_gciNamedCurve_SECP160R2
-	 * en_gciNamedCurve_SECP192K1
-	 * en_gciNamedCurve_SECP192R1
-	 * en_gciNamedCurve_SECP224K1
-	 * en_gciNamedCurve_SECP224R1
-	 * en_gciNamedCurve_SECP256K1
-	 * en_gciNamedCurve_SECP256R1
-	 * en_gciNamedCurve_SECP384R1
-	 * en_gciNamedCurve_SECP521R1
-	 * en_gciNamedCurve_BRAINPOOLP256R1
-	 * en_gciNamedCurve_BRAINPOOLP384R1
-	 * en_gciNamedCurve_BRAINPOOLP512R1
+	 * en_gciNamedCurve_Sect163K1
+	 * en_gciNamedCurve_Sect163R1
+	 * en_gciNamedCurve_Sect163R2
+	 * en_gciNamedCurve_Sect193R1
+	 * en_gciNamedCurve_Sect193R2
+	 * en_gciNamedCurve_Sect233K1
+	 * en_gciNamedCurve_Sect233R1
+	 * en_gciNamedCurve_Sect239K1
+	 * en_gciNamedCurve_Sect283K1
+	 * en_gciNamedCurve_Sect283R1
+	 * en_gciNamedCurve_Sect409K1
+	 * en_gciNamedCurve_Sect409R1
+	 * en_gciNamedCurve_Sect571K1
+	 * en_gciNamedCurve_Sect571R1
+	 * en_gciNamedCurve_Secp160K1
+	 * en_gciNamedCurve_Secp160R1
+	 * en_gciNamedCurve_Secp160R2
+	 * en_gciNamedCurve_Secp192K1
+	 * en_gciNamedCurve_Secp192R1
+	 * en_gciNamedCurve_Secp224K1
+	 * en_gciNamedCurve_Secp224R1
+	 * en_gciNamedCurve_Secp256K1
+	 * en_gciNamedCurve_Secp256R1
+	 * en_gciNamedCurve_Secp384R1
+	 * en_gciNamedCurve_Secp521R1
+	 * en_gciNamedCurve_BrainpoolP256R1
+	 * en_gciNamedCurve_BrainpoolP384R1
+	 * en_gciNamedCurve_BrainpoolP512R1
 	 */
-	en_gciNamedCurve_t* curve;
+	en_gciNamedCurve_t curve;
 	/**Big number of the key*/
 	st_gciBigInt_t key;
 }st_gciEcdsaPrivKey_t;

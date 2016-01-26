@@ -32,10 +32,10 @@
 #define TC_SYM_KEY_SIZE_MAX_BYTES           (TC_SYM_KEY_SIZE_MAX_BITS / 8)
 
 /** Size in bits of a Diffie-Hellmann key */
-#define TC_DH_KEY_SIZE_MAX_BITS             512
+#define TC_DH_KEY_SIZE_MAX_BITS             1024
 
 /** Size in bytes of a Diffie-Hellmann key */
-#define TC_DH_KEY_SIZE_MAX_BYTES        (TC_DH_KEY_SIZE_MAX_BITS / 8)
+#define TC_DH_KEY_SIZE_MAX_BYTES        192
 
 /** Size in bits of the RSA key */
 #define TC_RSA_KEY_SIZE_MAX_BITS            1024
@@ -123,6 +123,9 @@ typedef struct st_tcCtxConfig
 	/* The ID of the key uses for the cipher or signature */
 	GciKeyId_t keyID;
 
+	/* The second key ID uses for the RSA in cipher (public and private are needed to decrypt) */
+	GciKeyId_t secKeyID;
+
 } st_tcCtxConfig_t;
 
 /* TODO sw - This is in dh_static.c but impossible to include the header ... */
@@ -197,6 +200,19 @@ static const struct {
  * @return                      en_gciResult_Err on error
  */
 en_gciResult_t tcGetBigNum(const uint8_t* p_data, size_t dataLen, st_gciBigInt_t* p_bigNum);
+
+
+/**
+ * \fn                          en_gciResult_t tcImportRsaPrivKey(uint8_t* p_buffer, size_t bufLen, GciKeyId_t* p_rsaPrivKeyID, GciKeyId_t* p_rsaPubKeyID)
+ * \brief                       Get the RSA private key from a buffer (certificate)
+ * \param [in]  p_data          Pointer to the buffer (certificate)
+ * \param [in]  dataLen         Length of the buffer
+ * \param [out] p_rsaPrivKeyID  Pointer to ID of the RSA private key
+ * \param [out] p_rsaPubKeyID   Pointer to ID of the RSA public key
+ * @return                      en_gciResult_Ok on success
+ * @return                      en_gciResult_Err on error
+ */
+en_gciResult_t tcImportRsaPrivKey(uint8_t* p_buffer, size_t bufLen, GciKeyId_t* p_rsaPrivKeyID, GciKeyId_t* p_rsaPubKeyID);
 
 
 #endif /* CRYPTO_DEV_H_ */

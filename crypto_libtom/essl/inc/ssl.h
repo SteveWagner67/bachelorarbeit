@@ -763,6 +763,8 @@ typedef struct ssl_peerGlobalSettings
    //OLD-CW: gci_rsaPrivKey_t*         pgci_rsaMyPrivKey;
    GciKeyId_t				pgci_rsaMyPrivKey;
 
+   GciKeyId_t               pgci_rsaMyPubKey;
+
 
    /* Pointer to \ref cwt_rsaMyPrivKey */
    //OLD-CW: ecc_key*			        p_ECCMyPrivKey; //vpy
