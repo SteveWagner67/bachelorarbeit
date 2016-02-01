@@ -2,33 +2,25 @@
 
 \begin{frame}
 
-\underline{What work}:
-\begin{itemize}
-  \item The new interface is in \embtls implemented
-  \item The provider is in the interface implemented
-  \item Client cipher suites work
-\end{itemize}
+\frametitle{Achieved}
 
-\vspace{0.25cm}
-
-\underline{What doesn't still work}:
 \begin{itemize}
-  \item Diffie-Hellman and Elliptic Curve Diffie-Hellman doesn't work in the
-  server case
-  \item ECDSA isn't implemented
+  \item Design of the new cryptographic interface
+  \item Implementation of the new interface in an application (\embtls)
+  \item Implementation of a provider (\tomcrypt) in the interface 
 \end{itemize}
 
 \end{frame}
 
 \begin{frame}
 
-\frametitle{TODOs:}
+\frametitle{Future work}
 
-\begin{enumerate}
-  \item Implementation of the rest of the server part
-  \item Add ECDSA in server and client
-  \item Write the documentation of the interface
-\end{enumerate}
+\begin{itemize}
+  \item Implementation of ECDSA
+  \item Test with other cipher suites
+  \item Writing of the new interface's documentation
+\end{itemize}
 
 \end{frame}
 

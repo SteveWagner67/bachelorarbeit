@@ -1,6 +1,6 @@
 \input{../template/macros}
 
-\documentclass{beamer}
+\documentclass{article}
 
 
 %%=====================================================================================
@@ -44,6 +44,8 @@ height=1.5em, minimum width=5em]
 \pgfdeclarelayer{foreground}
 \pgfsetlayers{background,main,foreground}
 
+\usepackage[margin=0.5cm]{geometry}
+
 \begin{document}
 
 \begin{tikzpicture}[node distance=2.25cm]
@@ -58,7 +60,8 @@ height=1.5em, minimum width=5em]
 
 % Create a text which in coordinate (-2,-0.5) of the middle of the south of
 % embtls node
-\path (embtls.south) +(-1.85,-0.4) node (app) [text width=0.5] {Application};
+\path (embtls.south) +(-1.75,-0.4) node (app) [text width=0.5]
+{\small{Application}};
 
 
 % This allow to create the rectangle
@@ -67,7 +70,7 @@ height=1.5em, minimum width=5em]
   	%create  the lines of the rectangle  with an offset (x,y)         
 	\path (embtls.west |- embtls.north)+(-0.75,0.65) node (a) {};
   	\path (embtls.south -|  embtls.east)+(0.75,-0.65) node (b) {};      
-               
+          
     % Combine the twos nodes above for creating the rectangle      
     \path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
     (a) rectangle (b);  
@@ -77,14 +80,15 @@ height=1.5em, minimum width=5em]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %	Interface									 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\node (cryptw) [block, below of=embtls, text width=5.5em, fill=green!60]{GCI};
+\node (gci) [block, below of=embtls, text width=5.5em, fill=green!60]{GCI};
 
-\path (cryptw.south) +(-1.85,-0.4) node (int1) [text width=0.5] {Interface};
+\path (gci.south) +(-1.75,-0.4) node (int1) [text width=0.5]
+{\small{Interface}};
 
 \begin{pgfonlayer}{background}
           
-   	\path (cryptw.west |- cryptw.north)+(-0.75,0.65) node (c) {};
-   	\path (cryptw.south -|  cryptw.east)+(0.75,-0.65) node (d) {};
+   	\path (gci.west |- gci.north)+(-0.75,0.65) node (c) {};
+   	\path (gci.south -|  gci.east)+(0.75,-0.65) node (d) {};
           
 	\path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
     (c) rectangle (d);           
@@ -92,26 +96,7 @@ height=1.5em, minimum width=5em]
 \end{pgfonlayer}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%	Crypto provider								 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\node (tomcr) [block, below of=cryptw, text width=5.5em]{\tomcrypt};
-
-\path (tomcr.south) +(-0.65,-0.4) node (lib){Crypto provider};
-
-\begin{pgfonlayer}{background}
-          
-   \path (tomcr.west |- tomcr.north)+(-0.75,0.65) node (e) {};
-   \path (tomcr.south -|  tomcr.east)+(0.75,-0.65) node (f) {};  
-                   
-   \path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
-   (e) rectangle (f);           
-            
-\end{pgfonlayer}
-
-
-\path [draw, ->] (tomcr.north) -- (cryptw.south);
-\path [draw, ->, color=blue] (cryptw.north) -- (embtls.south);
+\path [draw, ->] (gci.north) -- (embtls.south);
 
 
 \end{tikzpicture}

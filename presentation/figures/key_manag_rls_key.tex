@@ -2,6 +2,7 @@
 
 \documentclass{article}
 
+
 %%=====================================================================================
 %% drawing tikz
 %%=====================================================================================
@@ -43,55 +44,20 @@ height=1.5em, minimum width=5em]
 \pgfdeclarelayer{foreground}
 \pgfsetlayers{background,main,foreground}
 
+\usepackage[margin=0.5cm]{geometry}
+
 \begin{document}
 
-\begin{tikzpicture}[node distance=2.25cm]
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%	Application									 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{tikzpicture}[node distance=3cm]
 
-% Create a node
-\node (embtls) [block, text width=5.5em]{\embtls};
+\node (int) [rect] {Interface};
 
-% Create a text which in coordinate (-1.85,-0.4) of the middle of the south of
-% embtls node
-\path (embtls.south) +(-1.75,-0.4) node (app) [text width=1]
-{\small{Application}};
+\path (int.west)+(-1,0) node (id) [txtblk] {\scriptsize{ID x: }};
+\path (int.east)+(4,0) node (app) [rect] {Application};
+\path (int.east)+(1.5,0) node (res) [txtblk] {\scriptsize{Release key in ID x}};
 
-
-% This allow to create the rectangle
-\begin{pgfonlayer}{background}
-	  
-  	%create  the lines of the rectangle  with an offset (x,y)         
-	\path (embtls.west |- embtls.north)+(-0.75,0.65) node (a) {};
-  	\path (embtls.south -|  embtls.east)+(0.75,-0.65) node (b) {};      
-          
-    % Combine the twos nodes above for creating the rectangle      
-    \path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
-    (a) rectangle (b);  
-            
-\end{pgfonlayer}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%	Crypto provider								 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\node (tomcr) [block, below of=cryptw, text width=6em]{\tomcrypt};
-
-\path (tomcr.south) +(-0.65,-0.4) node (lib){\small{Crypto provider}};
-
-\begin{pgfonlayer}{background}
-          
-   \path (tomcr.west |- tomcr.north)+(-0.75,0.65) node (e) {};
-   \path (tomcr.south -|  tomcr.east)+(0.75,-0.65) node (f) {};  
-                   
-   \path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
-   (e) rectangle (f);           
-            
-\end{pgfonlayer}
-
-
-\path [draw, <->] (tomcr.north) -- (embtls.south);
+\path [draw, <-] (int.east) -- (app.west);
 
 
 \end{tikzpicture}

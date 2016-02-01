@@ -2,30 +2,57 @@
 
 \begin{frame}
 
-\begin{columns}
+%\begin{columns}
 
-\begin{column}{0.5\textwidth}
+%\begin{column}{0.25\textwidth}
 
-\includegraphics[trim=0.5cm 3cm 14cm 0cm, height=6cm]{figures/int_app_gci.pdf}
+\centering{
+\only<1>{
+%\frame{
+% trim: left, bottom, right, up
+\includegraphics[trim=1cm 22cm 16cm 0.5cm,
+height=4.5cm]{figures/implementation_phase1.pdf}
+%}
+}
+
+%\end{column}
+
+%\begin{column}{0.25\textwidth}
+
+\only<2>{
+%\frame{
+% trim: left, bottom, right, up
+\includegraphics[trim=1cm 22cm 16cm 0.5cm,
+height=4.5cm]{figures/implementation_phase2.pdf}
+%}
+}
+
+%\end{column}
+
+
+%\begin{column}{0.25\textwidth}
+
+\only<3>{
+%\frame{
+% trim: left, bottom, right, up
+\includegraphics[trim=1cm 22cm 16cm 0.5cm,
+height=4.5cm]{figures/implementation_phase4.pdf}
+%}
+}
+
+}
+
+%\end{column}
+
+%\end{columns}
+
+\vspace{1cm}
 
 \begin{itemize}
-  \item \small{Function from Cryto Wrap changed with this of GCI}
+  \only<1>{\item Previous implementation}
+  \only<2>{\item Replace the interface instead of the provider }
+  \only<3>{\item Add a provider (\tomcrypt) for the interface}
 \end{itemize}
-
-\end{column}
-
-\begin{column}{0.5\textwidth}
-
-\includegraphics[trim=0.5cm 3cm 14cm 0cm,
-height=6cm]{figures/int_app_prov_gci.pdf}
-
-\begin{itemize}
-  \item \small{Implementation of the provider \tomcrypt}
-\end{itemize}
-
-\end{column}
-
-\end{columns}
 
 \end{frame}
 

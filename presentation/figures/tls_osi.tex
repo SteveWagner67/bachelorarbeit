@@ -1,6 +1,6 @@
 \input{../template/macros}
 
-\documentclass{beamer}
+\documentclass{article}
 
 
 %%=====================================================================================
@@ -44,6 +44,8 @@ height=1.5em, minimum width=5em]
 \pgfdeclarelayer{foreground}
 \pgfsetlayers{background,main,foreground}
 
+\usepackage[margin=0.5cm]{geometry}
+
 \begin{document}
 
 
@@ -67,9 +69,7 @@ height=3em] {Application Layer Protocol};
 \path (appL.east)+(4.15,0.5) node (tls) [rect, minimum width=12em, minimum
 height=3em, fill=green!60] {Transport Layer Security};
 
-\path (trpL.east)+(3,0) node (udp) [rect, minimum width=6em, minimum
-height=3em] {UDP}; 
-\path (udp.east)+(1.15,0) node (tcp) [rect, minimum width=6em, minimum
+\path (trpL.east)+(4.15,0) node (tcp) [rect, minimum width=12em, minimum
 height=3em] {TCP}; 
 \path (netL.east)+(4.15,0) node (ip) [rect, minimum
 width=12em, minimum height=3em] {IP}; 
@@ -80,11 +80,11 @@ width=12em, minimum height=3em] {};
 \def\halfblockY{0.6}
 
 % TCP to TLS 
-\path [draw, densely dashed] (tcp.east)+(0,\halfblockY) -- (8.8, 0); % right
+\path [draw, densely dashed] (tcp.east)+(0,\halfblockY) -- (8.37, 0); % right
 \path [draw, densely dashed] (tcp.west)+(0,\halfblockY) -- (4.15, -0.1); %left
 
 % TLS to Application Layer Protocol
-\path [draw, densely dashed] (tls.east)+(0,\halfblockY) -- (8.8, 1.75); %right
+\path [draw, densely dashed] (tls.east)+(0,\halfblockY) -- (8.37, 1.75); %right
 \path [draw, densely dashed] (tls.west)+(0,\halfblockY) -- (4.15, 1.75); %left
 
 % Application Layer to Application Layer Protocol
@@ -95,17 +95,16 @@ width=12em, minimum height=3em] {};
 % Transport Layer - UDP
 \path [draw, dashdotted] (appL.east)+(0, -\halfblockY) -- (4.15, -\halfblockY);
 % above
-\path [draw, dashdotted] (appL.east)+(0, -1.75) --(4.15, -1.75); %
+\path [draw, dashdotted] (appL.east)+(0, -1.75) --(4.15, -1.75);
 % below
 
 
 
 % Network Access Layer - Blank
-\path [draw, loosely dashed] (netAL.east)+(0, 0.55) -- (4.15, -3.0);
+\path [draw, loosely dashed] (netAL.east)+(0, 0.5) -- (4.15, -2.9);
 % above
-\path [draw, loosely dashed] (netAL.east)+(0, -0.55) --(4.15, -4.1); %
+\path [draw, loosely dashed] (netAL.east)+(0, -0.5) --(4.15, -3.9);
 % below
-
 
 \end{tikzpicture}
 

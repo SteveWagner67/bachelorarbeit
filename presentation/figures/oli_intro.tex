@@ -1,0 +1,85 @@
+\input{../template/macros}
+
+\documentclass{article}
+
+
+%%=====================================================================================
+%% drawing tikz
+%%=====================================================================================
+%
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows}%
+\tikzstyle{memblock} = [draw, fill=blue!20, rectangle, 
+    minimum height=6em, minimum width=3em]%
+\definecolor{mygray}{cmyk}{0,0,0,0.4}%
+\definecolor{mydarkgray}{cmyk}{0,0,0,0.7}%
+\definecolor{mylightgray}{cmyk}{0,0,0,0.1}%
+
+%________________________________________________________________
+%tikz flow chart
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=4.25em, text badly centered, node distance=2cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{block2} = [rectangle, draw, fill=orange!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{block3} = [rectangle, draw, fill=green!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{rect} = [rectangle, draw, fill=blue!20, text centered, minimum
+height=1.5em, minimum width=5em]
+    
+    
+    
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=2cm,
+    minimum height=1em]
+    
+\tikzstyle{txtblk} = [above, text centered]
+
+% Define the layers to draw the diagram
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\usepackage[margin=0.5cm]{geometry}
+  
+  \begin{document}
+  
+   \begin{figure}[h]
+     %\captionsetup{width=0.9\textwidth}
+     \centering
+     \begin{tikz}[scale=0.7]{%
+         %
+         \draw[fill=mydarkgray,draw=none] (0,-2) rectangle (5,2);
+         %\draw[fill=red,draw=none] (2.3,1) rectangle (5,1.5);
+         %\draw[fill=red,draw=none] (2.3,-1) rectangle (5,-1.5);
+         \node at (1.5,0) {\app};
+ 
+ 
+         \draw[fill=mygray,draw=none] (3,1.7) rectangle (5,-1.7);
+         \draw[fill=white,draw=none] (5,-0.5) rectangle (4.5,0.5);
+         % no need to make inner part more exact as getting overriden
+         \node at (3.8,0) {GCI};
+         %Provider
+         \draw[fill=mylightgray,draw=none] (9,-1.7) rectangle (6,1.7);
+         \draw[fill=mylightgray,draw=none] (6,-0.5) rectangle (5.5,0.5);
+         \node at (7.5,0) {\prov};
+ 
+         \draw[thick] (0,-2) -- (0,2) -- (5,2) -- (5,1.7) -- (3,1.7) --
+ (3,-1.7) -- (5,-1.7) -- (5,-2) -- (0,-2);
+         \draw[thick] (5,1.7) -- (5, 0.5) -- (4.5, 0.5) -- (4.5,-0.5) -- (5,
+ -0.5) -- (5, -1.7);
+         \draw[thick] (9,1.7) -- (9, -1.7) -- (6,-1.7) -- (6,-0.5) -- (5.5,
+ -0.5) -- (5.5,0.5) -- (6, 0.5) -- (6, 1.7) -- (9,1.7);
+ 
+        \draw[<-] (4.6,0.2) -- (5.4,0.2);
+        \draw[<-] (4.6,0) -- (5.4,0);
+        \draw[<-] (4.6,-0.2) -- (5.4,-0.2);
+     }\end{tikz}
+ %\caption{The generic cryptographic interface (GCI).}
+ \end{figure}
+ 
+ \end{document}

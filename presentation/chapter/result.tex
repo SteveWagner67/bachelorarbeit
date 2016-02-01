@@ -1,0 +1,46 @@
+\section{Results}
+
+\begin{frame}
+
+\frametitle{Test with cipher suites}
+
+%\frame{
+\centering{
+\includegraphics[height=4cm, width=7cm]{figures/embTLS_client_gci.PNG}
+}
+%}
+
+
+
+\begin{itemize}
+  \item Some cipher suites are used\newline
+  ex:
+  TLS\_
+  \underbrace{DHE\_RSA}_{\text{\tiny{key exchange
+  algorithm}}}
+  \_WITH\_
+  \underbrace{AES\_256\_CBC}_{\text{\tiny{bulk encryption
+  algorithm}}}
+  \underbrace{\_SHA256}_{\text{\tiny{
+  MAC with Hash}}}
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+
+\frametitle{Test with cipher suites}
+
+%\frame{
+\centering{
+\includegraphics[height=4cm, width=7cm]{figures/embTLS_client_gci.PNG}
+}
+%}
+
+\begin{itemize}
+  \item Most cipher suites are working with this new implementation
+  \item ECDSA as key exchange algorithm isn't implemented
+\end{itemize}
+
+\end{frame}

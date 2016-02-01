@@ -2,6 +2,7 @@
 
 \documentclass{article}
 
+
 %%=====================================================================================
 %% drawing tikz
 %%=====================================================================================
@@ -43,6 +44,8 @@ height=1.5em, minimum width=5em]
 \pgfdeclarelayer{foreground}
 \pgfsetlayers{background,main,foreground}
 
+\usepackage[margin=0.5cm]{geometry}
+
 \begin{document}
 
 \begin{tikzpicture}[node distance=2.25cm]
@@ -54,9 +57,10 @@ height=1.5em, minimum width=5em]
 % Create a node
 \node (embtls) [block, text width=5.5em]{\embtls};
 
-% Create a text which in coordinate (-1.85,-0.4) of the middle of the south of
+
+% Create a text which in coordinate (-2,-0.5) of the middle of the south of
 % embtls node
-\path (embtls.south) +(-1.75,-0.4) node (app) [text width=1]
+\path (embtls.south) +(-1.75,-0.4) node (app) [text width=0.5]
 {\small{Application}};
 
 
@@ -74,24 +78,25 @@ height=1.5em, minimum width=5em]
 \end{pgfonlayer}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%	Crypto provider								 %
+%	Interface									 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\node (tomcr) [block, below of=cryptw, text width=6em]{\tomcrypt};
+\node (int) [block, below of=embtls, text width=5.5em, fill=green!60]{GCI};
 
-\path (tomcr.south) +(-0.65,-0.4) node (lib){\small{Crypto provider}};
+\path (int.south) +(-1.75,-0.4) node (int1) [text width=0.5]
+{\small{Interface}};
 
 \begin{pgfonlayer}{background}
           
-   \path (tomcr.west |- tomcr.north)+(-0.75,0.65) node (e) {};
-   \path (tomcr.south -|  tomcr.east)+(0.75,-0.65) node (f) {};  
-                   
-   \path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
-   (e) rectangle (f);           
+   	\path (int.west |- int.north)+(-0.75,0.65) node (c) {};
+   	\path (int.south -|  int.east)+(0.75,-0.65) node (d) {};
+          
+	\path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
+    (c) rectangle (d);           
             
 \end{pgfonlayer}
 
 
-\path [draw, <->] (tomcr.north) -- (embtls.south);
+\path [draw, <->] (int.north) -- (embtls.south);
 
 
 \end{tikzpicture}
