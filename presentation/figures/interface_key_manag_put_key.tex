@@ -1,6 +1,6 @@
 \input{../template/macros}
 
-\documentclass{beamer}
+\documentclass{article}
 
 
 %%=====================================================================================
@@ -44,74 +44,72 @@ height=1.5em, minimum width=5em]
 \pgfdeclarelayer{foreground}
 \pgfsetlayers{background,main,foreground}
 
+\usepackage[margin=0.5cm]{geometry}
+
 \begin{document}
 
-\begin{tikzpicture}[node distance=2.25cm]
+\begin{tikzpicture}[node distance=3cm]
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%	Application									 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Create a node
-\node (embtls) [block, text width=5.5em]{\embtls};
-
-
-% Create a text which in coordinate (-2,-0.5) of the middle of the south of
-% embtls node
-\path (embtls.south) +(-1.85,-0.4) node (app) [text width=0.5] {Application};
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPLICATION				  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\node (app) at(0.5\textwidth,0) [txtblk] {\large{Application}};
 
 % This allow to create the rectangle
 \begin{pgfonlayer}{background}
 	  
   	%create  the lines of the rectangle  with an offset (x,y)         
-	\path (embtls.west |- embtls.north)+(-0.75,0.65) node (a) {};
-  	\path (embtls.south -|  embtls.east)+(0.75,-0.65) node (b) {};      
+	\path (app.west |- app.north)+(-2,0.25) node (a) {};
+  	\path (app.south -|  app.east)+(2,-1) node (b) {};      
           
     % Combine the twos nodes above for creating the rectangle      
-    \path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
+    \path[fill=blue!20,rounded corners, draw=black!50, dashed]
     (a) rectangle (b);  
             
 \end{pgfonlayer}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%	Interface									 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\node (cryptw) [block, below of=embtls, text width=5.5em, fill=green!60]{GCI};
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% INTERFACE					  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\path (app.south)+(0, -4) node (int) [txtblk] {\large{Interface}};
 
-\path (cryptw.south) +(-1.85,-0.4) node (int1) [text width=0.5] {Interface};
+\path (int.east)+(1.25, -0.25) node (text22) [txtblk] {\scriptsize{ID x: Key}};
 
+% This allow to create the rectangle
 \begin{pgfonlayer}{background}
+	  
+  	%create  the lines of the rectangle  with an offset (x,y)         
+	\path (int.west |- int.north)+(-2.25,0.25) node (c) {};
+  	\path (int.south -|  int.east)+(2.25,-0.25) node (d) {};      
           
-   	\path (cryptw.west |- cryptw.north)+(-0.75,0.65) node (c) {};
-   	\path (cryptw.south -|  cryptw.east)+(0.75,-0.65) node (d) {};
-          
-	\path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
-    (c) rectangle (d);           
+    % Combine the twos nodes above for creating the rectangle      
+    \path[fill=blue!20,rounded corners, draw=black!50, dashed]
+    (c) rectangle (d);  
             
 \end{pgfonlayer}
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%	Crypto provider								 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\node (tomcr) [block, below of=cryptw, text width=5.5em]{\tomcrypt};
-
-\path (tomcr.south) +(-0.65,-0.4) node (lib){Crypto provider};
-
-\begin{pgfonlayer}{background}
-          
-   \path (tomcr.west |- tomcr.north)+(-0.75,0.65)  node (e) {};
-   \path (tomcr.south -|  tomcr.east)+(0.75,-0.65) node (f) {};  
-                   
-   \path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
-   (e) rectangle (f);           
-            
-\end{pgfonlayer}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PROVIDER					  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\path [draw, ->, color=blue] (tomcr.north) -- (cryptw.south);
-\path [draw, ->] (cryptw.north) -- (embtls.south);
+\def\underleftApp{(0.5,-0.25)}
+
+\def\underleftInt{(0.5,-3.25)}
+
+
+%Application -- Interface
+\path [draw, ->] \underleftApp+(8.5,-0.75)  -- (9,-3.2);
+\path (app.south)+(-1.25,-0.5) node (text4) [txtblk] {\footnotesize{Put Key}};
+
+\path(text4.south)+(0,-0.35) node(text20) [txtblk] {\footnotesize{}};
+
+
+
+\path [draw, <-] \underleftApp+(11.25 ,-0.75)  -- (11.75,-3.2); 
+\path (text4.east)+(2,-0.3) node (text6) [txtblk] {\footnotesize{Key}};
+
+\path (text6.south)+(0,-0.25) node (text21) [txtblk] {\footnotesize{ID x}};
 
 
 \end{tikzpicture}

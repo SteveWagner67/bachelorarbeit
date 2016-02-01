@@ -1,6 +1,6 @@
 \input{../template/macros}
 
-\documentclass{beamer}
+\documentclass{article}
 
 
 %%=====================================================================================
@@ -14,6 +14,8 @@
 \definecolor{mygray}{cmyk}{0,0,0,0.4}%
 \definecolor{mydarkgray}{cmyk}{0,0,0,0.7}%
 \definecolor{mylightgray}{cmyk}{0,0,0,0.1}%
+
+\usepackage[margin=0.5cm]{geometry}
 
 %________________________________________________________________
 %tikz flow chart
@@ -57,9 +59,6 @@ height=1.5em, minimum width=5em]
 
 % Create a node
 \node (embtls) [block, text width=5.5em]{\embtls};
-
-\path (embtls.north)+(-0.75,0.85) node (txtgci) [txtblk] {\underline{\small{Use
-of the new interface:}}};
 
 \path (embtls.east)+(-3.25,0) node (other1) [block, text width=2.5em] {\ldots};
 \path (embtls.west)+(3.25,0) node (other2) [block, text width=2.5em] {\ldots};
@@ -109,7 +108,7 @@ of the new interface:}}};
 \path (tomcr.west)+(-1.5,0) node (vltc) [block, text width=5.5em] {\vaultic};
 \path (tomcr.east)+(0.9,0) node (other) [block, text width=2.5em] {\ldots};
 
-\path (tomcr.south) +(-3,-0.4) node (lib) {Crypto providers};
+\path (tomcr.south) +(-2.75,-0.4) node (lib) {Crypto providers};
 
 \begin{pgfonlayer}{background}
           

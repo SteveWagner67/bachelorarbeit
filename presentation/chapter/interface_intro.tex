@@ -1,0 +1,152 @@
+\section{Generic Crypto Interface}
+
+\begin{frame}
+
+\frametitle{Interface's requirements}
+
+\begin{enumerate} 
+  \item No hidden states in the interface
+  
+  \begin{itemize}
+  	\item Behavior of functions only affected by function parameters
+  \end{itemize}
+    
+  \item Interface shall have the possibility to use different
+  cryptographic providers
+  
+  \begin{itemize}
+  	\item Software libraries
+  	\item Hardware-based cryptographic modules
+  \end{itemize}
+  
+  \item Interface shall enable the use of a provider's internal key managemet services
+  	  
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Cryptographic services}
+
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+%\only<1>{
+
+\begin{block}{Key pair generator}
+
+%\begin{itemize}
+%  \item Provides truly/pseudo random number
+%\end{itemize}
+
+\end{block}
+%}
+
+%\only<2>{
+\begin{block}{Hash}
+
+%\begin{itemize}
+%  \item Computes a digest for a specific message
+%  \item Allows integrity
+%\end{itemize}
+
+\end{block}
+
+%}
+
+%\only<3>{
+
+\begin{block}{Symmetric cipher}
+
+%\begin{itemize}
+%  \item Encryption and decryption done with the same key
+%  \item Allows privacy
+%\end{itemize}
+
+\end{block}
+
+%}
+
+
+%\only<4>{
+
+\begin{block}{Diffie-Hellman}
+
+%\begin{itemize}
+%  \item Begins with asymmetric keys (public key and private key)
+ % \item Finishs with symmetric key (secret key)
+%\end{itemize}
+
+\end{block}
+
+%}
+
+
+\end{column}
+
+\begin{column}{0.5\textwidth}
+
+%\only<1>{
+
+\begin{block}{Key management}
+
+%\begin{itemize}
+%  \item Provides public and private key
+%\end{itemize}
+
+\end{block}
+
+%}
+
+%\only<2>{
+\begin{block}{Signature}
+
+%\begin{itemize}
+%  \item Signs a message with the private key
+%  \item Verification of it done with the public key
+%  \item Allows authentication
+%  \item Allows non-repudiation
+%  \item Allows integrity
+%\end{itemize}
+
+\end{block}
+
+%}
+
+
+%\only<3>{
+
+\begin{block}{Asymmetric cipher}
+
+%\begin{itemize}
+%  \item Encryption done with the public key
+%  \item Decryption done with the private key
+%  \item Allows privacy
+%  \item Allows integrity
+%\end{itemize}
+
+\end{block}
+
+%}
+
+%\only<4>{
+\begin{block}{Random number generator}
+
+%\begin{itemize}
+%  \item Signs a message with the private key
+%  \item Verification of it done with the public key
+%  \item Allows authentication
+%  \item Allows non-repudiation
+%  \item Allows integrity
+%\end{itemize}
+
+\end{block}
+
+%}
+
+\end{column}
+
+\end{columns}
+
+\end{frame}

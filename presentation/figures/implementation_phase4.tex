@@ -43,6 +43,8 @@ height=1.5em, minimum width=5em]
 \pgfdeclarelayer{foreground}
 \pgfsetlayers{background,main,foreground}
 
+\usepackage[margin=0.5cm]{geometry}
+
 \begin{document}
 
 \begin{tikzpicture}[node distance=2.25cm]
@@ -74,9 +76,28 @@ height=1.5em, minimum width=5em]
 \end{pgfonlayer}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	Interface									 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\node (gci) [block, below of=embtls, text width=5.5em, fill=green!60]{GCI};
+
+\path (gci.south) +(-1.75,-0.4) node (int1) [text width=1]
+{\small{Interface}};
+
+\begin{pgfonlayer}{background}
+          
+   	\path (gci.west |- gci.north)+(-0.75,0.65) node (c) {};
+   	\path (gci.south -|  gci.east)+(0.75,-0.65) node (d) {};
+          
+	\path[fill=mylightgray!20,rounded corners, draw=black!50, dashed]
+    (c) rectangle (d);           
+            
+\end{pgfonlayer}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %	Crypto provider								 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\node (tomcr) [block, below of=cryptw, text width=6em]{\tomcrypt};
+\node (tomcr) [block, below of=gci, text width=6em]{\tomcrypt};
 
 \path (tomcr.south) +(-0.65,-0.4) node (lib){\small{Crypto provider}};
 
@@ -91,7 +112,8 @@ height=1.5em, minimum width=5em]
 \end{pgfonlayer}
 
 
-\path [draw, <->] (tomcr.north) -- (embtls.south);
+\path [draw, <->] (tomcr.north) -- (gci.south);
+\path [draw, <->] (gci.north) -- (embtls.south);
 
 
 \end{tikzpicture}
