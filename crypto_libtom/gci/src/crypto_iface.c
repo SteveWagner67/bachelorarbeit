@@ -87,7 +87,7 @@ static gcm_state ga_blockModeGCM[GCI_NB_CTX_MAX];
 static uint8_t ga_allocSymKey[GCI_NB_KEY_MAX][TC_SYM_KEY_SIZE_MAX_BYTES];
 
 /* Private key corresponds to g_dhPrivKey.x */
-static dh_key g_dhPrivKey[GCI_NB_CTX_MAX];
+ dh_key g_dhPrivKey[GCI_NB_CTX_MAX]; /* TODO sw - should be static */
 
 /* Private key corresponds to eccKey.k */
 static ecc_key g_ecdhPrivKey[GCI_NB_CTX_MAX];

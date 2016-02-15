@@ -663,6 +663,7 @@ typedef struct st_gciKeyPairConfig_t
 	union un_keyPairParam
 	{
 		/**RSA modulus length configuration*/
+	    /* TODO sw - pointer to a structure with one parameter useless ? */
 		st_gciRsaKeyGenConfig_t* keyPairParamRsa;
 
 		/**
