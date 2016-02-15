@@ -1,22 +1,31 @@
 \chapter{Context management}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%					DEFINITION							   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Definition}
+
+The contexts represent the state of stateful algorithms. It allows to avoid the
+hidden states in the interface, which mean that what is entering in the context
+as configuration for an algorithm will be used for the calculation and no
+parameters will be statically written in the functions of the interface.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %					CREATE CONTEXT						   %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Create a context}
-The principe of context is to avoid the redundance of the parameters in
-functions which are linked.
+The princip of context is available for the following algorithms:
+\begin{itemize}
+  \item Hash
+  \item Signature
+  \item Symmetric cipher
+  \item Asymmetric cipher
+  \item Diffie-Hellman
+\end{itemize}
 
-Adding one time the parameters in a function and become an ID of where are the
-configurations saved is more flexible than to add the same parameters in several
-functions which could already have a lot of parameters and be unreadable at the
-end.
 
-All part of the cryptography do not have configurations and therefore do not
-need a context .
-Those that need a context are described below.
-
+\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %					HASH CONTEXT						   %
@@ -43,7 +52,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID );
 The context is only needed to save the Hash algorithm.
 For more informations of how to use a Hash context, see chapter \ref{hashfx}.
 
-
+\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %					SIGN GEN CONTEXT					   %
@@ -81,7 +90,7 @@ Only one configuration is possible for one context.
 For more details about each configuration listed above see chapter
 \ref{signature}
 
-
+\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %					SIGN VFY CONTEXT					   %
@@ -119,6 +128,7 @@ Only one configuration is possible for one context.
 For more details about each configuration listed above see chapter
 \ref{signature}
 
+\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %					CIPHER CONTEXT						   %
@@ -155,6 +165,8 @@ The cipher algorithm which could be used are:
 
 For more details of each configuration see chapter \ref{cipher}
 
+\newpage
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %					DH CONTEXT							   %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -176,16 +188,24 @@ en_gciResult_t gciDhNewCtx( const st_gciDhConfig_t* p_dhConfig, GciCtxId_t* p_ct
 
 \end{lstlisting}
 
-This context is used to created Diffie-Hellman, Elliptic Curve Diffie-Hellman,
-shared secret for Diffie-Hellman and shared secret for Elliptic Curve
-Diffie-Hellman.
+This context is used to created :
+\begin{itemize}
+  \item Diffie-Hellman
+  \item Elliptic Curve Diffie-Hellman
+  \item Shared secret for Diffie-Hellman
+  \item Shared secret for Elliptic Curve
+Diffie-Hellman
+\end{itemize}
+
 Furthermore, the private key generated must be saved internally. 
 
-For more information about the configuration and the generation of key pair see
-chapter \ref{dhKeys}
+For more information about the configuration and the generation of the
+Diffie-Hellman/Elliptic Curve Diffie-Hellman key pair see chapter \ref{dhKeys}
 
 For more informations about the generation of the shared secret see
 chapter \ref{dhSec}
+
+\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %					CLONE CONTEXT						   %
@@ -193,15 +213,20 @@ chapter \ref{dhSec}
 
 \section{Clone an existing context}
 
-The principe of cloning an existing context is to copy the configurations and
-the datas. Then it's possible to continue the operation for one context and
-become a result for the other one.
+One of the inconvenient of the interface comes from the finish part, where the
+last calculation is done.
+For the hash algorithm and the signature algorithm, when the digest/signature is
+calculated, no more updates could be done with the last configuration and
+with the previous updates.
 
-This cloning is only concerned for the Hash and Signature context.
+The solution of this problem is the clone of the context.
 
-The context ID of the existing context is added to the function which copy the
-actual configurations and datas of this context and get another ID with this
-informations.
+When the digest/signature has to be calculated but the configuration and the
+previous updates should be kept, the clone of the hash/signature context allows
+to copy the configuration and the previous updates. Two contexts are identical
+but one is use for the calculation of the digest/signature and the other one for
+futur updates.
+
 \subsection{Hash context}
 Prototype:
 \begin{lstlisting}

@@ -62,16 +62,15 @@ typedef struct st_gciSignConfig
 
 
 
-\section{Signature configuration}
-Each signature/MAC has a different configuration depending on the
-implementation.
+\section{MAC / Signature configuration}
+Two differents use of the signature are available.\newline
+The first one is the generation of a signature, which will sign the datas
+updated (see
+section \ref{signGen} for more details.
 
-The configuration does not change between the creation (with
-gciSignGenNewCtx) and the verification (with gciSignVerifyNewCtx) of a
-signature.
-The difference is in the last step, in gciSignGenFinish for the creation (see
-section \ref{signGen} for more details) and gciSignVerifyFinish for the
-verification (see section \ref{signVfy} for more details)
+The second one is the verification of a signature, which will sign the datas
+updated but will at the end compared with this entered in the function (see
+section \ref{signVfy} for more details).
 
 \subsection{RSA}
 

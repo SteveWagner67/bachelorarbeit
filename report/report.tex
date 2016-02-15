@@ -35,6 +35,26 @@
 %% example for english
 %\hypthenation{ex-am-ple hy-phen-ate}
 
+\usepackage{splitbib}
+
+%% To add the bibliography references in different parts
+
+\usepackage{appendix}
+
+\begin{category}{Books}
+\SBentries{book1}
+\SBentries{book2}
+\end{category}
+\begin{category}{Internet}
+\SBentries{wiki_hash}
+\SBentries{wiki_sign}
+\SBentries{wiki_sym_cipher}
+\SBentries{wiki_asym_cipher}
+\SBentries{wiki_dh}
+\end{category}
+
+
+
 %----------------------------------------------------------------------------------------
 %	\begin{document}
 %----------------------------------------------------------------------------------------
@@ -59,14 +79,10 @@
 
 
 %----------------------------------------------------------------------------------------
-%	List of Contents/Figures/Tables
+%	List of Contents
 %----------------------------------------------------------------------------------------
 
 \tableofcontents
-
-%\listoffigures
-
-%\listoftables
 
 %\ifthenelse{\boolean{myaddlistoftodos}}{
 %  \newpage\todototoc \listoftodos          %% handy if you are using todonotes with \todo{}
@@ -81,11 +97,12 @@
 % you have to create your chapter file here
 \include{chapter/introduction}
 \include{chapter/motivation}
-\include{chapter/design}
-\include{chapter/basis}
+%\include{chapter/design}
 \include{chapter/gci}
-\include{chapter/embetterTLS}
-\include{chapter/LibTomcrypt}
+\include{chapter/crypto_tls}
+\include{chapter/implementation}
+\include{chapter/results}
+\include{chapter/conclusion}
 %----------------------------------------------------------------------------------------
 %	Bibliography
 %----------------------------------------------------------------------------------------
@@ -93,8 +110,11 @@
 %% prints every entry of the bib file -- useful in a state where is no cite
 %\appendix
 \nocite{*}
-%\printbibliography
-\bibliographystyle{plain}
+
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\bibliographystyle{plainurl}
+
 \bibliography{bib/bibliography}
 
 
@@ -103,8 +123,26 @@
 %----------------------------------------------------------------------------------------
 %% add possible appendix 
 \appendix
-\addpart*{Appendix}
-\input{chapter/appendice.tex}
+\addpart*{Appendices}
+
+
+
+\begin{appendices}
+\renewcommand\thechapter{A}
+\chapter{\href{../doc_GCI/doc_GCI.pdf}{Documentation Interface}}
+This documentation lists all functions use in the Generic Cryptographic
+Interface (GCI) and explains step by step the working of each cryptographic
+services definied in the interface.\newline
+\end{appendices}
+
+%----------------------------------------------------------------------------------------
+%	List of Figures/Tables
+%----------------------------------------------------------------------------------------
+
+\listoffigures
+%\listoftables
+
+
 
 %----------------------------------------------------------------------------------------
 %	\end{document}

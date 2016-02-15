@@ -1,0 +1,125 @@
+\input{../template/macros}
+
+\documentclass{article}
+
+
+%%=====================================================================================
+%% drawing tikz
+%%=====================================================================================
+%
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows}%
+\tikzstyle{memblock} = [draw, fill=blue!20, rectangle, 
+    minimum height=6em, minimum width=3em]%
+\definecolor{mygray}{cmyk}{0,0,0,0.4}%
+\definecolor{mydarkgray}{cmyk}{0,0,0,0.7}%
+\definecolor{mylightgray}{cmyk}{0,0,0,0.1}%
+
+%________________________________________________________________
+%tikz flow chart
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=4.25em, text badly centered, node distance=2cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{block2} = [rectangle, draw, fill=orange!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{block3} = [rectangle, draw, fill=green!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{rect} = [rectangle, draw, fill=blue!20, text centered, minimum
+height=1.5em, minimum width=5em]
+    
+    
+    
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=2cm,
+    minimum height=1em]
+    
+\tikzstyle{txtblk} = [above, text centered]
+
+% Define the layers to draw the diagram
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\usepackage[margin=0.5cm]{geometry}
+
+\begin{document}
+
+
+\begin{tikzpicture}[node distance=3cm]
+
+%\node (algo) at(0.5\textwidth, 0) [txtblk] { };
+
+
+\node (hash) at(0.5\textwidth, 0) [rect] {Hash};
+
+%\path (algo.south)+(0,-1) node (hash) [rect] {Hash};
+\path (hash.west)+(-1.75,0) node (msg) [rect] {Message};
+
+\path (hash.east)+(2.6, -3.05) node (net) [txtblk] {\small{Insecure
+network}};
+
+\path (hash.east)+(6.3, 0) node (digest)[rect] {Digest};
+
+\path (digest.south)+(0,-1) node (hash2) [rect] {Hash};
+
+\path(digest.east)+(1.75,0) node (qx) [decision] {=?};
+
+\path (msg.south)+(-0.5, -2.8) node (pa) [txtblk] {\small{Peer A}};
+\path (hash2.south)+(-0.5, -1.5) node (pb) [txtblk] {\small{Peer B}};
+
+
+
+% This allow to create the rectangle
+\begin{pgfonlayer}{background}
+	  
+  	%create  the lines of the rectangle  with an offset (x,y)         
+	\path (net.west |- hash.north)+(-0.5,1.25) node (a) {};
+  	\path (net.south -|  net.east)+(0.75,0) node (b) {};      
+          
+    % Combine the twos nodes above for creating the rectangle      
+    \path[fill=red!60,rounded corners, draw=black!50, dashed]
+    (a) rectangle (b);  
+            
+\end{pgfonlayer}
+
+% This allow to create the rectangle
+\begin{pgfonlayer}{background}
+	  
+  	%create  the lines of the rectangle  with an offset (x,y)         
+	\path (digest.west |- hash.north)+(-0.5,1.25) node (c) {};
+  	\path (pa.south -|  qx.east)+(0.5,0) node (d) {};      
+          
+    % Combine the twos nodes above for creating the rectangle      
+    \path[fill=green!60,rounded corners, draw=black!50, dashed]
+    (c) rectangle (d);  
+            
+\end{pgfonlayer}
+
+% This allow to create the rectangle
+\begin{pgfonlayer}{background}
+	  
+  	%create  the lines of the rectangle  with an offset (x,y)         
+	\path (msg.west |- hash.north)+(-0.5,1.25) node (e) {};
+  	\path (pb.south -|  hash.east)+(0.5,0) node (f) {};      
+          
+    % Combine the twos nodes above for creating the rectangle      
+    \path[fill=green!60,rounded corners, draw=black!50, dashed]
+    (e) rectangle (f);  
+            
+\end{pgfonlayer}
+
+
+\path [draw, ->] (msg.east) -- (hash.west);
+\path [draw, ->] (hash.east) -- (digest.west);
+\path [draw, ->] (msg.south) |- (hash2.west);
+\path [draw, ->] (digest.east) -- (qx.west);
+\path [draw, ->] (hash2.east) -| (qx.south);
+
+
+\end{tikzpicture}
+
+\end{document}

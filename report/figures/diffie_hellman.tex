@@ -1,0 +1,143 @@
+\input{../template/macros}
+
+\documentclass{article}
+
+
+%%=====================================================================================
+%% drawing tikz
+%%=====================================================================================
+%
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows}%
+\tikzstyle{memblock} = [draw, fill=blue!20, rectangle, 
+    minimum height=6em, minimum width=3em]%
+\definecolor{mygray}{cmyk}{0,0,0,0.4}%
+\definecolor{mydarkgray}{cmyk}{0,0,0,0.7}%
+\definecolor{mylightgray}{cmyk}{0,0,0,0.1}%
+
+%________________________________________________________________
+%tikz flow chart
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=4.25em, text badly centered, node distance=2cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{block2} = [rectangle, draw, fill=orange!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{block3} = [rectangle, draw, fill=green!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{rect} = [rectangle, draw, fill=blue!20, text centered, minimum
+height=1.5em, minimum width=5em]
+    
+    
+    
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=2cm,
+    minimum height=1em]
+    
+\tikzstyle{txtblk} = [above, text centered]
+
+% Define the layers to draw the diagram
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\usepackage[margin=0.5cm]{geometry}
+
+\begin{document}
+
+
+\begin{tikzpicture}[node distance=3cm]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ALICE						  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\node (dom) at(0,0) [block2] {\small{Domain Parameters}};
+\path (dom.south)+(0,-0.75) node (keyPrivA) [block2]  {\small{Private Key A}};
+\path (keyPrivA.south)+(0,-0.75) node (calc1) [rect]  {Calculation};
+\path (calc1.south)+(0,-1) node (keyPubA) [block2]  {\small{Public Key A}};
+
+\path (keyPubA.south)+(0,-1) node (calc3) [rect] {Calculation};
+\path (calc3.south)+(0,-1) node (secKey1) [block3] {\small{Secret Key}};
+
+% This allow to create the rectangle
+\begin{pgfonlayer}{background}
+	  
+  	%create  the lines of the rectangle  with an offset (x,y)         
+	\path (dom.west |- dom.north)+(-0.25,0.25) node (a) {};
+  	\path (secKey1.south -|  secKey1.east)+(0.75,-0.75) node (b) {};      
+          
+    % Combine the twos nodes above for creating the rectangle      
+    \path[fill=green!60,rounded corners, draw=black!50, dashed]
+    (a) rectangle (b);  
+            
+\end{pgfonlayer}
+
+\path (secKey1.south)+(-1,-0.7) node (alice) [txtblk]
+{\small{Peer A}};
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BOB						  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\path (keyPrivA.east)+(6,0) node (keyPrivB) [block2] {\small{Private Key B}};
+\path (keyPrivB.south)+(0,-0.75) node (calc2) [rect]  {Calculation};
+\path (calc2.south)+(0,-1) node (keyPubB) [block2]  {\small{Public Key B}};
+
+\path(keyPubB.south)+(0,-1) node (calc4) [rect] {Calculation};
+\path(calc4.south)+(0,-1) node (secKey2) [block3] {\small{Secret Key}};
+
+% This allow to create the rectangle
+\begin{pgfonlayer}{background}
+	  
+  	%create the lines of the rectangle  with an offset (x,y)         
+	\path (keyPrivB.west |- keyPrivB.north)+(-0.5,1.3) node (e) {};
+  	\path (secKey2.south -|  secKey2.east)+(0.75,-0.75) node (f) {};      
+          
+    % Combine the twos nodes above for creating the rectangle      
+    \path[fill=green!60,rounded corners, draw=black!50, dashed]
+    (e) rectangle (f);  
+            
+\end{pgfonlayer}
+
+\path (secKey2.south)+(-1,-0.7) node (bob) [txtblk] {\small{Peer B}};
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% INSECURE NETWORK			  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%create  the lines of the rectangle  with an offset (x,y)         
+\path (dom.east |- dom.east)+(0.25,0.6) node (c) {};
+\path (secKey2.south -|  secKey2.east)+(-2.75,-0.75) node (d) {};      
+          
+% Combine the twos nodes above for creating the rectangle      
+\path[fill=red!60,rounded corners, draw=black!50, dashed]
+(c) rectangle (d);  
+    
+\path (secKey1.south)+(3.6,-0.7) node (alice) [txtblk]
+{\small{Insecure network}};
+
+
+\path [draw, ->] (dom.east) edge[bend left=20] (calc1.east);
+\path [draw, ->] (keyPrivA.south) -- (calc1.north);
+\path [draw, ->] (calc1.south) -- (keyPubA.north);
+
+\path [draw, ->] (dom.east) -- (calc2.west);
+\path [draw, ->] (keyPrivB.south) -- (calc2.north);
+\path [draw, ->] (calc2.south) -- (keyPubB.north);
+
+\path [draw, ->] (keyPubA.east) -- (calc4.west);
+\path [draw, ->] (keyPrivB.east) edge[bend left=20] (calc4.east);
+\path [draw, ->] (calc4.south) -- (secKey2.north);
+
+\path [draw, ->] (keyPubB.west) -- (calc3.east);
+\path [draw, ->] (keyPrivA.west) edge[bend right=30] (calc3.west);
+\path [draw, ->] (calc3.south) -- (secKey1.north);
+
+
+\end{tikzpicture}
+
+\end{document}

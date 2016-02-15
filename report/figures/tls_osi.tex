@@ -1,0 +1,111 @@
+\input{../template/macros}
+
+\documentclass{article}
+
+
+%%=====================================================================================
+%% drawing tikz
+%%=====================================================================================
+%
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows}%
+\tikzstyle{memblock} = [draw, fill=blue!20, rectangle, 
+    minimum height=6em, minimum width=3em]%
+\definecolor{mygray}{cmyk}{0,0,0,0.4}%
+\definecolor{mydarkgray}{cmyk}{0,0,0,0.7}%
+\definecolor{mylightgray}{cmyk}{0,0,0,0.1}%
+
+%________________________________________________________________
+%tikz flow chart
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=4.25em, text badly centered, node distance=2cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{block2} = [rectangle, draw, fill=orange!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{block3} = [rectangle, draw, fill=green!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{rect} = [rectangle, draw, fill=blue!20, text centered, minimum
+height=1.5em, minimum width=5em]
+    
+    
+    
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=2cm,
+    minimum height=1em]
+    
+\tikzstyle{txtblk} = [above, text centered]
+
+% Define the layers to draw the diagram
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\usepackage[margin=0.5cm]{geometry}
+
+\begin{document}
+
+
+\begin{tikzpicture}[node distance=3cm]
+
+
+\node (appL) [rect, minimum width=12em, minimum height=3em] {Application Layer};
+
+\path (appL.south)+(0,-0.6) node (trpL) [rect, minimum width=12em, minimum
+height=3em] {Transport Layer};
+\path (trpL.south)+(0,-0.6) node (netL) [rect,
+minimum width=12em, minimum height=3em] {Network Layer}; 
+\path
+(netL.south)+(0,-0.6) node (netAL) [rect, minimum width=12em, minimum
+height=3em] {Network Access Layer};
+
+
+\path(appL.east)+(4.15,2.25) node (appLP) [rect, minimum width=12em, minimum
+height=3em] {Application Layer Protocol};
+
+\path (appL.east)+(4.15,0.5) node (tls) [rect, minimum width=12em, minimum
+height=3em, fill=green!60] {Transport Layer Security};
+
+\path (trpL.east)+(4.15,0) node (tcp) [rect, minimum width=12em, minimum
+height=3em] {TCP}; 
+\path (netL.east)+(4.15,0) node (ip) [rect, minimum
+width=12em, minimum height=3em] {IP}; 
+\path (netAL.east)+(4.15,0) node (blank) [rect, minimum
+width=12em, minimum height=3em] {};
+
+\def\halfblockX{2.25}
+\def\halfblockY{0.6}
+
+% TCP to TLS 
+\path [draw, densely dashed] (tcp.east)+(0,\halfblockY) -- (8.37, 0); % right
+\path [draw, densely dashed] (tcp.west)+(0,\halfblockY) -- (4.15, -0.1); %left
+
+% TLS to Application Layer Protocol
+\path [draw, densely dashed] (tls.east)+(0,\halfblockY) -- (8.37, 1.75); %right
+\path [draw, densely dashed] (tls.west)+(0,\halfblockY) -- (4.15, 1.75); %left
+
+% Application Layer to Application Layer Protocol
+\path [draw, densely dashed] (appL.east)+(0,\halfblockY) -- (4.15, 2.8); %above
+\path [draw, densely dashed] (appL.east)+(0,-\halfblockY) -- (4.15, 1.75);
+%below
+
+% Transport Layer - UDP
+\path [draw, dashdotted] (appL.east)+(0, -\halfblockY) -- (4.15, -\halfblockY);
+% above
+\path [draw, dashdotted] (appL.east)+(0, -1.75) --(4.15, -1.75);
+% below
+
+
+
+% Network Access Layer - Blank
+\path [draw, loosely dashed] (netAL.east)+(0, 0.5) -- (4.15, -2.9);
+% above
+\path [draw, loosely dashed] (netAL.east)+(0, -0.5) --(4.15, -3.9);
+% below
+
+\end{tikzpicture}
+
+\end{document}

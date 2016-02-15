@@ -2,18 +2,262 @@
 
 \section{Cryptography} % around 3/4 pages
 
-%what is cryptography
-%who got the idea of crypting datas
-%where it is used
-%why it is used 
+Cryptography uses mathematical techniques for the security of datas transmitted
+over an insecure network. \newline
+Cryptanalysis is the complementary of the cryptography
+with the focus on the defeat of the cryptographic mathematical
+techniques.\newline
+
+The security of the information is definied into:
+\begin{itemize}
+  \item Confidentiality or privacy\newline
+  No one, except whom is intended, can understand the transmitted datas
+  \item Integrity\newline
+  No one can alter the transmitted message without the alteration is being
+  detected
+  \item Authentication \newline
+  The sender and the receiver can identify the destination of the datas and
+  identify themself
+  \item Non-repudiation\newline
+  The sender cannot deny at a later stage the tranmission of the datas\newline
+\end{itemize}
+
+The mathematical cryptographic techniques are grouped into several algorithms:
+\begin{itemize}
+  \item Hash algorithm
+  \item Signature algorithm
+  \item Symmetric cipher algorithm
+  \item Asymmetric cipher algorithm
+\end{itemize}
+
+\newpage
+
+\subsection{Hash algorithm}
+
+\begin{figure}[!ht]
+\centering
+%\frame{
+% trim: left, bottom, right, up
+\includegraphics[trim=3.5cm 22.5cm 7.cm 0cm]{figures/hash.pdf}
+\caption{Scheme of an hash operation\newline}
+\label{fig:hash}
+%}
+
+\end{figure}
+
+A cryptographic algorithm is considered pratically impossible to invert, meaning
+that impossible to recreate the input data (message) with the digest (output of
+the hash).
+
+Tha main properties of a hash function are:
+\begin{itemize}
+  \item it's quick to compute the digest for any message
+  \item it's infeasible to generate a message from its digest
+  \item it is infeasible to modify a message without changing the digest
+  \item it is infeasible to find two different messages with the same
+  digest.\newline
+\end{itemize}
+
+On Figure \ref{fig:hash}, the message is hashed and the result (digest) is
+sent to the other peer with the original message.\newline Then the other peer
+hashs the message too (with the same algorithm) and compares the two digests to
+know if the message has been changed during the transmission.\newline 
+This is the princip of integrity.
+
+\newpage
+
+\subsection{Signature algorithm}
+\label{intro_sign}
+
+\begin{figure}[!ht]
+\centering
+%\frame{
+% trim: left, bottom, right, up
+\includegraphics[trim=2cm 22.25cm 7.5cm 0cm]{figures/signature.pdf}
+\caption{Scheme of a signature operation\newline}
+\label{fig:sign}
+%}
+
+\end{figure}
+
+A digital signature is a mathematical princip to demonstrate the authenticity of
+a message.\newline
+It infeasible to generate the original message with the signature.
+
+A valid digital signature allows to be sure that the incoming message comes from
+the peer we are communicated with and not from someone else
+(authenticity).\newline
+With digital signature the sender cannot deny having sended the message
+(non-repudiation).\newline
+It allows too to be sure that the message has not been corrupted during the
+transmission (integrity).\newline
+
+The princip of a digital signature is shown figure \ref{fig:sign}.\newline
+The message is signed with the private key (no one has this key too) and the
+result (signature) is sent to the other peer (peer B).\newline
+The public key of the peer A has already be sent previously. With this key, peer
+B can verify the signature (only with the public key of peer A) and be sure that
+the message sends with it comes from peer A and not from someone else.
+
+
+\newpage
+
+\subsection{Symmetric cipher algorithm}
+\label{intro_sym_cipher}
+
+\begin{figure}[!ht]
+\centering
+%\frame{
+% trim: left, bottom, right, up
+\includegraphics[trim=1cm 23.25cm 4cm 0cm]{figures/sym_cipher.pdf}
+\caption{Scheme of a symmetric cipher operation}
+\label{fig:sym}
+%}
+
+\end{figure}
+
+Symmetric-key algorithms are algorithms for cryptography that use the same
+cryptographic keys for both encryption of plaintext and decryption of
+ciphertext in a communication.\newline
+The key is often named shared secret key.\newline
+
+There is two kind of symmetric encryption:
+\begin{enumerate}
+  \item Stream ciphers, which the encryption is done only for one digit
+  (typically bytes) of a message at a time.
+  \item Block ciphers, which take a number of bits and encrypt them as a single
+  unit, padding the plaintext so that it is a multiple of the block
+  size.\newline
+\end{enumerate}
+
+Figure \ref{fig:sym} represents the process for encryption and decryption with a
+symmetric key.
+
+The shared key has already been exchanged between the two peers.\newline
+Peer A encrypts the message (plaintext) with this key and sends the result (the
+encrypted data or ciphertext) to peer B.\newline
+Than peer B uses the same key but to decrypt the encrypted data (ciphertext) and
+then reads the plaintext sent by the peer A.\newline
+
+
+No one who doesn't have this key can understand this message over the insecure
+network represents in red figure \ref{fig:sym}.
+
+
+
+\newpage
+
+\subsection{Asymmetric cipher algorithm}
+\label{intro_asym_cipher}
+
+
+\begin{figure}[!ht]
+\centering
+%\frame{
+% trim: left, bottom, right, up
+\includegraphics[trim=1cm 23.25cm 4cm 0cm]{figures/asym_cipher.pdf}
+\caption{Scheme of an asymmetric cipher operation}
+\label{fig:asym}
+%}
+
+\end{figure}
+
+Asymmetric algorithm is a method for encryption and decryption of messages with
+public and private keys. \newline
+One peer generates the private and public key together, keep the private key
+(meaning that he is the only one to have it) and sends the public key to every
+one he wants to communicate with.\newline
+With the public key everyone can encrypt a message, which no one can understand
+through the insecure network and no one can decrypt it, except this one who has
+the private key.\newline
+
+Figure \ref{fig:asym} shows the princip of encryption and decryption with
+asymmetric algorithms.\newline
+Peer B is this one who has generated the public and private keys and has already
+sent the public key to peer A.\newline
+Peer A encrypts the message with the public key of peer B. This
+message is than sends to peer B over the insecure network.\newline
+Thanks to the private key can peer B decrypts the message of peer A.\newline
+
+Thanks to the princip of private and public keys, asymmetric algorithm allows
+privacy (like symmetric algorithm) but integrity of data too, because only this
+one who creates the keys has the private key for decryption.
+
+
+\newpage
+
+\subsection{Diffie-Hellman}
+
+\begin{figure}[!ht]
+\centering
+%\frame{
+% trim: left, bottom, right, up
+\includegraphics[trim=0cm 20cm 8cm 0cm]{figures/diffie_hellman.pdf}
+\caption{Scheme of a Diffie-Hellman operation}
+\label{fig:dh}
+%}
+
+\end{figure}
+
+Diffie-Hellman Key Exchange etablishes a shared secret key between two peers
+that can be used for secret communication for exchanging data over an insecure
+network.\newline
+The princip of Diffie-Hellman Key Exchange is to begin with asymmetric keys and
+to finish with symmetric key. \newline
+It makes sure that the both parties
+participate in the generation of the symmetric key.\newline
+
+Figure \ref{fig:dh} shows the princip of the Diffie-Hellman key
+exchanges.\newline 
+Peer A creates the domain parameters and a private key only (not the
+public).\newline With the domain parameters and the private key can peer A
+calculates his public key.\newline
+He sends than the domain parameters and his public key to peer B.\newline
+Peer B generates a private key too and calculates his public key with the domain
+parameters from peer A and its own private key.\newline
+Peer B sends than his public key to peer A.\newline
+To finish, each one calculates the shared secret (which is the same for the
+twice) with the public key of the other peer and it's own private key.\newline
+
+The shared secret is the same for the two peers and can be used for encryption
+and decryption.
+
+\newpage
+
 
 \section{SSL/TLS protocol} %around 1/2 pages 
+\label{intro_tls}
 
-%what is these protocol
-%who got the idea of this protocol
-%where it is used
-%why it is used
-\section{Why should EmbetterSSL used as an exemple of bad written programm}
-\subsection{Size of functions}
-\subsection{Usage of global variables as well as contexts}
-\subsection{Bad usage of preprocessor includes}
+\begin{figure}[!ht]
+\centering
+%\frame{
+% trim: left, bottom, right, up
+\includegraphics[trim=0cm 20cm 8cm 0cm]{figures/tls_osi.pdf}
+\caption{Placement of TLS in OSI model}
+\label{fig:osi}
+%}
+
+\end{figure}
+
+Transport Layer Security (TLS) is a client/server protocol that provides
+different basic security services for the communication between peers:
+\begin{itemize}
+  \item Authentication (both peer and data origin authentication)
+  services
+  \item Connection confidentiality services
+  \item Connection integrity services (without recovery)
+\end{itemize}
+
+This security layer is situated between the transport and the application layer
+on the OSI model (see figure \ref{fig:osi})
+
+This security protocol is often uses in:
+\begin{itemize}
+  \item E-commerce website for secured transaction and client authentication
+  acces
+  \item Remote access
+  \item Web browsers to browse the Internet
+  \item Simple Mail Transfer Protocol (SMTP)
+  \item Virtual Private Network (VPN)
+\end{itemize}
+

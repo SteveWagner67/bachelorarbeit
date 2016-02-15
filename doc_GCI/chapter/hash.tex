@@ -31,10 +31,11 @@ typedef enum en_GciHashAlgo
 
 \end{lstlisting}
 
+\newpage
 
 \section{Prototypes}
 
-Create a new Hash context:
+\subsection{Create a hash context}
 \begin{lstlisting}
 
 /**
@@ -49,7 +50,7 @@ en_gciResult_t gciHashNewCtx( en_gciHashAlgo_t hashAlgo, GciCtxId_t* p_ctxID );
 
 \end{lstlisting}
 
-Update the Hash context with data:
+\subsection{Update a hash context}
 \begin{lstlisting}
 
 /**
@@ -65,7 +66,7 @@ en_gciResult_t gciHashUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg, size_
 
 \end{lstlisting}
 
-Clone the context:
+\subsection{Clone a hash context}
 \begin{lstlisting}
 
 /*!
@@ -81,7 +82,7 @@ en_gciResult_t gciHashCtxClone( GciCtxId_t idSrc, GciCtxId_t* p_idDest );
 \end{lstlisting}
 
 
-Get the digest of the Hash:
+\subsection{Finish a hash context}
 \begin{lstlisting}
 
 /**
