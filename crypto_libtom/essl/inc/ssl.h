@@ -760,7 +760,7 @@ typedef struct ssl_peerGlobalSettings
    /* Pointer to the 'certificate chain' list */
    s_sslCertList_t*         ps_certChainListHead;
    /* Pointer to \ref cwt_rsaMyPrivKey */
-   //OLD-CW: gci_rsaPrivKey_t*         pgci_rsaMyPrivKey;
+   //OLD-CW: cw_rsaPrivKey_t*         pcw_rsaMyPrivKey;
    GciKeyId_t				pgci_rsaMyPrivKey;
 
    GciKeyId_t               pgci_rsaMyPubKey;
@@ -835,7 +835,7 @@ typedef struct ssl_securityParameters
 	   GciCtxId_t 		cliRc4Ctx;
 	   //OLD-CW: gci_aesCtx_t      gci_cliAesCtx;
 	   GciCtxId_t		cliAesCtx;
-	   cw_3desCtx       cw_cli3DesCtx;
+	   //OLD-CW: cw_3desCtx       cw_cli3DesCtx;
 	   GciCtxId_t		cli3DesCtx;
 
    } u_cliKey;

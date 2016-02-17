@@ -25,7 +25,7 @@
 #include "logger.h"
 
 /* Display the GCI Info of each function uses in the project */
-#define GCI_DBG_INFO 1
+#define GCI_DBG_INFO 0
 
 
 
@@ -5142,6 +5142,7 @@ en_gciResult_t _genDhKeyPair( GciCtxId_t ctxID, GciKeyId_t* p_pubKeyID )
     /* Convert the public key in a bytes buffer */
     dhPubKey.un_key.keyDhPub.key.len = mp_unsigned_bin_size(g_dhPrivKey[ctxID].y);
     tmpErr = mp_to_unsigned_bin(g_dhPrivKey[ctxID].y, dhPubKey.un_key.keyDhPub.key.data);
+
 
     if (tmpErr != CRYPT_OK)
     {

@@ -40,9 +40,7 @@
 #include "ssl_conf.h"
 #include "ssl_record.h"
 #include "key_management.h"
-#include "crypto_wrap.h"
 
-//#include "crypto_iface.h"
 
 #include "crypto_tomcrypt.h"
 
@@ -676,6 +674,7 @@ static e_sslError_t loc_verifySign(s_sslCtx_t* ps_sslCtx, uint8_t* pc_tbvParams,
 	return (e_result);
 }
 
+
 /* \brief Calculate hash of a given data using selected hash algorithm
  * (from signature algorithm) and encrypt with a peers public key
  * \param ps_sslCtx         : Pointer to the ssl connection context
@@ -914,7 +913,8 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx, uint8_t* pc_in,
 
 		//Encryption means using a padding a not cipher encrypt
 
-		//OLD-CW: e_result = cw_rsa_sign_encode(ac_hash, c_hashLen, pc_out + c_signOff + 2, &sz_signLen, ps_sslCtx->ps_sslSett->pgci_rsaMyprivKeyID);
+		//OLD-CW: e_result = cw_rsa_sign_encode(ac_hash, c_hashLen, pc_out + c_signOff + 2, &sz_signLen, ps_sslCtx->ps_sslSett->pgci_rsaMyPrivKey);
+
 
 		signConf.algo = en_gciSignAlgo_Rsa;
 		signConf.hash = en_gciHashAlgo_None;
@@ -933,6 +933,7 @@ static e_sslError_t loc_signHash(s_sslCtx_t* ps_sslCtx, uint8_t* pc_in,
 		/* We add its ID by creating a second time the context but with the context ID of the previous one */
         err = gciSignGenNewCtx(&signConf,
                 ps_sslCtx->ps_sslSett->pgci_rsaMyPubKey, &signCtx);
+
         if (err != en_gciResult_Ok) {
             //TODO: return from error state
         }
@@ -1991,7 +1992,7 @@ static void loc_pHash(en_gciHashAlgo_t hashAlgo, uint8_t* pc_secret,
 		uint8_t c_xSeedLen, uint8_t* pc_out, size_t sz_outLen) {
 	size_t sz_realLen = 0;
 	size_t sz_hmacLen = 0;
-	cw_hmacCtx_t    cwt_hmacCtx;
+	//OLD-CW: cw_hmacCtx_t    cwt_hmacCtx;
 	GciCtxId_t hmacCtx;
 
 	st_gciSignConfig_t hmacConf = {.algo = en_gciSignAlgo_Hmac,
@@ -4195,8 +4196,6 @@ void ssl_destroyKeys(s_sslCtx_t * ps_sslCtx) {
 /* *********************************************************************** */
 /* *********************************************************************** */
 
-extern dh_key g_dhPrivKey[GCI_NB_CTX_MAX];
-
 static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 		size_t *pcwt_recLen, uint8_t *pc_inData, size_t cwt_inDataLen) {
 	/* What should be done on next step */
@@ -4724,83 +4723,65 @@ static e_sslPendAct_t loc_protocolResp(s_sslCtx_t * ps_sslCtx, uint8_t *pc_rec,
 				cwt_exportLen = (sizeof(ps_sslCtx->ac_socBuf)
 						- ((size_t) pc_write - (size_t) ps_sslCtx->ac_socBuf));
 
-				mp_int p;
-				uint8_t test[400];
-
-				memset(test, 0, 400);
 
 				/* export the formerly generated public DHE values */
-				//OLD-CW: cw_dhe_export_pgY(pc_write, &cwt_exportLen, ps_secPar->pgci_dheKey, &ps_hsElem->pgci_dheP);
+				//OLD-CW: cw_dhe_export_pgY(pc_write, &cwt_exportLen, &g_dhPrivKey[ps_sslCtx->s_secParams.dheCtx]);
 
-				g_dhPrivKey[ps_sslCtx->s_secParams.dheCtx].type = PK_PRIVATE;
-
-				cw_dhe_export_pgY(pc_write, &cwt_exportLen, &g_dhPrivKey[ps_sslCtx->s_secParams.dheCtx], &p);
-
-				LOG_INFO("export cw:");
-				LOG_HEX(test, 400);
-
-				memset(test, 0, 400);
 
                 cwt_exportLen = 0;
+
 				/* Add the length of the domain parameter p (prime) */
 
 				/* MSB of p-length */
 
-                /* TODO sw - replace test with pc_write */
-
-				*(test+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->p.len) >> 8;
+				*(pc_write+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->p.len) >> 8;
 
 				cwt_exportLen += 1;
 
 				/* LSB of p-length */
-				*(test+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->p.len) & 0xFF;
+				*(pc_write+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->p.len) & 0xFF;
 
 				cwt_exportLen += 1;
 
 				/* Add p data */
-				memcpy(test+cwt_exportLen, dhSrvPubKey.un_key.keyDhPub.param->p.data, dhSrvPubKey.un_key.keyDhPub.param->p.len);
+				memcpy(pc_write+cwt_exportLen, dhSrvPubKey.un_key.keyDhPub.param->p.data, dhSrvPubKey.un_key.keyDhPub.param->p.len);
 
 				cwt_exportLen += dhSrvPubKey.un_key.keyDhPub.param->p.len;
 
 				/* Add the length of the domain parameter g (generator) */
 
 				/* MSB of g-length */
-				*(test+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->g.len) >> 8;
+				*(pc_write+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->g.len) >> 8;
 
 				cwt_exportLen += 1;
 
 				/* LSB of g-length */
-				*(test+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->g.len) & 0xFF;
+				*(pc_write+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.param->g.len) & 0xFF;
 
 				cwt_exportLen += 1;
 
 				/* Add g-data */
-				memcpy(test+cwt_exportLen, dhSrvPubKey.un_key.keyDhPub.param->g.data, dhSrvPubKey.un_key.keyDhPub.param->g.len);
+				memcpy(pc_write+cwt_exportLen, dhSrvPubKey.un_key.keyDhPub.param->g.data, dhSrvPubKey.un_key.keyDhPub.param->g.len);
 
 				cwt_exportLen += dhSrvPubKey.un_key.keyDhPub.param->g.len;
 
 				/* Add the server public key length */
 
 				/* MSB of key-length */
-				*(test+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.key.len) >> 8;
+				*(pc_write+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.key.len) >> 8;
 
 				cwt_exportLen += 1;
 
 				/* LSB of key-length */
 
-				*(test+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.key.len) & 0xFF;
+				*(pc_write+cwt_exportLen) = (dhSrvPubKey.un_key.keyDhPub.key.len) & 0xFF;
 
 				cwt_exportLen += 1;
 
 				/* Add public key data */
-				memcpy(test+cwt_exportLen, dhSrvPubKey.un_key.keyDhPub.key.data, dhSrvPubKey.un_key.keyDhPub.key.len);
+				memcpy(pc_write+cwt_exportLen, dhSrvPubKey.un_key.keyDhPub.key.data, dhSrvPubKey.un_key.keyDhPub.key.len);
 
 				cwt_exportLen += dhSrvPubKey.un_key.keyDhPub.key.len;
-
-				LOG_INFO("export cw:");
-				LOG_HEX(test, 400);
-
-				//pc_write+=cwt_exportLen;
 
 				/* Delete the key */
 				gciKeyDelete(ps_secPar->dhePeerPubKey);
@@ -7711,7 +7692,7 @@ static e_sslPendAct_t loc_smMacEncrypt(s_sslCtx_t * ps_sslCtx,
 	uint32_t l_IVLen = 0;
 	s_sslGut_t* ps_guts = NULL;
 	s_sslSecParams_t* ps_secParams = NULL;
-	cw_symCbcCtx*       test_cwt_cipCtx = NULL;
+	//cw_symCbcCtx*       test_cwt_cipCtx = NULL;
 	GciCtxId_t cwt_cipCtx;
 
     uint8_t a_allocIV[GCI_BUFFER_MAX_SIZE];

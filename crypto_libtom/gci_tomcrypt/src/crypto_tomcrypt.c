@@ -68,6 +68,7 @@ en_gciResult_t tcGetBigNum(const uint8_t* p_data, size_t dataLen, st_gciBigInt_t
     return err;
 }
 
+
 en_gciResult_t tcImportRsaPrivKey(uint8_t* p_buffer, size_t bufLen, GciKeyId_t* p_rsaPrivKeyID, GciKeyId_t* p_rsaPubKeyID)
 {
     en_gciResult_t err = en_gciResult_Ok;

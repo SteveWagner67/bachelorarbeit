@@ -611,7 +611,7 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     s_sslHsElem_t *ps_handshElem;
     int32_t l_result;
     uint8_t ac_rndBuf[46];
-    cw_dhKey_t cwt_dhKeyCliY;
+    //cw_dhKey_t cwt_dhKeyCliY;
     // GciKeyId_t cwt_dhKeyCliY;
     s_sslCertList_t *ps_caList = NULL;
     e_sslCertErr_t e_ret;
@@ -746,27 +746,8 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
 
         /* read the Yc of the client that has been transmitted in the ClientKeyExchange */
 
-    	//Read the length of the key
 
-        /* MSB of key-length */
-    	//dhePeerPubKey.un_key.keyDhPub.key.len = *pc_inData >> 8;
-
-    	//pc_inData++;
-
-    	/* LSB of the key-length */
-    	//dhePeerPubKey.un_key.keyDhPub.key.len += *pc_inData;
-
-    	//pc_inData++;
-
-        //dhePeerPubKey.un_key.keyDhPub.key.len = cwt_inLen;
-
-        cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY);
-
-        mp_to_unsigned_bin(cwt_dhKeyCliY.y, dhePeerPubKey.un_key.keyDhPub.key.data);
-        dhePeerPubKey.un_key.keyDhPub.key.len = mp_unsigned_bin_size(cwt_dhKeyCliY.y);
-
-        LOG_INFO("cli pub key cw:");
-        LOG_HEX(dhePeerPubKey.un_key.keyDhPub.key.data, dhePeerPubKey.un_key.keyDhPub.key.len);
+        //OLD-CW: cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY);
 
 
     	memcpy(dhePeerPubKey.un_key.keyDhPub.key.data, pc_inData, dhePeerPubKey.un_key.keyDhPub.key.len);
@@ -781,18 +762,6 @@ e_sslPendAct_t sslConf_asymCryptoDisp(s_sslCtx_t *ps_sslCtx, int e_nextAction,
     	//Store the key and become an ID
     	err = gciKeyPut(&dhePeerPubKey, &ps_sslCtx->s_secParams.dhePeerPubKey);
 
-    	LOG_INFO("cli pub key gci:");
-    	LOG_HEX(dhePeerPubKey.un_key.keyDhPub.key.data, dhePeerPubKey.un_key.keyDhPub.key.len);
-
-    	//memset(dhePeerPubKey.un_key.keyDhPub.key.data, 0, 192);
-
-//    	cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY);
-//
-//    	mp_to_unsigned_bin(cwt_dhKeyCliY.y, dhePeerPubKey.un_key.keyDhPub.key.data);
-//    	dhePeerPubKey.un_key.keyDhPub.key.len = mp_unsigned_bin_size(cwt_dhKeyCliY.y);
-//
-//    	LOG_INFO("cli pub key cw:");
-//    	LOG_HEX(dhePeerPubKey.un_key.keyDhPub.key.data, dhePeerPubKey.un_key.keyDhPub.key.len);
 
        // if (cw_dhe_import_Y(pc_inData - 2, cwt_inLen, &cwt_dhKeyCliY) != CW_OK)
     	if(err != en_gciResult_Ok)
