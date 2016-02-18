@@ -1,0 +1,173 @@
+\input{../template/macros}
+
+\documentclass{article}
+
+
+%%=====================================================================================
+%% drawing tikz
+%%=====================================================================================
+%
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows}%
+\tikzstyle{memblock} = [draw, fill=blue!20, rectangle, 
+    minimum height=6em, minimum width=3em]%
+\definecolor{mygray}{cmyk}{0,0,0,0.4}%
+\definecolor{mydarkgray}{cmyk}{0,0,0,0.7}%
+\definecolor{mylightgray}{cmyk}{0,0,0,0.1}%
+
+%________________________________________________________________
+%tikz flow chart
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=4.25em, text badly centered, node distance=2cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{block2} = [rectangle, draw, fill=orange!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{block3} = [rectangle, draw, fill=green!20, 
+     text centered, rounded corners, minimum height=1.5em] 
+     
+\tikzstyle{rect} = [rectangle, draw, fill=blue!20, text centered, minimum
+height=1.5em, minimum width=5em]
+    
+    
+    
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=2cm,
+    minimum height=1em]
+    
+\tikzstyle{txtblk} = [above, text centered]
+
+% Define the layers to draw the diagram
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\usepackage[margin=0.5cm]{geometry}
+
+\begin{document}
+
+
+\begin{tikzpicture}[node distance=3cm]
+
+\node (hash1) [txtblk, text width=7em] {\scriptsize{}};
+
+\path (hash1.south)+(0,-0.25) node (config) [txtblk, text width=7em]
+{\scriptsize{}};
+
+\path (hash1.east)+(1.25,-0.2) node (hash2) [txtblk, text width=3em]
+{\scriptsize{}};
+\path (config.east)+(1.25,-0.2) node (id1) [txtblk, text
+width=3em] {\scriptsize{}};
+
+\path (hash2.east)+(1,-0.2) node (hash3) [txtblk, text width=3em]
+{\scriptsize{}};
+\path (id1.east)+(1,-0.2) node (update1) [txtblk, text
+width=3.5em] {\scriptsize{}};
+
+\path (hash3.east)+(1,-0.2) node (hash4) [txtblk, text width=3em]
+{\scriptsize{}};
+\path (update1.east)+(1,-0.2) node (update2) [txtblk, text
+width=3.5em] {\scriptsize{}};
+
+\path (update2.east)+(0.75,0) node (tpoint) [txtblk, text width=3em]
+{\scriptsize{}};
+
+\path (tpoint.east)+(0.5,-0.075) node (hashn) [txtblk, text width=3em]
+{\scriptsize{}};
+\path (hashn.south)+(0,-0.25) node (updaten) [txtblk, text
+width=3.5em] {\scriptsize{}};
+
+\path (hashn.east)+(1,-0.2) node (hashn1) [txtblk, text width=5em]
+{\scriptsize{Sign ID x}};
+\path (hashn1.south)+(0,-0.35) node (finish) [txtblk, text
+width=3em] {\scriptsize{finish}};
+
+\path (finish.east)+(0.95,0) node (digest) [txtblk, text
+width=7em] {\scriptsize{Signature}};
+
+\path (hash4.north)+(4.65,1) node (app) [txtblk, text
+width=3em] {Application};
+
+% This allow to create the rectangle
+\begin{pgfonlayer}{background}
+	  
+  	%create  the lines of the rectangle  with an offset (x,y)         
+	\path (hashn1.west |- app.north)+(-1,0.25) node (a) {};
+  	\path (finish.south -|  digest.east)+(0.35,-0.25) node (b) {};      
+          
+    % Combine the twos nodes above for creating the rectangle      
+    \path[fill=blue!20,rounded corners, draw=black!50, dashed]
+    (a) rectangle (b);  
+            
+\end{pgfonlayer}
+
+%%%%%%%%%%%%%%%%%%%
+% Interface 	  %
+%%%%%%%%%%%%%%%%%%%
+
+
+\path (config.south)+(0,-3) node (hash11) [txtblk, text width=7em]
+{\scriptsize{}};
+
+\path (hash11.south)+(0,-0.25) node (config2) [txtblk, text width=7em]
+{\scriptsize{}};
+
+\path (hash11.east)+(1.25,-0.2) node (hash21) [txtblk, text width=3em]
+{\scriptsize{}};
+\path (config2.east)+(1.25,-0.2) node (id2) [txtblk, text
+width=3em] {\scriptsize{}};
+
+\path (hash21.east)+(1,-0.2) node (hash31) [txtblk, text width=3em]
+{\scriptsize{}};
+\path (id2.east)+(1,-0.2) node (update11) [txtblk, text
+width=3.5em] {\scriptsize{}};
+
+\path (hash31.east)+(1,-0.2) node (hash41) [txtblk, text width=3em]
+{\scriptsize{}};
+\path (update11.east)+(1,-0.2) node (update21) [txtblk, text
+width=3.5em] {\scriptsize{}};
+
+\path (update21.east)+(0.75,0) node (tpoint2) [txtblk, text width=3em]
+{\scriptsize{}};
+
+\path (tpoint2.east)+(0.5,-0.075) node (hashn11) [txtblk, text width=3em]
+{\scriptsize{}};
+\path (hashn11.south)+(0,-0.25) node (updaten1) [txtblk, text
+width=3.5em] {\scriptsize{}};
+
+\path (hashn11.east)+(1,-0.2) node (hashn12) [txtblk, text width=3em]
+{\scriptsize{}};
+\path (hashn12.south)+(0,-0.25) node (finish2) [txtblk, text
+width=3em] {\scriptsize{}};
+
+\path (finish2.east)+(0.95,0) node (digest2) [txtblk, text
+width=7em] {\scriptsize{Signature}};
+
+\path (update21.south)+(4.65,-1) node (int) [txtblk, text
+width=3em] {Interface};
+
+% This allow to create the rectangle
+\begin{pgfonlayer}{background}
+	  
+  	%create  the lines of the rectangle  with an offset (x,y)         
+	\path (hashn1.west |- hash21.north)+(-1,0.25) node (c) {};
+  	\path (int.south -|  digest2.east)+(0.35,-0.25) node (d) {};      
+          
+    % Combine the twos nodes above for creating the rectangle      
+    \path[fill=blue!20,rounded corners, draw=black!50, dashed]
+    (c) rectangle (d);  
+            
+\end{pgfonlayer}
+
+\def\aboveint{(-0.9,-2.65)}
+
+
+\path [draw, ->] (finish.south)+(0,-0.2) -- (10.3,-2.8);
+\path [draw, <-] (digest.south)+(0,-0.5) -- (11.9,-2.8);
+
+
+\end{tikzpicture}
+
+\end{document}

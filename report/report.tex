@@ -42,18 +42,11 @@
 \usepackage{appendix}
 
 \begin{category}{Books}
-\SBentries{book1}
-\SBentries{book2}
+\SBentries{book1,book2}
 \end{category}
 \begin{category}{Internet}
-\SBentries{wiki_hash}
-\SBentries{wiki_sign}
-\SBentries{wiki_sym_cipher}
-\SBentries{wiki_asym_cipher}
-\SBentries{wiki_dh}
+\SBentries{wiki_hash,wiki_sign,wiki_sym_cipher,wiki_asym_cipher,wiki_dh}
 \end{category}
-
-
 
 %----------------------------------------------------------------------------------------
 %	\begin{document}
@@ -79,7 +72,7 @@
 
 
 %----------------------------------------------------------------------------------------
-%	List of Contents
+%	List of Contents/Todos
 %----------------------------------------------------------------------------------------
 
 \tableofcontents
@@ -88,6 +81,18 @@
 %  \newpage\todototoc \listoftodos          %% handy if you are using todonotes with \todo{}
 %}{}                             %% with todonotes-package option "disable" you can get rid of any todo in the output
 
+\listoftodos[Notes]
+\addcontentsline{toc}{chapter}{Notes}
+
+%----------------------------------------------------------------------------------------
+%	List of Figures/Tables
+%----------------------------------------------------------------------------------------
+
+\listoffigures
+\addcontentsline{toc}{chapter}{List of figures}
+
+\listoftables
+\addcontentsline{toc}{chapter}{List of tables}
 
 %----------------------------------------------------------------------------------------
 %	Body
@@ -115,6 +120,8 @@
 
 \bibliographystyle{plainurl}
 
+\addpart*{Bibliography}
+
 \bibliography{bib/bibliography}
 
 
@@ -125,7 +132,7 @@
 \appendix
 \addpart*{Appendices}
 
-
+\addcontentsline{toc}{chapter}{Appendices}
 
 \begin{appendices}
 \renewcommand\thechapter{A}
@@ -134,15 +141,6 @@ This documentation lists all functions use in the Generic Cryptographic
 Interface (GCI) and explains step by step the working of each cryptographic
 services definied in the interface.\newline
 \end{appendices}
-
-%----------------------------------------------------------------------------------------
-%	List of Figures/Tables
-%----------------------------------------------------------------------------------------
-
-\listoffigures
-%\listoftables
-
-
 
 %----------------------------------------------------------------------------------------
 %	\end{document}
