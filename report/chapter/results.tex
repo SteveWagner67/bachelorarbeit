@@ -1,9 +1,19 @@
 \chapter{Results}
 
-\section{embetterTLS as client}
+In this chapter, the result of the implementation will be explained.
+To test the implementation, several cipher suites have been used. These cipher
+suites are shown in the figure \ref{fig:res}.
+As we can see, almost all cipher suites work, only the cipher suites which use
+ECDSA as key exchange don't work. This is because the ECDSA implementation has
+been done in another project and the merge between the two project wasn't
+done, because of the time.
 
-%steps of implementation of the library 
-
-\section{embetterTLS as server}
-
-%steps of implementation of the library 
+\begin{figure}[!ht]
+\centering
+%\frame{
+% trim: left, bottom, right, up
+\includegraphics[trim=0cm 0cm 0cm 0cm]{figures/res_cipher_suites.PNG}
+\caption{Result of the implementation}
+\label{fig:res}
+%}
+\end{figure}

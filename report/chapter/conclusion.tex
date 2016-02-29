@@ -1,11 +1,48 @@
 \chapter{Conclusion}
+Through this project I get a lot of knowledge about cryptography. It allows me
+to learn all the main cryptography algorithms use in cryptography, the
+functioning of them and why these algorithms are used today.
+
+I learned a lot about the TLS protocol too. It allows me to understand all the
+step needed to get a secured communication, and that a lot of verification has
+to be done to be sure that the communication is secure.
+
 
 \section{Achieved work}
 
-\section{Future work}
+The project is, unfortunately, completely achieved, but globaly the most
+important parts are done.
 
-%Result
-%How I worked
-%Time of work
-%what I learned
-%thanks to..
+The project was split into four parts.
+\begin{enumerate}[noitemsep]
+  \item Get the knowledge about the main cryptography part and where it could be
+  used in the TLS protocol
+  \item Design of the new interface
+  \item Implementation of the interface into the \embtls application
+  \item Implementation of the \tomcrypt provider into the Generic Cryptographic
+  application
+\end{enumerate}
+
+The achieved work in this project is the design of the new Generic
+Cryptographic Interface (GCI)), and globally the implementation of the interface
+in the application and the implementation of the provider in the interface.
+
+This is not completely done, because all the cipher suites shown in the
+chapter \ref{res} doesn't work in all case.
+There is two parts in the project, when the application, \embtls, work as Client
+and as Server.
+
+The figure \ref{fig:res} shown the result for \embtls as Client. When \embtls
+work as Server, all the cipher suites with the Diffie-Hellman and the Elliptic
+Curve Diffie-Hellman (ECDH) don't work. The problem should come in the Server
+Key Exchange part, because this is the only part which changed compared to the
+other cipher suites.
+
+\section{Future work}
+The future work which could be done with this project would be to finish the
+implementation of the \embtls as Server (the Diffie-Hellman and Elliptic Curve
+Diffie-Hellman, which don't work), the implementation of the ECDSA algorithm as
+key exchange, which was done in another project, the test of other cipher suites
+to increase the use of this new Generic Cryptographic Interface (GCI), and the
+most important would be to write the documentation of the new Generic Cryptographic Interface,
+for other future projects which will need this interface as support.

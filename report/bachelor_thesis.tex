@@ -45,7 +45,7 @@
 \SBentries{book1,book2}
 \end{category}
 \begin{category}{Internet}
-\SBentries{wiki_hash,wiki_sign,wiki_sym_cipher,wiki_asym_cipher,wiki_dh}
+\SBentries{wiki:hash,wiki:sign,wiki:sym,wiki:asym,wiki:elgamal,wiki:hmac,wiki:cbcmac,wiki:diffie,wiki:iv,rec:der,RFC7465,RFC6151,RFC4492,RFC4772,RFC3602,RFC5246,RFC5647,RFC3447,RFC2104,RFC6979,RFC0793}
 \end{category}
 
 %----------------------------------------------------------------------------------------
@@ -59,6 +59,7 @@
 %% Statutory Declaration -- For Bachelor or Master thesis 
 %% have to follow the titlepage
 \input{template/declaration} 
+\addcontentsline{toc}{chapter}{Declaration}
 
 
 \cleardoublepage
@@ -68,7 +69,11 @@
 
 %tbd
 \include{chapter/abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
 \clearpage
+
+\include{chapter/acknowledgement}
 
 
 %----------------------------------------------------------------------------------------
@@ -81,8 +86,8 @@
 %  \newpage\todototoc \listoftodos          %% handy if you are using todonotes with \todo{}
 %}{}                             %% with todonotes-package option "disable" you can get rid of any todo in the output
 
-\listoftodos[Notes]
-\addcontentsline{toc}{chapter}{Notes}
+%\listoftodos[Notes]
+%s\addcontentsline{toc}{chapter}{Notes}
 
 %----------------------------------------------------------------------------------------
 %	List of Figures/Tables
@@ -94,17 +99,18 @@
 \listoftables
 \addcontentsline{toc}{chapter}{List of tables}
 
+
 %----------------------------------------------------------------------------------------
 %	Body
 %----------------------------------------------------------------------------------------
 \mainmatter  %% KOMA: marks main part using arabic page numbers and such; only available in book-classes 
 
 % you have to create your chapter file here
-\include{chapter/introduction}
+\include{chapter/background}
 \include{chapter/motivation}
-%\include{chapter/design}
-\include{chapter/gci}
+\include{chapter/introduction}
 \include{chapter/crypto_tls}
+\include{chapter/gci}
 \include{chapter/implementation}
 \include{chapter/results}
 \include{chapter/conclusion}
@@ -119,8 +125,6 @@
 \addcontentsline{toc}{chapter}{Bibliography}
 
 \bibliographystyle{plainurl}
-
-\addpart*{Bibliography}
 
 \bibliography{bib/bibliography}
 
@@ -141,6 +145,9 @@ This documentation lists all functions use in the Generic Cryptographic
 Interface (GCI) and explains step by step the working of each cryptographic
 services definied in the interface.\newline
 \end{appendices}
+
+
+
 
 %----------------------------------------------------------------------------------------
 %	\end{document}

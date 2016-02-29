@@ -1,0 +1,62 @@
+\input{../template/macros}
+
+\documentclass{article}
+
+
+%%=====================================================================================
+%% drawing tikz
+%%=====================================================================================
+%
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows}%
+\tikzstyle{memblock} = [draw, fill=blue!20, rectangle, 
+    minimum height=6em, minimum width=3em]%
+\definecolor{mygray}{cmyk}{0,0,0,0.4}%
+\definecolor{mydarkgray}{cmyk}{0,0,0,0.7}%
+\definecolor{mylightgray}{cmyk}{0,0,0,0.1}%
+
+%________________________________________________________________
+%tikz flow chart
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=4.25em, text badly centered, node distance=2cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+     text centered, rounded corners, minimum height=2cm] 
+    
+     
+\tikzstyle{rect} = [rectangle, draw, fill=blue!20, text centered, minimum
+height=1.5em, minimum width=5em]
+    
+    
+    
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=2cm,
+    minimum height=1em]
+    
+\tikzstyle{txtblk} = [above, text centered]
+
+% Define the layers to draw the diagram
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\usepackage[margin=0.5cm]{geometry}
+
+\begin{document}
+
+
+\begin{tikzpicture}[node distance=3cm]
+
+
+\node (hash) at(0.5\textwidth, 0) [rect] {PRNG};
+
+\path (hash.west)+(-2,0) node (msg) [rect] {Seed};
+
+\path (hash.east)+(2, 0) node (digest)[rect] {Random sequence};
+
+\path [draw, ->] (msg.east) -- (hash.west);
+\path [draw, ->] (hash.east) -- (digest.west);
+
+
+\end{tikzpicture}
+
+\end{document}

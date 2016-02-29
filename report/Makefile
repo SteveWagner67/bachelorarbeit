@@ -1,5 +1,5 @@
 ## please modify following line for naming the end products (PDFs, ZIPs, ...)
-PROJECTNAME = "Thesis_Template"
+PROJECTNAME = "Bachelor thesis"
 
 ## -----------------------------------------
 ##       DO NOT EDIT BELOW THIS LINE
@@ -11,7 +11,7 @@ PROJECTNAME = "Thesis_Template"
 ## http://www.ctan.org/tex-archive/help/uk-tex-faq/Makefile
 
 
-MAINDOCUMENTBASENAME = test
+MAINDOCUMENTBASENAME = bachelor_thesis
 MAINDOCUMENTFILENAME = ${MAINDOCUMENTBASENAME}.tex
 ## COMMANDS:
 PDFLATEX_CMD = pdflatex
