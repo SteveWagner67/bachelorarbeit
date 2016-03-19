@@ -1,22 +1,29 @@
 ﻿\chapter{Generic Cryptographic Interface (GCI)}
-As explained in chapter \ref{motiv}, this Generic Cryptographic Interface (GCI)
-is implemented in the application and the cryptographic provider shall be easily
-changed for another one.
-The interface has to be optimized for other projects
-too, meaning that it should be as generic as possible. This
-interface should have a base of cryptography which can be easily adaptable for
-other applications and easily modifiable to use other providers.\newline
-Some constraints are added for the interface, which are:
-\begin{itemize}
-  \item The link between the keys which could come from the application
-  and needed in the provider and inversely shall be handled.
-  \item No hidden states should be written in the function of the interface,
-  meaning that no default parameters for an algorithm has to be written
-  internally of a function.\newline
-\end{itemize}
-In several books and on the internet (see Bibliography) the most
-important part of cryptography are listed below:
-\begin{itemize}
+\label{gci}
+
+The goal of the interface is to have a base of the cryptographic algorithms,
+which are described in the introduction, chapter (\ref{intro}).
+The interface can also be used by applications which need cryptography and can
+use different providers, i.e open-source software libraries as hardware-based
+cryptographic modules.
+New algorithms shall be easy to add in the interface, if new algorithms have to
+be used and are still not implemented in the interface.
+With the interface several different configurations shall be used, meaning that
+no implicit parameters have to be written in functions of the interface.
+This configuration shall then have the possibility to be easily used to compute
+results with data added at any time.
+
+The hardware-based cryptographic modules use a key management, which is not
+used.
+This institute wants to use this key management, that's why the interface shall
+have a key management too.
+
+After the cryptographic algorithms have been understood, the design of the
+interface could be done.
+As shown in the chapter introduction (\ref{intro}), the main cryptographic
+algorithms are:
+
+\begin{itemize}[noitemsep]
   \item Hash, which is oft used in signature and MAC algorithms
   \item Signature, which is widely used and also very important
   \item Message Authentication Code (MAC), which has some same properties as
@@ -31,28 +38,44 @@ important part of cryptography are listed below:
 \label{gci_ctx}
 %1- what we need
 % 2- Explain the solution of the context
-As explained above, no hidden states should be written in the function of the
-interface, meaning that no default parameters for an algorithm has to be written
-internally of a function.
-For this constraint the principle of context is used.
-Through the context, a configuration of an algorithm can be done, meaning that
-in the application part, different parameters for this
-algorithm can be chosen and this configuration is saved internally in the
-interface (see figure \ref{fig:motiv_gci}).
-An ID of where is the configuration saved is returned to the application.\newline
-When an update has to be done, the ID is given and the interface knows that the
-update has to be done with this configuration.
-The cryptographic algorithms which the principle of context is used are:
+
+Several different configurations are possible for a cryptographic algorithm.
+These configurations should not have parameters, which are implicitly written in
+the functions of the interface, but all of them has to be configurable from the
+application part.
+Furthermore, data can be added to the algorithm at any time, meaning that the
+state of the algorithm, the configuration and the previously added data, have to
+be saved somewhere. 
+The result can be computed, only when the application needs it, that's why
+should all the data and the configuration be saved somewhere too.
+
+That's why the principle of the context is used. It represents the
+state of the stateful algorithms.
+
+Through the contexts, these informations, the configuration and the data, are
+encapsulated and referred by an ID, which is used by the application when
+other data has to be added or when the result has to be computed.
+
+The contexts also allow to the application part to add data to an
+algorithm by only passing the ID and this data at any time. 
+The interface knows that this information has to be added to the context
+with the referred ID.
+The context keeps the configuration and the data till it's removed or a result
+is computed.
+When a result is computed, the context cannot be used again, because
+the data are not saved in the interface, but added to a function from the
+provider and this one removes the data when the result are computed.
+The context should then be removed and created again.
+This can be a problem (see section \ref{gci_hash} and \ref{gci_sign_mac}), but is
+solved and explained in the section \ref{gci_cl_ctx}.
+
+The cryptographic algorithms, which the principle of context is used, are:
 \begin{itemize}[noitemsep]
   \item Hash algorithm
   \item Signature/MAC algorithm
   \item Cipher algorithm (symmetric and asymmetric)
   \item Diffie-Hellman\newline
 \end{itemize}
-Through the context, only the parameters added in the configuration are used. No
-hidden state is therefore implemented.
-The other cryptographic services which don't need a context is because no
-configurations are needed to be saved.
 
 \section{Cryptographic services}
 \subsection{Hash}
@@ -84,12 +107,12 @@ The hash algorithm implemented in the interface are:
   \item SHA512
 \end{itemize}
 
-\begin{figure}[!ht]
+\begin{figure}[h]
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=0cm 20cm 9.5cm 0cm]{figures/hash_example_config.pdf}
-\caption{Hash - configuration\newline}
+\includegraphics[trim=0cm 20cm 13cm 0cm]{figures/hash_example_config.pdf}
+\caption{Configuration of a hash algorithm}
 \label{fig:gci_hash_config}
 %}
 \end{figure}
@@ -109,8 +132,8 @@ The principle on an update is to add a data which we want to hash.
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=8cm 20cm 9.5cm 0cm]{figures/hash_example_update.pdf}
-\caption{Hash - update\newline}
+\includegraphics[trim=8cm 20cm 12cm 0cm]{figures/hash_example_update.pdf}
+\caption{Update of a hash algorithm}
 \label{fig:gci_hash_update}
 %}
 \end{figure}
@@ -130,8 +153,8 @@ calculate the digest.
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=18.5cm 20cm 9.5cm 0cm]{figures/hash_example_finish.pdf}
-\caption{Hash - finish\newline}
+\includegraphics[trim=18.5cm 20.5cm 13.5cm 0cm]{figures/hash_example_finish.pdf}
+\caption{Calculation of the digest}
 \label{fig:gci_hash_finish}
 %}
 \end{figure}
@@ -149,13 +172,13 @@ This problem is solved in chapter \ref{gci_cl_ctx}
 
 Some parts of cryptography need keys to work, like signatures and ciphers.
 The key can be a symmetric, which is the same key for the two peers
-in a communication or asymmetric, which is different for the two peers in a
+in a communication, or asymmetric, which is different for the two peers in a
 communication.
 The goal of this function is to generate the asymmetric keys, public key and
 private key. To generate a symmetric key, other methods should be used like
-Diffie-Hellman.
-In the interface, three kinds of key pair can be generated, each having a
-different configuration:
+Diffie-Hellman (see section \ref{gci_dh}).
+In the interface, three kinds of key pair can be generated, each having
+differents configuration:
 \begin{itemize}
   \item RSA key pair\newline
   The size of the key should be configured (1024 bits, 2048 bits, 4096 bits,
@@ -222,8 +245,8 @@ Several parameters have to be configured which are:
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=0cm 20cm 9.5cm 0cm]{figures/sign_example_config.pdf}
-\caption{Signature - configuration\newline}
+\includegraphics[trim=0cm 20cm 13.5cm 0cm]{figures/sign_example_config.pdf}
+\caption{Configuration of a signature/MAC algorithm}
 \label{fig:gci_sign_config}
 %}
 \end{figure}
@@ -242,8 +265,8 @@ verify a signature.\newline
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=8cm 20cm 9.5cm 0cm]{figures/sign_example_update.pdf}
-\caption{Signature - update\newline}
+\includegraphics[trim=8cm 20cm 12cm 0cm]{figures/sign_example_update.pdf}
+\caption{Update of a signature/MAC algorithm}
 \label{fig:gci_sign_update}
 %}
 \end{figure}
@@ -260,8 +283,8 @@ with the configuration saved in this context.
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=18.5cm 20cm 9.5cm 0cm]{figures/sign_example_finish.pdf}
-\caption{Signature - finish\newline}
+\includegraphics[trim=18.5cm 20.5cm 13.5cm 0cm]{figures/sign_example_finish.pdf}
+\caption{Calculation of the signature}
 \label{fig:gci_sign_finish}
 %}
 \end{figure}
@@ -296,7 +319,7 @@ functions which are:
 \end{itemize}
 
 \subsection*{Configuration of the cipher}
-Several parameters are to be configured for the cipher algorithm and depends
+Several parameters should be configured for the cipher algorithm and depend
 particularly of which cipher algorithm is used.
 The cipher algorithm is split into three main algorithm:
 
@@ -305,7 +328,7 @@ The cipher algorithm is split into three main algorithm:
 Today very deprecated but is, however, implemented in the interface if
 comparison has to be done.
 Only the RC4 stream cipher is implemented in the interface.
-Other stream ciphers can, however, be easily added in the interface if
+Another stream ciphers can, however, be easily added in the interface if
 needed.
 Nothing more as the algorithm has to be configured for the use of
 it.
@@ -346,8 +369,8 @@ configuration.
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=8.5cm 20cm 9.5cm 0cm]{figures/cipher_example_config.pdf}
-\caption{Cipher - configuration\newline}
+\includegraphics[trim=8.5cm 20cm 12.5cm 0cm]{figures/cipher_example_config.pdf}
+\caption{Configuration of a cipher algorithm}
 \label{fig:gci_cipher_config}
 %}
 \end{figure}
@@ -365,8 +388,8 @@ This principle is shown in figure \ref{fig:gci_cipher_config}
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=16cm 20cm 9.5cm 0cm]{figures/cipher_encrypt.pdf}
-\caption{Cipher - Encryption\newline}
+\includegraphics[trim=13cm 20.5cm 10cm 0cm]{figures/cipher_encrypt.pdf}
+\caption{Encryption of a plaintext}
 \label{fig:gci_cipher_encrypt}
 %}
 \end{figure}
@@ -384,8 +407,8 @@ This principle is shown figure \ref{fig:gci_cipher_encrypt}
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=16cm 20cm 9.5cm 0cm]{figures/cipher_decrypt.pdf}
-\caption{Cipher - Decryption\newline}
+\includegraphics[trim=13cm 20.5cm 10cm 0cm]{figures/cipher_decrypt.pdf}
+\caption{Decryption of a ciphertext}
 \label{fig:gci_cipher_decrypt}
 %}
 \end{figure}
@@ -432,8 +455,8 @@ be configured.
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=0cm 20cm 10cm 0cm]{figures/gci_dh_config.pdf}
-\caption{DH - Configuration\newline}
+\includegraphics[trim=0cm 20cm 13.5cm 0cm]{figures/gci_dh_config.pdf}
+\caption{Configuration of a Diffie-Hellman protocol}
 \label{fig:gci_dh_config}
 %}
 \end{figure}
@@ -452,22 +475,21 @@ Diffie-Hellman it's a little bit different. The private key of the Diffie must n
 interface. That's why when the key should be generated only the ID of the public
 key will go out of the function. The private key will be saved in the
 context, same context where is the configuration saved. This is why
-Diffie-Hellman is not implemented with the asymmetric cipher algorithm, where
-the public key and private key are going out of the function and don't stay in
+Diffie-Hellman is not implemented with the asymmetric cipher algorithm, where the public key and private key are going out of the function and don't stay in
 the context. This is shown on figure \ref{fig:gci_dh_gen_key}
 
 \begin{figure}[!ht]
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=8.5cm 20cm 10cm 0cm]{figures/gci_dh_gen_key.pdf}
-\caption{Diffie-Hellman - Generate key pair\newline}
+\includegraphics[trim=8.5cm 20cm 13cm 0cm]{figures/gci_dh_gen_key.pdf}
+\caption{Generation of Diffie-Hellman key pair}
 \label{fig:gci_dh_gen_key}
 %}
 \end{figure}
 
 
-\subsubsection*{Calculation of the shared key}
+\subsubsection*{Calculation of the secret key}
 
 When the public key of the peer is received, the shared key could be generated.
 To do it, the context with the configuration and the private, and the public key
@@ -479,8 +501,8 @@ figure \ref{fig:gci_dh_calc_key}
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=8.5cm 20cm 10cm 0cm]{figures/gci_dh_calc_key.pdf}
-\caption{Diffie-Hellman - Calculation of the shared key\newline}
+\includegraphics[trim=8.5cm 20cm 13cm 0cm]{figures/gci_dh_calc_key.pdf}
+\caption{Calculation of the Diffie-Hellman secret key}
 \label{fig:gci_dh_calc_key}
 %}
 \end{figure}
@@ -539,9 +561,9 @@ Several solutions were introduced which are:
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=0cm 18.5cm 9.5cm 0cm,
-height=10cm]{figures/hash_signature_clone.pdf}
-\caption{Context - clone example\newline}
+\includegraphics[trim=0cm 18.5cm 12cm 0cm,
+height=10.5cm]{figures/hash_signature_clone.pdf}
+\caption{Context - clone example}
 \label{fig:gci_clone}
 %}
 \end{figure}
@@ -556,14 +578,13 @@ to add other data when needed.\newline
 
 \label{gci_key_mng}
 
-In the previous version of the \embtls project interacted directly the provider
-and the application.
-This interaction was used for example to generate and to become directly a key
-or to compute something with a key coming from the other peer.
-With the interface this is not possible anymore.
-That's why the key management is required for the interface.
-Through the interface the keys can be saved and used by the provider to compute
-something or by the application to send it to another peer.
+The institute wants to use hardware-based cryptographic module with one of its
+particularities of key management. The interface shall have a key management
+too, so it can be possible to use it from the hardware-based cryptographic module.
+The use of this key management is split into three parts. The possibility to put
+a key coming externally, to get a key from the provider and to delete a key when
+this one is not needed anymore. These functions will be implemented in the key
+management in the interface too.
 
 
 \subsection*{Put a key}
@@ -577,8 +598,8 @@ key ``.
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=12cm 22cm 9.5cm 0cm]{figures/key_manag_put_key.pdf}
-\caption{Key management - put a key\newline}
+\includegraphics[trim=12cm 22cm 11.5cm 0cm]{figures/key_manag_put_key.pdf}
+\caption{Key management - put a key}
 \label{fig:gci_key_mng_put}
 %}
 \end{figure}
@@ -596,8 +617,8 @@ something like a signature, it should be possible to get it.
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=12cm 22cm 9.5cm 0cm]{figures/key_manag_get_key.pdf}
-\caption{Key management - get a key\newline}
+\includegraphics[trim=12cm 22cm 11.5cm 0cm]{figures/key_manag_get_key.pdf}
+\caption{Key management - get a key}
 \label{fig:gci_key_mng_get}
 %}
 \end{figure}
@@ -616,8 +637,8 @@ space for other keys.
 \centering
 %\frame{
 % trim: left, bottom, right, up
-\includegraphics[trim=12cm 22cm 9.5cm 0cm]{figures/key_manag_del_key.pdf}
-\caption{Key management - delete a key\newline}
+\includegraphics[trim=12cm 22cm 11.5cm 0cm]{figures/key_manag_del_key.pdf}
+\caption{Key management - delete a key}
 \label{fig:gci_key_mng_del}
 %}
 \end{figure}

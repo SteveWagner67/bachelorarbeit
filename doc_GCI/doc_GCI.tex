@@ -66,10 +66,11 @@
 
 %\listoffigures
 
-%\listoftables
+\listoftables
 
 %\ifthenelse{\boolean{myaddlistoftodos}}{
-%  \newpage\todototoc \listoftodos          %% handy if you are using todonotes with \todo{}
+% \newpage\todototoc \listoftodos          %% handy if you are using todonotes
+ % with \todo{}
 %}{}                             %% with todonotes-package option "disable" you can get rid of any todo in the output
 
 
@@ -79,20 +80,17 @@
 \mainmatter  %% KOMA: marks main part using arabic page numbers and such; only available in book-classes 
 
 % you have to create your chapter file here
-\listoftodos[TODO]
-\include{chapter/introduction}
+%\listoftodos[TODO]
+
 \include{chapter/motivation}
-\include{chapter/design}
-\include{chapter/interface}
-\include{chapter/context_manag}
-\include{chapter/information}
+\include{chapter/init}
+\include{chapter/ctx}
 \include{chapter/hash}
 \include{chapter/signature}
-\include{chapter/gen_key_pair}
+\include{chapter/key_pair}
 \include{chapter/cipher}
-\include{chapter/gen_dh_keys}
-\include{chapter/gen_dh_secret}
-\include{chapter/gen_rng}
+\include{chapter/dh}
+\include{chapter/rng}
 \include{chapter/key_manag}
 
 
@@ -115,6 +113,16 @@
 %%\appendix
 %%\addpart*{Appendix}
 %%\input{chapter/appendices.tex}
+
+%----------------------------------------------------------------------------------------
+%	Appendix
+%----------------------------------------------------------------------------------------
+%% add possible appendix 
+\appendix
+\addpart*{Appendix}
+
+\include{chapter/appendices}
+
 
 %----------------------------------------------------------------------------------------
 %	\end{document}

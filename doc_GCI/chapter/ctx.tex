@@ -1,0 +1,100 @@
+\chapter{Context management}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%					DEFINITION							   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Definition}
+
+Several different configurations are possible for a cryptographic algorithm. These configurations
+should not have parameters, which are implicitly written in the functions of the interface, but all
+of them has to be configurable from the application part. Furthermore, data can be added to the
+algorithm at any time, meaning that the state of the algorithm, the configuration and the previously
+added data, have to be saved somewhere. The result can be computed, only when the application
+needs it, that's why should all the data and the configuration be saved
+somewhere too.
+That's why the principle of the context is used. It represents the state of the
+stateful algorithms.
+Through the contexts, these informations, the configuration and the data, are encapsulated and
+referred by an ID, which is used by the application when other data has to be added or when the
+result has to be computed.
+The contexts also allow to the application part to add data to an algorithm by only passing the ID
+and this data at any time. The interface knows that this information has to be added to the context
+with the referred ID. The context keeps the configuration and the data till it's
+removed or a result is computed. When a result is computed, the context cannot be used again, because the data are
+not saved in the interface, but added to a function from the provider and this one removes the data
+when the result are computed. The context should then be removed and created again. This can be a
+problem, but is solved and explained in the section \ref{ctx_clone}.
+The cryptographic algorithms, which the principle of context is used, are:
+\begin{itemize}[noitemsep]
+  \item Hash, see section \ref{hashfx}
+  \item Signature, see section \ref{sign}
+  \item Message Authentication Code (MAC) \ref{sign}
+  \item Symmetric cipher, see section \ref{cipher}
+  \item Asymmetric cipher, see section \ref{cipher}
+  \item Diffie-Hellman, see section \ref{dhKeys}
+\end{itemize}
+
+
+\section{Creation of a context}
+Sometimes some parameters of a context need to change after the creation of a
+context. That's why the ID of the context has to be initialized to -1. In this
+case a context will be created, else the parameters who change since the
+previous configuration will be saved in the context refered by the ID given
+in input.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%					CLONE CONTEXT						   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Clone an existing context}
+\label{ctx_clone}
+
+One of the inconvenient of the interface comes from the finish part, where the
+last calculation is done.
+For the hash algorithm and the signature algorithm, when the digest/signature is
+calculated, no more updates could be done with the last configuration and
+with the previous updates.
+
+The solution of this problem is the clone of the context.
+
+When the digest/signature has to be calculated but the configuration and the
+previous updates should be kept, the clone of the hash/signature context allows
+to copy the configuration and the previous updates. Two contexts are identical
+but one is use for the calculation of the digest/signature and the other one for
+futur updates.
+
+The principle of the clone is used for:
+\begin{itemize}[noitemsep]
+  \item Hash algorithm, see section \ref{hashfx}
+  \item Signture/MAC algorithm, see section \ref{sign}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%					DELETE CONTEXT						   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Delete an existing context}
+\label{delCtx}
+
+When the context is not needed anymore, it can be removed and be used for an
+other configuration, which can be completely different as the previous one.
+
+Prototype:
+\begin{lstlisting}
+en_gciResult_t gciCtxRelease( GciCtxId_t ctxID );
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 						& Parameter				& Definition \\
+ \Gline
+ Input 	   	& GciCtxId\_t	 			& ctxID					& Context's ID \\
+\hline
+ 
+\end{tabular}
+\captionof{table}{Parameters to delete a context}
+\label{tab:ctx_rl}
+
+\end{center}
+

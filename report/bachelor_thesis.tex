@@ -45,8 +45,10 @@
 \SBentries{book1,book2}
 \end{category}
 \begin{category}{Internet}
-\SBentries{wiki:hash,wiki:sign,wiki:sym,wiki:asym,wiki:elgamal,wiki:hmac,wiki:cbcmac,wiki:diffie,wiki:iv,rec:der,RFC7465,RFC6151,RFC4492,RFC4772,RFC3602,RFC5246,RFC5647,RFC3447,RFC2104,RFC6979,RFC0793}
+\SBentries{doc:vault,doc:tomcrypt,wiki:hash,wiki:sign,wiki:sym,wiki:asym,wiki:elgamal,wiki:hmac,wiki:cbcmac,wiki:diffie,wiki:iv,rec:der,RFC7465,RFC6151,RFC4492,RFC4772,RFC3602,RFC5246,RFC5647,RFC3447,RFC2104,RFC6979,RFC0793,doc:openssl,wiki:curl}
 \end{category}
+
+%\usepackage{datetime}
 
 %----------------------------------------------------------------------------------------
 %	\begin{document}
@@ -54,6 +56,8 @@
 \begin{document}
 
 \frontmatter %% KOMA: roman page numbers and such; only available in scrbook
+
+%\newdate{date}{07}{03}{2016}
 
 \input{template/mytitlepage}
 %% Statutory Declaration -- For Bachelor or Master thesis 
@@ -74,7 +78,7 @@
 \clearpage
 
 \include{chapter/acknowledgement}
-
+\addcontentsline{toc}{chapter}{Acknowledgement}
 
 %----------------------------------------------------------------------------------------
 %	List of Contents/Todos
@@ -95,6 +99,7 @@
 
 \listoffigures
 \addcontentsline{toc}{chapter}{List of figures}
+
 
 \listoftables
 \addcontentsline{toc}{chapter}{List of tables}
@@ -134,9 +139,9 @@
 %----------------------------------------------------------------------------------------
 %% add possible appendix 
 \appendix
-\addpart*{Appendices}
+\addpart*{Appendix}
 
-\addcontentsline{toc}{chapter}{Appendices}
+\addcontentsline{toc}{chapter}{Appendix}
 
 \begin{appendices}
 \renewcommand\thechapter{A}

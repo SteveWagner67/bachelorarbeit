@@ -1,0 +1,225 @@
+\chapter{Generation of Diffie-Hellmann key pair}
+\label{dhKeys}
+
+\section{Configuration of a Diffie-Hellmann key pair}
+
+\begin{center}
+
+\begin{tabular}{| c | c|}
+ \hline
+Algorithm						& Parameter \\
+\Gline
+Diffie-Hellman					& en\_gciDhType\_Dh \\
+\hline
+Elliptic Curve Diffie-Hellman	& en\_gciDhType\_Ecdh \\
+\hline
+\end{tabular}
+\captionof{table}{Diffie-Hellman type (en\_gciDhType\_t) }
+\label{tab:dh_type}
+
+\end{center}
+
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+\hline
+Parameter		& Type \\				
+\Gline
+type			& en\_gciDhType\_t \\
+\hline
+dhParamDomain		& st\_gciDhDomainParam\_t \\
+(If Diffie-Hellman is used as Diffie-Hellman type)	& \\
+\hline
+dhParamCurveName			& en\_gciNamedCurve\_t \\	
+(If Elliptic Curve Diffie-Hellman is used as Diffie-Hellman type) & \\		
+\hline	
+
+
+\end{tabular}
+\captionof{table}{Configuration of Diffie-Hellman algorithms
+(st\_gciDhConfig\_t))}
+\label{tab:dh_conf}
+
+\end{center}
+
+\section{Prototypes}
+
+\subsection{Creation of a context}
+
+\begin{lstlisting}
+en_gciResult_t gciDhNewCtx( const st_gciDhConfig_t* p_dhConfig, GciCtxId_t*
+p_ctxID )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 					& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& st\_gciDhConfig\_t*	& p\_dhConfig			& Pointer to the
+ configuration of a Diffie-Hellman type \\
+ \hline
+ Output	   	& GciCtxId\_t*			& ctxID					& Pointer to the context's ID \\
+ \hline
+\end{tabular}
+\captionof{table}{Parameters for the creation of a Diffie-Hellman context}
+\label{tab:dh_ctx}
+
+\end{center}
+
+\subsubsection*{Diffie-Hellmann (DH)}
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 			& Configuration				& Prohibition(s) \\
+ \Gline
+ type 	   			& en\_gciDhType\_Dh 		& - \\
+\hline
+ dhParamDomain		& st\_gciDhDomainParam\_t  	& NULL \\	
+ \hline
+ dhParamCurveName	& NULL						& -	\\		
+ \hline
+\end{tabular}
+\captionof{table}{Configuration of Diffie-Hellman algorithms
+(st\_gciDhConfig\_t)}
+\label{tab:dh_dh}
+
+\end{center}
+
+\subsubsection*{Elliptic Curve Diffie Hellmann (ECDH)}
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 			& Configuration				& Prohibition(s) \\
+ \Gline
+ type 	   			& en\_gciDhType\_Ecdh 		& - \\
+\hline
+ dhParamDomain		& NULL					  	& - \\	
+ \hline
+ dhParamCurveName	& en\_gciNamedCurve\_t		& en\_gciNamedCurve\_Invalid \\		
+ \hline
+\end{tabular}
+\captionof{table}{Configuration of Elliptic curve Diffie-Hellman algorithms
+(st\_gciDhConfig\_t)}
+\label{tab:dh_ecdh}
+
+\end{center}
+
+\subsection{Generate a key pair}
+
+When a Diffie-Hellman key pair is generated, only the ID of the public key is
+returned. The private key is saved in the context and is not possible to get it.
+
+\begin{lstlisting}
+en_gciResult_t gciDhGenKey( GciCtxId_t ctxID, GciKeyId_t* p_pubKeyID )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 				& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& GciCtxId\_t		& ctxID					& Context's ID \\
+ \hline
+ Output	   	& GciKeyId\_t*		& p\_pubKeyID			& Pointer to the ID of the generated
+ public key \\
+ \hline
+\end{tabular}
+\captionof{table}{Parameters for the generation of Diffie-Hellman key pairs}
+\label{tab:dh_key}
+
+\end{center}
+
+\subsection{Calculation of a shared secret key}
+
+\begin{lstlisting}
+en_gciResult_t gciDhCalcSharedSecret( GciCtxId_t ctxID, GciKeyId_t pubKeyID,
+GciKeyId_t* p_secretKeyID )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 				& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& GciCtxId\_t		& ctxID					& Context's ID \\
+ \hline
+ Input	   	& GciKeyId\_t		& pubKeyID				& ID of the public key \\
+ \hline
+ Output	   	& GciKeyId\_t*		& p\_secretKeyID		& Pointer to the ID of the
+ calculated secret key \\
+\end{tabular}
+\captionof{table}{Parameters for the calculation of Diffie-Hellman secret keys}
+\label{tab:dh_sec}
+
+\end{center}
+
+\section{Steps to generate a Diffie-Hellmann key pair and secret key}
+
+For this example the keys have already been added previously to the interface 
+and an ID returned.
+
+\begin{lstlisting}
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "crypto_iface.h"
+
+int main(int argc , char *argv[])
+{
+
+    /* Error management */
+    en_gciResult_t err;
+
+    int i;
+
+    /* Configuration of the DH */
+    st_gciDhConfig_t dhConf = {.type = en_gciDhType_Dh};
+
+    /* To generate the domain parameter */
+    dhConf.un_dhParam.dhParamDomain = NULL;
+
+    /* Context's ID */
+    GciCtxId_t dhCtxID = -1;
+
+    /* DH key ID */
+    GciKeyId_t dhPubKeyID = -1;
+    GciKeyId_t dhSecKeyID = -1;
+
+    /* Creation of a new context */
+    err = gciDhNewCtx(&dhConf, &dhCtxID);
+
+    /* Error coming from the creation of a DH context */
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciDhNewCtx: DH");
+    }
+
+    /* Generate the key pair */
+    err = gciDhGenKey(dhCtxID, &dhPubKeyID);
+
+    /* Error coming from the generation of DH key pair */
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciDhGenKey: DH");
+    }
+
+    err = gciDhCalcSharedSecret(dhCtxID, dhPeerPubKeyID, &dhSecKeyID);
+
+    /* Error coming from the calculation of the DH secret key */
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciDhCalcSharedSecret: DH");
+    }
+
+}
+\end{lstlisting}

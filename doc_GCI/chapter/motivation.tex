@@ -1,1 +1,17 @@
 \chapter{Motivation}
+
+Through the bachelor thesis ``Extension and Integration of an Abstract
+Interface to Cryptography Providers'' done in the Institute of reliable Embedded
+Systems and Communication Electronics (ivEsk), this Generic Cryptographic
+Interface (GCI) has been designed to have a base of the main cryptographic
+algorithms. The interface has to be as generic as possible to use different kinds of cryptographic
+providers, which can be open-source cryptographic software
+libraries or hardware-based cryptographic modules, and to
+be used in different applications.
+The institute wants to use hardware-based cryptographic module with one of its particularities of
+key management. The interface shall have a key management too, so it can be possible to use it from
+the hardware-based cryptographic module. When a cryptographic algorithm of the interface is used,
+it has to be possible to configure it. The behavior of the algorithm should only be assigned by the
+parameters coming from the configuration. No hidden states shall be used in the
+interface's function, meaning that all parameters written in input of the function, as configuration, will be used for the
+cryptographic algorithm and nothing else.

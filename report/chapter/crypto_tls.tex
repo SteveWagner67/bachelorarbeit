@@ -19,10 +19,32 @@ can communicate in a way which that is designed to prevent eavesdropping, tamper
 The TLS protocol is situated between the Application Layer and the Transport
 Layer (e. g. TCP \cite{RFC0793}) in OSI model (see figure \ref{fig:osi}).
 
-The protocol is composed of two layers
+The protocol is composed of five layers (see figure
+\ref{fig:tls_handshake}):
+
 \begin{enumerate}[noitemsep]
-  \item Handshake Protocol
-  \item Record Protocol
+  \item Handshake Protocol\newline
+  Allows the two communicating peers (server and client) to
+authenticate each other and to negotiate a cipher suite (see section
+\ref{tls_ciph_suite}) and a compression method to transmit data.
+  \item Change Cipher Spec Protocol\newline
+  Allows to the communicating peers to signal a change of the ciphering
+  strategy.
+  \item Alert Protocol\newline
+  Allows the communicating peers to signal potential problems and to exchange
+  corresponding alert messages.
+  \item Application Data Protocol\newline
+  Is used for the secure transmission of application data
+  \item Record Protocol\newline
+  Is used for encapsulation of higher-layer protocol data,
+such as TCP in case of the TCP/IP protocol \cite{RFC0793}.
+It provides connection security with two basic properties:
+\begin{enumerate}[noitemsep]
+  \item Private connection, through symmetric cryptography algorithms (see
+  section \ref{intro_sym_cipher})
+  \item Reliable connection, through Message authentication Code (MAC) (see
+  section \ref{intro_mac}) 
+\end{enumerate}
 \end{enumerate}
 
 \begin{figure}[!ht]
@@ -34,37 +56,6 @@ The protocol is composed of two layers
 \label{fig:tls_handshake}
 %}
 \end{figure}
-
-\subsection{Record Protocol}
-
-TLS Record Protocol is used for encapsulation of higher-layer protocol data,
-such as TCP in case of the TCP/IP protocol \cite{RFC0793}.
-It provides connection security with two basic properties:
-\begin{enumerate}[noitemsep]
-  \item Private connection, through symmetric cryptography algorithms (see
-  section \ref{intro_sym_cipher})
-  \item Reliable connection, through Message authentication Code (MAC) (see
-  section \ref{intro_mac}) 
-\end{enumerate}
-
-\subsection{Handshake Protocol}
-
-The Handshake protocol allows the two communicating peers (server and client) to
-authenticate each other and to negotiate a cipher suite (see section
-\ref{tls_ciph_suite}) and a compression method to transmit data.
-The Handshaking Protocol is composed of four protocols:
-\begin{itemize}
-  \item Handshake Protocol\newline
-  (See above for the definition)
-  \item Change Cipher Spec Protocol\newline
-  Allows to the communicating peers to signal a change of the ciphering strategy
-  (see section \ref{intro_cipher})
-  \item Alert Protocol\newline
-  Allows the communicating peers to signal potential problems and to exchange
-  corresponding alert messages
-  \item Application Data Protocol\newline
-  Is used for the secure transmission of application data
-\end{itemize}
 
 
 \subsection{Cipher suites}
@@ -98,7 +89,7 @@ Protocol \cite{RFC5246}.
 \centering
 % trim: left, bottom, right, up
 \includegraphics[trim=0cm 7cm 0cm 7cm,
-height=10cm]{figures/tls_exg.pdf}
+height=9.5cm]{figures/tls_exg.pdf}
 \caption{Handshake protocol (source \cite{book2})}
 \label{fig:tls_exg}
 
@@ -111,12 +102,12 @@ A random number is generated as Client random number.
 Creation of a hash function in the Client which will be used during the whole
 communication.
 Each received and transmitted data are added to this hash function, which allows
-to be sure that the two peer has become the same data. The data of the Client
+to be sure that the two peers have become the same data. The data of the Client
 Hello are added to the hash function.
 
 The cryptographic algorithms use in this message are:
 \begin{itemize}[noitemsep]
-  \item Random number (seed + random number)
+  \item Random Number Generator (seed + generation of a random number)
   \item Hash algorithm (creation + update)
 \end{itemize}
 
@@ -130,27 +121,28 @@ suites sent by the Client in the Client Hello.
 Creation of a hash function in the Server which will be used during the whole
 communication.
 Each received and transmitted data are added to this hash function, which allows
-to be sure that the two peer has become the same data. 
+to be sure that the two peers have become the same data. 
 The data from the Client Hello and of Server Hello are added to the hash
-function.
+function of the Server and the data of the Server Hello is added to the hash
+function of the Client too.
 
 The cryptographic algorithms use in this message are:
 \begin{itemize}[noitemsep]
-  \item Random number (seed + generation)
+  \item Random Number Generator (seed + generation of a random number)
   \item Hash algorithm (creation + update)
 \end{itemize}
 
 \subsection*{Certificate}
 The certificate message is sent from the Server. It contains certificates which
 each one contains public key certificates which contain public keys,
-digital signatures and other information.
+digital signatures and other informations.
 A public key is extracted and used to verify a digital signature which
-authenticate the server.
+authenticates the server.
 The Client can also use this public key to verify the digital signature from
 the certificate and authenticates the Server.
 This message is added to the Client and Server hash function.
 
-The Client sents its certificates when a Certificate Request has been sent from
+The Client sends its certificates when a Certificate Request has been sent from
 Server.
 
 The cryptographic algorithm uses in this message is:
@@ -163,9 +155,9 @@ The cryptographic algorithm uses in this message is:
 The Server Key Exchange is sent when Diffie-Hellman or Elliptic Curve
 Diffie-Hellman  is used as key exchange.
 In this Server Key Exchange the domain parameters are sent, which are used to
-generate the public key of the client and of the server.
+generate the public key of the Client and of the Server.
 
-The public key of the server and the private key of the public key are used to
+The public key of the Server and the private key of the public key are used to
 generate the secret key.
 
 The data of the Server Key Exchange are added to the hash function of the Client
@@ -184,7 +176,7 @@ of the Client to authenticate it.
 The certificate message is added to the hash function of the Client and the
 Server.
 
-Ony the hash algorithm (update) is used as cryptographic algorithm for this
+Ony the hash algorithm (update) is used as a cryptographic algorithm for this
 message.
 
 \subsection*{Server Hello Done}
@@ -193,10 +185,10 @@ Therefore is only the hash algorithm (update) used for this message.
 
 \subsection*{Client Key Exchange}
 If the RSA is used as key exchange, the premaster key is computed with the Client and Server random
-number sent in the Client Hello and Server Hello with the HMAC function uses for
-PRF \cite{RFC5246}.
+number, sent in the Client Hello and Server Hello, with the HMAC function uses
+in the PRF \cite{RFC5246}.
 This premaster secret is encrypted with the public key of the Server, which is
-extacted from the certificate coming from the Server Hello.
+extracted from the certificate coming from the Server Hello.
 Only the Server which has the private key can decrypt this premaster key.
 
 When the Server receives the Client Key Exchange, he computes the premaster key
@@ -222,9 +214,9 @@ The cryptographic algorithms use in this message are:
 \end{itemize}
 
 \subsection*{Certificate Verify}
-The Client sent a digital signature, which has been done with the private key of
-the Client, to the Server, so can the Server authenticates the Client with the
-public extracts from the Client certificates.
+The Client sents a digital signature, which has been done with the private key
+of the Client, to the Server, so the Server can authenticates the Client with
+the public extracts from the Client certificates.
 This message is added to the Client and Server hash function.
 
 The hash algorithms use in this message are:
@@ -243,14 +235,17 @@ No cryptographic algorithms are used for this message.
 
 \subsection*{Finish}
 This message allows to the two peers to verify that the key exchange and
-authentication have been successful. The digest of the hash function uses since
+authentications have been successful. The digest of the hash function uses since
 the beginning of the communication is computed. A Message Authentication Code is
-computed with the symmetric.
-The two results are encrypted with the symmetric key and the symmetric algorithm
+computed with the secret key.
+The two results are encrypted with the secret key and the symmetric algorithm
 chooses in the cipher suite.
-The other peer can then decrypt the message with its symmetric key and compare
-the results.
-The message is added to the hash function of the two peers.
+The other peer can then decrypt the message with the secret key and compare
+the results. If the results are the same, it means that there are communicated
+together since the beginning, without disturbing. If the results are different,
+it means that there are security problems, as eavesdropping, tampering, or
+message forgery, and an Alert message is then sent. The message is added to the
+hash function of the two peers.
 
 The cryptographic algorithms use in this message are:
 \begin{itemize}[noitemsep]
@@ -264,9 +259,9 @@ The cryptographic algorithms use in this message are:
 \subsection*{Application Data}
 In this step, data can be transmitted over an insecure network without potential
 security problems.
-The data is signed with a Message Authentication Code (MAC) with the symmetric
+The data is signed with a Message Authentication Code (MAC) with the secret
 key.
-The data and the MAC are encrypted and decrypted with the symmetric key and the
+The data and the MAC are encrypted and decrypted with the secret key and the
 symmetric algorithm chooses in the cipher suites.
 
 The cryptographic algorithms use in this message are:

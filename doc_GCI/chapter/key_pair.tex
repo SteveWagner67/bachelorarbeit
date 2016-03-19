@@ -1,0 +1,175 @@
+\chapter{Generation of key pair}
+
+\section{Configuration of a key pair}
+
+\begin{center}
+
+\begin{tabular}{| c | c|}
+ \hline
+Algorithm				& Parameter \\
+\Gline
+RSA						& en\_gciKeyPairType\_RSA \\
+\hline
+DSA						& en\_gciKeyPairType\_DSA \\
+\hline
+ECDSA					& en\_gciKeyPairType\_ECDSA \\
+\hline
+\end{tabular}
+\captionof{table}{Key pair types (en\_gciKeyPairType\_t) }
+\label{tab:kp_type}
+
+\end{center}
+
+
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+\hline
+Parameter		& Type \\				
+\Gline
+keyType			& en\_gciKeyPairType\_t \\
+\hline
+hash			& en\_gciHashAlgo\_t \\
+\hline
+keyPairParamRsa	& st\_gciRsaKeyGenConfig\_t*\\	
+(If RSA is used as key pair type)	& \\
+\hline
+keyPairParamEcdsa	& st\_gciNamedCurve\_t \\
+(If ECDSA is used as key pair type)	& \\
+\hline	
+keyPairParamDsa	& st\_gciDsaDomainParam\_t* \\
+(If DSA is used as key pair type)	& \\
+\hline
+
+\end{tabular}
+\captionof{table}{Configuration of key pair types
+(st\_gciKeyPairConfig\_t))}
+\label{tab:kp_conf}
+
+\end{center}
+
+
+\section{Prototype}
+
+\begin{lstlisting}
+en_gciResult_t gciKeyPairGen( const st_gciKeyPairConfig_t* p_keyConf,
+GciKeyId_t* p_pubKeyID, GciKeyId_t* p_privKeyID );
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 							& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& st\_gciKeyPairConfig\_t*	 	& p\_KeyConfig			& Pointer to the
+ configuration of the key pair \\
+ \hline
+ Output	   	& GciKeyId\_t*			 		& p\_pubKeyID			& Pointer to the ID of the
+ public key
+ \\
+ \hline
+Output		& GciKeyId\_t* 					& p\_privKeyID			& Pointer to the ID of the private
+key \\
+\hline
+\end{tabular}
+\captionof{table}{Parameters for the generation of a key pair}
+\label{tab:kp_gen}
+
+\end{center}
+
+\subsection*{RSA}
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 		& Configuration				& Exception(s) \\
+ \Gline
+ keyType   		& en\_gciKeyPairType\_Rsa 	& - \\
+\hline
+ modulusLen		& size\_t  					& less or equal than 0 \\					
+ \hline
+
+\end{tabular}
+\captionof{table}{Configuration of RSA key pair
+(st\_gciKeyPairConfig\_t)}
+\label{tab:kp_rsa}
+
+\end{center}
+
+\subsection*{Digital Signature Algorithm (DSA)}
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 		& Configuration				& Exception(s) \\
+ \Gline
+ keyType   		& en\_gciKeyPairTypeDsa 	& - \\
+\hline
+ param			& st\_gciDsaDomainParam\_t	& less or equal than 0 \\					
+ \hline
+\end{tabular}
+\captionof{table}{Configuration of DSA key pair
+(st\_gciKeyPairConfig\_t)}
+\label{tab:kp_dsa}
+
+\end{center}
+
+\subsection*{Elliptic Curve Digital Signature Algorithm (ECDSA)}
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 		& Configuration				& Exception(s) \\
+ \Gline
+ keyType   		& en\_gciKeyPairType\_Ecdsa & - \\
+\hline
+ param			& en\_gciNamedCurve\_t		& en\_gciNamedCurve\_Invalid \\					
+ \hline
+\end{tabular}
+\captionof{table}{Configuration of ECDSA key pair
+(st\_gciKeyPairConfig\_t)}
+\label{tab:kp_ecdsa}
+
+\end{center}
+
+\section{Steps to generate a key pair}
+
+\begin{lstlisting}
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
+	#include "crypto_iface.h"
+
+	int main(int argc , char *argv[])
+	{
+
+		/* Error management */
+		en_gciResult_t err;
+		
+	    /* Configuration of a RSA key pair */
+	    st_gciKeyPairConfig_t rsaConf = {.keyType = en_gciKeyPairType_Rsa
+	    };
+	    /* Length of the RSA modulus */
+	    size_t rsaModLen = 1024;
+	    rsaConf.un_keyPairParam.keyPairParamRsa->modulusLen = &rsaModLen;
+
+
+	    /* ID of the RSA key pair */
+	    GciKeyId_t rsaPubKeyID = -1;
+	    GciKeyId_t rsaPrivKeyID = -1;
+
+	    /* Generate the RSA key pair */
+	    err = gciKeyPairGen(&rsaConf, &rsaPubKeyID, &rsaPrivKeyID);
+	    
+   		/* Error coming from the generation of a RSA key pair */
+    	if(err != en_gciResult_Ok)
+    	{
+        	printf("GCI Error in gciKeyPairGen: RSA");
+    	}
+	}
+\end{lstlisting}

@@ -1,8 +1,77 @@
 \chapter{Key management}
-\label{keyMan}
+\label{keyManag}
+
+The hardware-based cryptographic modules use a key management. This institute
+wants to use this key management, that's why the interface shall have a key
+management too.
 
 \section{Save a key and get an ID}
 
+There is two possibilities about the value of the given ID. Either the ID is
+previously initialized to -1, so will the smallest value free for an ID
+returned, or the ID can be initialized to a value greater or equal to 0 to be
+the same as a context ID for example, so if this value is free, the key will be
+saved at this specified ID.
+
+\begin{lstlisting}
+en_gciResult_t gciKeyPut( const st_gciKey_t* p_key, GciKeyId_t* p_keyID )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 				& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& st\_gciKey\_t*	& p\_key				& Pointer to the key to save \\
+ \hline
+ Output	   	& GciKeyId\_t*		& p\_keyID				& Pointer to the ID of the saved key \\
+ \hline
+\end{tabular}
+\captionof{table}{Parameters for to put a key}
+\label{tab:key_put}
+
+\end{center}
+
 \section{Get of a saved key with its ID}
 
+\begin{lstlisting}
+en_gciResult_t gciKeyGet( GciKeyId_t keyID, st_gciKey_t* p_key )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 				& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& GciKeyId\_t		& p\_key				& ID of the key to get \\
+ \hline
+ Output	   	& st\_gciKey\_t*	& p\_keyID				& Pointer to the saved key \\
+ \hline
+\end{tabular}
+\captionof{table}{Parameters for to get a key}
+\label{tab:key_get}
+
+\end{center}
+
 \section{Delete a key}
+
+\begin{lstlisting}
+en_gciResult_t gciKeyDelete( GciKeyId_t keyID  )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 				& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& GciKeyId\_t		& p\_key				& ID of the key to delete \\
+ \hline
+\end{tabular}
+\captionof{table}{Parameters for to delete a key}
+\label{tab:key_del}
+
+\end{center}
+

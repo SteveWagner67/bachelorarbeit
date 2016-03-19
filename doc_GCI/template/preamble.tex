@@ -30,14 +30,19 @@
 	BCOR=\myBCOR,        	% binding correction (depends on how you bind
 	                     	% the resulting printout.
 	\mylaterality,          % alternative: twoside
-    \mylanguage
+    \mylanguage,
+    twoside,
+    openright
 ]{scrbook}
+
+
+
 
 %%=====================================================================================
 %% General presentation
 %%=====================================================================================
 % full utf8 character set
-\usepackage[utf8]{inputenc}
+\usepackage[utf8x]{inputenc}
 % language adaptions, change in main.tex (english, ngerman, american)
 \usepackage[\mylanguage]{babel}									
 % encode characters better, so that they can be copied out of .pdf in one piece
@@ -46,10 +51,8 @@
 \usepackage[%
             autostyle,          % adapts language setting
             strict,             % turns warnings into errors 
-            english=american,   % use american quotes style
+            english=american    % use american quotes style
 ]{csquotes}
-
-\usepackage{todonotes}
 
 %%=====================================================================================
 %% Style and Embedded-Lab-look-alike
@@ -63,6 +66,7 @@
 %% includes pictures --> possible to include them in header/footer
 %%=====================================================================================
 \usepackage[pdftex]{graphicx}										
+
 
 
 %%=====================================================================================
@@ -111,9 +115,9 @@
 %backref=\mybiblatexbackref, %% create backlings from references to citations
 %natbib=true, %% offering natbib-compatible commands
 %hyperref=true,
-%sorting=none, %% using hyperref-package references
+%sorting=none %% using hyperref-package references
 %]{biblatex}  %% remove, if using BibTeX instead of biblatex
-%\addbibresource{\mybiblatexfile} %% remove, if using BibTeX instead of biblatex
+%\addbibresource{bib/bibliography} %% remove, if using BibTeX instead of biblatex
 
 %%=====================================================================================
 %% Selection of useful packages
@@ -134,7 +138,7 @@
 \newboolean{myaddcolophon}
 \newboolean{myaddlistoftodos}
 %
-\usepackage[\mytodonotesoptions]{todonotes}
+\usepackage{todonotes}
 %%=====================================================================================
 %% Sourcecode printing
 %%=====================================================================================
@@ -167,12 +171,7 @@
   tabsize=2,                       % sets default tabsize to 2 spaces
   title=\lstname,                  % show the filename of files included with \lstinputlisting; also try caption instead of title
   %numberbychapter=false
-  %keywordstyle=\bfseries\color{green!40!black},
-  %commentstyle=\itshape\color{purple!40!black},
-  %identifierstyle=\color{blue},
-  %stringstyle=\color{orange}
 }
-
 \renewcommand\lstlistingname{Quelltext}	% change caption of listings
 %%=====================================================================================
 %% Math 
@@ -305,17 +304,11 @@ osf,%
 	%breaklinks=true,
 ]{hyperref}								% should be the last package to be inlcuded!
 
-\usepackage{lipsum}
-\usepackage{titlesec}
 
-\titlespacing\chapter{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
-\titlespacing\section{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
-\titlespacing\subsection{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
-\titlespacing\subsubsection{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\setcounter{tocdepth}{3} % table of contents
+\setcounter{secnumdepth}{3} %section number x.x.x for 3
 
-
+\usepackage{amsmath}
 
 %\usepackage[colorlinks=false, urlcolor=red, breaklinks, pagebackref, citebordercolor={0 0 0}, filebordercolor={0 0 0}, linkbordercolor={0 0 0}, pagebordercolor={0 0 0}, runbordercolor={0 0 0}, urlbordercolor={0 0 0}, pdfborder={0 0 0}]{hyperref}
-
-
-
+\usepackage{appendix}

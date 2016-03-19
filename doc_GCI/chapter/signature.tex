@@ -1,68 +1,64 @@
 \chapter{Signature/MAC algorithms}
-\label{signature}
+\label{sign}
 
-The complete structure of the signatures/MAC's configuration:
-\begin{lstlisting}
+\section{Configuration of Signature / MAC algorithms}
 
-/**
- * \struct 					st_gciSignConfig
- * \brief					Structure for the configuration of a signature
- */
-typedef struct st_gciSignConfig
-{
-	/**
-	 * en_gciSignAlgo_Invalid
-	 * en_gciSignAlgo_RSA
-	 * en_gciSignAlgo_DSA
-	 * en_gciSignAlgo_ECDSA
-	 * en_gciSignAlgo_MAC_ISO9797_ALG1
-	 * en_gciSignAlgo_MAC_ISO9797_ALG3
-	 * en_gciSignAlgo_CMAC_AES
-	 * en_gciSignAlgo_HMAC
-	 * en_gciSignAlgo_RSASSA_PSS
-	 * en_gciSignAlgo_RSASSA_PKCS
-	 * en_gciSignAlgo_RSASSA_X509
-	 * en_gciSignAlgo_ECDSA_GFP
-	 * en_gciSignAlgo_ECDSA_GF2M
-	 * en_gciSignAlgo_None = 0xFF
-	 */
-	en_gciSignAlgo_t algo;
+\begin{center}
 
+\begin{tabular}{| c | c|}
+ \hline
+Algorithm				& Parameter \\
+\Gline
+RSA						& en\_gciSignAlgo\_RSA \\
+\hline
+DSA						& en\_gciSignAlgo\_DSA \\
+\hline
+ECDSA					& en\_gciSignAlgo\_ECDSA \\
+\hline
+MAC ISO9797 Algorithm 1	& en\_gciSignAlgo\_MAC\_ISO9797\_ALG1 \\
+\hline
+MAC ISO9797 Algorithm 3 & en\_gciSignAlgo\_MAC\_ISO9797\_ALG3 \\
+\hline
+Cipher-based MAC		& en\_gciSignAlgo\_CMAC \\
+\hline
+Hash-based MAC			& en\_gciSignAlgo\_HMAC \\
+\hline
+\end{tabular}
+\captionof{table}{Signature/MAC algorithms (en\_gciSignAlgo\_t) }
+\label{tab:sign_algo}
 
-	/**
-	 * en_gciHashAlgo_Invalid
-	 * en_gciHashAlgo_MD5
-	 * en_gciHashAlgo_SHA1
-	 * en_gciHashAlgo_SHA224
-	 * en_gciHashAlgo_SHA256
-	 * en_gciHashAlgo_SHA384
-	 * en_gciHashAlgo_SHA512
-	 * en_gciHashAlgo_None=0xFF
-	 */
-	en_gciHashAlgo_t hash;
-
-	/**
-	 * \union 				un_signConfig
-	 * \brief				Union for the configuration of each signature
-	 */
-	union un_signConfig
-	{
-		/** RSA Configuration */
-		st_gciSignRsaConfig_t signConfigRsa;
-
-		/** CMAC Configuration */
-		st_gciSignCmacConfig_t signConfigCmac;
-		
-	} un_signConfig;
-	
-} st_gciSignConfig_t;
-
-\end{lstlisting}
+\end{center}
 
 
 
+\begin{center}
 
-\section{MAC / Signature configuration}
+\begin{tabular}{| c | c | c |}
+\hline
+Parameter		& Type \\				
+\Gline
+algo			& en\_gciSignAlgo\_t \\
+\hline
+hash			& en\_gciHashAlgo\_t \\
+\hline
+signConfigRsa	& st\_gciSignRsaConfig\_t \\	
+(If RSA is used as algorithm)	& \\
+\hline
+signConfigCmac	& st\_gciSignCmacConfig\_t \\
+(If CMAC is used as algorithm)	& \\
+\hline	
+
+
+\end{tabular}
+\captionof{table}{Configuration of Signature/MAC algorithms
+(st\_gciSignConfig\_t))}
+\label{tab:sign_conf}
+
+\end{center}
+
+
+
+\section{Prototypes}
 Two differents use of the signature are available.\newline
 The first one is the generation of a signature, which will sign the datas
 updated (see
@@ -72,53 +68,366 @@ The second one is the verification of a signature, which will sign the datas
 updated but will at the end compared with this entered in the function (see
 section \ref{signVfy} for more details).
 
-\subsection{RSA}
+\subsection{Creation of a context}
 
-\todo[inline]{Test RSA gen sign with LibTomCrypt before writing this part}
-
-\label{signRsa}
-\subsection{Digital Signature Algorithm (DSA)}
-\label{signDsa}
-
-\todo[inline]{Test DSA gen sign with LibTomCrypt before writing this part}
-
-\subsection{Elliptic Curve Digital Signature Algorithm (ECDSA)}
-\label{signEcdsa}
-
-\todo[inline]{Test ECDSA gen sign with LibTomCrypt before writing this part}
-
-\subsection{Block-Cipher-Based Message Authentication Code (CBC-MAC / CMAC)}
-\label{signCmac}
-
-\todo[inline]{Test CMAC gen sign with LibTomCrypt before writing this part}
-
-\subsection{keyed-Hash Message Authentication Code (HMAC)}
-\label{signHmac}
-
-For the HMAC, only the Hash has to be specified:
+There is two possibilities of use for the signature context. The first one is to
+generate a signature and the second one to verify a signature. It has been split
+because some known provider needs to do the difference between the twice
+possibilities.
 
 \begin{lstlisting}
+en_gciResult_t gciSignGenNewCtx( const st_gciSignConfig_t* p_signConfig,
+GciKeyId_t keyID, GciCtxId_t* p_ctxID )
+\end{lstlisting}
 
-/* HMAC Configuration */
-st_gciSignConfig_t hmacConfig;
-
-/* HMAC Algorithm */
-hmacConfig.algo = en_gciSignAlgo_HMAC;
-
-/* Hash MD5 Algorithm */
-hmacConfig.hash = en_gciHashAlgo_MD5;
-
+\begin{lstlisting}
+en_gciResult_t gciSignVerifyNewCtx( const st_gciSignConfig_t* p_signConfig,
+GciKeyId_t keyID, GciCtxId_t* p_ctxID )
 \end{lstlisting}
 
 
-\section{Steps to generate a signature/MAC}
-\label{signGen}
+\begin{center}
 
-\todo[inline]{Sign gen example with HMAC}
-\todo[inline]{Implement gciSignCtxClone for the example}
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 						& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& st\_gciSignConfig\_t*	 	& p\_signConfig			& Pointer to the
+ configuration of the signature
+ \\
+ \hline
+ Input	   	& GciKeyId\_t			 	& keyID					& ID of the key uses to sign \\
+ \hline
+Output		& GciCtxId\_t* 				& p\_ctxID				& Pointer to the
+context's ID \\
+\hline
+\end{tabular}
+\captionof{table}{Parameters for the creation of a signature/MAC context}
+\label{tab:sign_ctx}
 
-\section{Steps to verify a signature/MAC}
-\label{signVfy}
+\end{center}
 
-\todo[inline]{Sign vry example with HMAC}
-\todo[inline]{Implement gciSignCtxClone for the example}
+\subsubsection*{RSA}
+
+The hash algorithm can be used if the
+updated data has to be hashed before to be signed. If not, this parameter should be
+configure as en\_gciHashAlgo\_None.
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 		& Configuration			& Prohibition(s) \\
+ \Gline
+ algo 	   		& en\_gciSignAlgo\_Rsa 	& - \\
+\hline
+ hash			& en\_gciHashAlgo\_t  	& en\_gciHash\_Invalid \\					
+ \hline
+ padding		& en\_gciPadding\_t 	& en\_gciPadding\_Invalid \\
+ 				&						& en\_gciPadding\_None \\
+ \hline
+\end{tabular}
+\captionof{table}{Configuration of RSA Signature Scheme Algorithms
+(st\_gciSignConfig\_t)}
+\label{tab:sign_rsa}
+
+\end{center}
+
+\subsubsection*{DSA}
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 		& Configuration			& Prohibition(s) \\
+ \Gline
+ algo 	   		& en\_gciSignAlgo\_Dsa 	& - \\
+\hline
+ hash			& en\_gciHashAlgo\_t  	& en\_gciHash\_Invalid \\					
+ \hline
+\end{tabular}
+\captionof{table}{Configuration of Digital Signature Algorithms
+(st\_gciSignConfig\_t)}
+\label{tab:sign_dsa}
+
+\end{center}
+
+\subsubsection*{ECDSA}
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 		& Configuration				& Prohibition(s) \\
+ \Gline
+ algo 	   		& en\_gciSignAlgo\_Ecdsa 	& - \\
+\hline
+ hash			& en\_gciHashAlgo\_t  		& en\_gciHash\_Invalid \\					
+ \hline
+\end{tabular}
+\captionof{table}{Configuration of Elliptic Curve Digital Signature Algorithms
+(st\_gciSignConfig\_t)}
+\label{tab:sign_ecdsa}
+
+\end{center}
+
+\subsubsection*{Cipher-based MAC (CMAC)}
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 		& Configuration				& Prohibition(s) \\
+ \Gline
+ algo 	   		& en\_gciSignAlgo\_Cmac 	& - \\
+\hline
+ hash			& en\_gciHashAlgo\_t  		& en\_gciHash\_Invalid \\					
+ \hline
+ block			& en\_gciBlockMode\_t		& en\_gciBlockMode\_Invalid \\
+ 				&							& en\_gciBlockMode\_None \\
+ \hline
+ padding		& en\_gciPadding\_t			& en\_gciPadding\_Invalid \\
+ \hline
+ iv.data		& uint8\_t*					& NULL \\ 
+ iv.len			& size\_t					& value less or equal than 0 \\	
+ \hline
+\end{tabular}
+\captionof{table}{Configuration of Cipher-based MAC
+(st\_gciSignConfig\_t)}
+\label{tab:sign_cmac}
+
+\end{center}
+
+\subsubsection*{Hash-based MAC (HMAC)}
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 		& Configuration				& Prohibition(s) \\
+ \Gline
+ algo 	   		& en\_gciSignAlgo\_Hmac 	& - \\
+\hline
+ hash			& en\_gciHashAlgo\_t  		& en\_gciHash\_Invalid \\	
+ 				&							& en\_gciHash\_None \\				
+ \hline
+\end{tabular}
+\captionof{table}{Configuration of Hash-based MAC
+(st\_gciSignConfig\_t)}
+\label{tab:sign_hmac}
+
+\end{center}
+
+\subsection{Update of the context}
+
+The update of the context for generating and verificate a signature is the same.
+The data have to be added to get a signature.
+
+\begin{lstlisting}
+en_gciResult_t gciSignUpdate( GciCtxId_t ctxID, const uint8_t* p_blockMsg,
+size_t blockLen )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 				& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& GciCtxId\_t		& ctxID					& Context's ID \\
+ \hline
+ Input	   	& uint8\_t*			& p\_blockMsg			& Pointer to the message to sign \\
+ \hline
+ Input		& size\_t			& blockLen				& Length of message \\
+ \hline
+\end{tabular}
+\captionof{table}{Parameters for the update of a signature/MAC context}
+\label{tab:sign_upd}
+
+\end{center}
+
+\subsection{Clone of signature/MAC algorithm}
+
+\begin{lstlisting}
+en_gciResult_t gciSignCtxClone( GciCtxId_t idSrc, GciCtxId_t* p_idDest )
+\end{lstlisting}
+
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 						& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& GciCtxId\_t			 	& idSrc					& The context which will be cloned \\
+ \hline
+Output		& GciCtxId\_t*	 			& p\_idDest				& Pointer to the clone context ID \\
+\hline
+ 
+\end{tabular}
+\captionof{table}{Parameters for the clone of a signature/MAC context}
+\label{tab:sign_clone}
+
+\end{center}
+
+\subsection{Calculation / Verification of the signature}
+After the data have been added to the context, if the context is to generate a
+signature, than the signature will be compted and returned.
+If the context if to verify a signature, than the signature to verify has to be
+added to the function. Internally the signature with the updated data will be
+computed but ot returned. Only if the the returning value of the function
+indicates if the signatures are the same or not.
+
+\begin{lstlisting}
+en_gciResult_t gciSignGenFinish( GciCtxId_t ctxID, uint8_t* p_sign, size_t*
+p_signLen )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 				& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& GciCtxId\_t		& ctxID					& Context's ID \\
+ \hline
+ Input	   	& uint8\_t*			& p\_sign				& Pointer to the generated signature \\
+ \hline
+ Input		& size\_t*			& signLen				& Pointer to the length of the generated
+ signature \\
+ \hline
+\end{tabular}
+\captionof{table}{Parameters for the computation of a signature/MAC}
+\label{tab:sign_gen_fin}
+
+\end{center}
+
+\begin{lstlisting}
+en_gciResult_t gciSignVerifyFinish( GciCtxId_t ctxID, const uint8_t* p_sign,
+size_t signLen )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 				& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& GciCtxId\_t		& ctxID					& Context's ID \\
+ \hline
+ Input	   	& uint8\_t*			& p\_sign				& Pointer to the signature to verify \\
+ \hline
+ Input		& size\_t			& signLen				& Length of the signature to verify\\
+ \hline
+\end{tabular}
+\captionof{table}{Parameters for the verification of a signature/MAC}
+\label{tab:sign_vfy_fin}
+
+\end{center}
+
+\section{Step to generate a signature}
+For this example the keys have already been added previously to the interface 
+and an ID returned.
+\begin{lstlisting}
+
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
+	#include "crypto_iface.h"
+
+	int main(int argc , char *argv[])
+	{
+
+	    /* Configuration of a RSA signature */
+	    st_gciSignConfig_t signConfig = {.algo = en_gciSignAlgo_Rsa,
+	        .hash = en_gciHashAlgo_None
+	    };
+
+	    signConfig.un_signConfig.signConfigRsa.padding = en_gciPadding_Pkcs1_Emsa;
+
+
+	    /* Error Management */
+	    en_gciResult_t err;
+
+	    /* Messages to hash */
+	    uint8_t a_data1[10] = {"Hello!"};
+	    uint8_t a_data2[30] = {"This is a RSA Signature test"};
+	    uint8_t a_data3[10] = {"Thank you."};
+
+	    size_t data1Len = strlen(a_data1);
+	    size_t data2Len = strlen(a_data2);
+	    size_t data3Len = strlen(a_data3);
+
+	    /* Buffer for the signature */
+	    uint8_t a_signature[30];
+	    size_t signLen;
+
+
+	    int i;
+
+	    /* RSA context ID */
+	    GciCtxId_t rsaCtxID;
+
+	    /* Init of the signature */
+	    memset(a_signature, 0, 30);
+	    signLen = 0;
+
+	    /* Creation of the signature context with the RSA private key */
+	    err = gciSignGenNewCtx(&signConfig, rsaPrivKeyID, &rsaCtxID);
+
+	    /* Error coming from the creation of a new MD5-Hash context */
+	    if(err != en_gciResult_Ok)
+	    {
+	        printf("GCI Error in gciSignGenNewCtx: RSA");
+	    }
+
+	    /* First update of the signature */
+	    err = gciSignUpdate(rsaCtxID, a_data1, data1Len);
+
+	    /* Error coming from the update of a RSA-signature context */
+	    if(err != en_gciResult_Ok)
+	    {
+	        printf("GCI Error in gciSignUpdate: RSA");
+	    }
+
+	    /* Second update of the signature */
+	    err = gciSignUpdate(rsaCtxID, a_data2, data2Len);
+
+	    /* Error coming from the update of a RSA-signature context */
+	    if(err != en_gciResult_Ok)
+	    {
+	        printf("GCI Error in gciSignUpdate: RSA");
+	    }
+
+	    /* Third update of the signature */
+	    err = gciSignUpdate(rsaCtxID, a_data3, data3Len);
+
+	    /* Error coming from the update of a RSA-signature context */
+	    if(err != en_gciResult_Ok)
+	    {
+	        printf("GCI Error in gciSignUpdate: RSA");
+	    }
+
+	    /* Generation of the signature */
+	    err = gciSignGenFinish(rsaCtxID, a_signature, &signLen);
+
+	    /* Error coming from the generation of a RSA-signature */
+	    if(err != en_gciResult_Ok)
+	    {
+	        printf("GCI Error in gciSignGenFinish: RSA");
+	    }
+
+	    else
+	    {
+	        printf("GCI Info: Signature = ");
+	        for(i = 0; i < signLen; i++)
+	        {
+	            printf("%d", a_signature[i]);
+	        }
+	    }
+
+	    /* Delete the context */
+	    gciCtxRelease(rsaCtxID);
+
+	}
+\end{lstlisting}

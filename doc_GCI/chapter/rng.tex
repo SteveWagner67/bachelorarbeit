@@ -1,0 +1,49 @@
+\chapter{Random Number Generator}
+
+\section{Seed a pseudo-random number}
+
+\begin{lstlisting}
+en_gciResult_t gciRngSeed( const uint8_t* p_sdBuf, size_t sdLen )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 			& Parameter 	& Definition \\
+ \Gline
+ Input 	   	& uint8\_t*		& p\_sdBuf		& Pointer to the buffer of the seed \\
+ \hline
+ Input   	& size\_t		& sdLen			& Pointer to the buffer of
+ randomcharacters \\
+ \hline
+\end{tabular}
+\captionof{table}{Parameters for the seed of pseudo-random numbers}
+\label{tab:rng_seed}
+
+\end{center}
+
+
+\section{Generation of a random number}
+
+\begin{lstlisting}
+en_gciResult_t gciRngGen( int rdmNb, uint8_t* p_rdmBuf )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 			& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& int			& rdmNb					& Number of random numbers to generate \\
+ \hline
+ Output	   	& uint8\_t*		& p\_secretKeyID		& Pointer to the buffer of random
+ characters \\
+ \hline
+\end{tabular}
+\captionof{table}{Parameters for the generation of random numbers}
+\label{tab:rng_gen}
+
+\end{center}
+

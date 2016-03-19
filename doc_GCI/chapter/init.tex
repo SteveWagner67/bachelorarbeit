@@ -1,0 +1,45 @@
+\chapter{Interface}
+
+\section{Initialization}
+
+The initialization allows to initialized some part of the project if needed.
+A user name and a password can be added if the initialization has to stay
+private.
+
+\begin{lstlisting}
+en_gciResult_t gciInit( const uint8_t* p_user, size_t userLen, const uint8_t*
+p_password, size_t passLen )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 			& Parameter 		& Definition \\
+ \Gline
+ Input 	   	& uint8\_t*	 	& p\_user			& Pointer to the user name \\
+\hline
+Input 		& size\_t 		& userLen			& Length of the user name \\
+\hline
+Input		& uint8\_t		& p\_password		& Pointer to the password \\
+\hline
+Input 		& size\_t		& passLen			& Length of the password \\
+\hline
+ 
+\end{tabular}
+\captionof{table}{Parameters for the initialization of the interface}
+\label{tab:int_init}
+
+\end{center}
+
+
+\section{Delete the initialization of the interface}
+
+When the project is going to the end, some parts have to be delete, i.e free the
+memory used. This is the use of this part
+	
+\begin{lstlisting}	
+en_gciResult_t gciDeinit( void )
+\end{lstlisting}
+	
+	

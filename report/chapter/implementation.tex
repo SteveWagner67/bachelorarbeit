@@ -1,6 +1,7 @@
 \chapter{Implementation}
+\label{imp}
 
-In this chapter what is implemented and what was the problems in the
+In this chapter what is implemented and what were the problems in the
 implementation will be explained.
 The implementation has been done in two parts. The first part is the
 implementation of the interface in the application, \embtls, and the second part
@@ -8,9 +9,17 @@ the implementation of a provider, \tomcrypt, in the interface.
 
 \section{Interface for an application}
 
-The implementation of the interface for the application is, in fact, just a
-change of was it was already done.
-The function of the interface which was implemented are:
+The \embtls is a project about the secured communication between a Client and a
+Server with the TLS protocol for the use in embedded
+systems. It has been developed in the Institute of Reliable Embedded Systems and
+Communications Electronics (ivESK) in the Offenburg University of Applied Sciences.
+
+The implementation of the Generic Cryptographic Interface in this application
+is a change of the cryptographic functions use with the \tomcrypt provider. All
+the functions of the \tomcrypt provider has been removed and replaced as well
+as possible with the function of the interface.
+The services provide by the interface and implemented in
+the \embtls application are:
 \begin{itemize}[noitemsep]
   \item Hash algorithm
   \item Signature algorithm (Generation and verification)
@@ -24,8 +33,9 @@ The function of the interface which was implemented are:
 \end{itemize}
 
 The key pair generator function isn't used in this application, because when the
-RSA, DSA or ECDSA are used as key pair exchange, the private key and public key
-are in the Certificates.
+RSA, DSA or ECDSA is used as key pair exchange, the public keys
+is in the Certificates and the private keys keep in the Server(see section
+\ref{tls_proto}).
 
 All parameters in the application which need memory allocation was replaced as
 well as possible with context and key management.
@@ -37,8 +47,8 @@ because some context does different steps depending on the value of the incoming
 ID in the interface.
 
 
-The problems occurred during the implementation of the interface for the
-application was:
+The problems occurred during the implementation of the interface for the \embtls
+application are:
 \begin{itemize}
   \item When sending a Server Key Exchange, the parameters to send are in a
   certain order. In the old implementation, this part was
@@ -51,15 +61,20 @@ application was:
   old implementation, it was easier to rewrite this part of the Server Key Exchange.
   This problem and solution is the same for receiving a Server Key Exchange, and
   quick the same for sending and receiving the public key in the Client Key
-  Exchange.
+  Exchange, where only the public key has to be sent.
   \item When extracting the public key of a certificate, when the
   Certificates are coming from the Server, this part has been done with
   functions from the provider in the old implementation. The functions use
-  ASN.1 DER encoding rules \cite{rec:der} function, which are very complex and
-  this is not the goal of the project to rewrite this sort of function. That's why another
-  source file, named ``gci\_tomcrypt'', has been created to use the function
-  from the provider, but with the goal to not have any part of the provider written
-  in the application part.
+  ASN.1 DER encoding rules \cite{rec:der} functions, which are very complex and
+  long and not managed by the interface, because it's not focus on the
+  work in TLS protocol only, but for general application which needs
+  Cryptography. The rewriting of the functions use by the provider wasn't
+  a good idea, because they are a lot of complex functions and this is not the
+  goal of the project to rewrite this sort of function.
+  That's why another source file, named ``gci\_tomcrypt'', has been created to
+  use the functions of the provider for this part.
+  This was the only solution to  completely remove the use of the provider in
+  the application.
 \end{itemize}
 
 
@@ -76,12 +91,35 @@ application was:
 
 \section{Provider for the interface}
 
+ LibTom Projects are open source libraries written in portable C under What
+ The Fuck Public License, which is a very permissive license for software and
+ other scientific or artistic works that offers a great degree of freedom.
+ The projects consist of three prominent libraries (LibTomCrypt, LibTomMath and
+ TomsFastMath) which form the bulk of the source contributions.
+ This \tomcrypt library is used as a provider for the cryptographic calculation
+ needed for the interface.
+
 The implementation of the \tomcrypt provider to the Generic Cryptographic
 Interface (GCI) is important to do all the calculation needed for each algorithm
 needed by the application.
 
-For the hash algorithm context (includes the clone of the context of the hash
-algorithm), the hash algorithms implemented are:
+The services of the interface and implemented with the \tomcrypt library as a
+provider are:
+\begin{itemize}[noitemsep]
+  \item Hash algorithm
+  \item Signature algorithm (Generation and verification)
+  \item Message Authentication Code (HMAC)
+  \item Cipher algorithm (symmetric, asymmetric, for encryption and decryption)
+  \item Random number generator
+  \item Diffie Hellman (generation of key pair and calculation of the secret
+  key)
+  \item Key management
+  \item Context management
+\end{itemize}
+
+\subsection*{Hash algorithm}
+
+For the hash algorithm, the algorithms implemented are:
 \begin{itemize}[noitemsep]
   \item MD5 algorithm, which is used by the \embtls application and works
   \item SHA1 algorithm, which is used by the \embtls application and works
@@ -96,6 +134,11 @@ algorithm), the hash algorithms implemented are:
 
 All the hash algorithms have been implemented, but not all have been tested,
 because they aren't used by the \embtls application.
+They are implemented (and not) for the four functions (creation of the
+context, update of data, calculation of the digest and clone of the context)
+described in the chapter \ref{gci}.
+
+\subsection*{Digital signature / Message Authentication Code (MAC) algorithm}
 
 For the generation of the signature, the signature/Message Authentication Code
 (MAC) algorithms implemented are:
@@ -105,7 +148,8 @@ For the generation of the signature, the signature/Message Authentication Code
   \item RSA algorithm, which is used by the \embtls application and works
 \end{itemize}
 
-The signature/Message Authentication Code (MAC) algorithms, which aren't
+
+The digital signature/Message Authentication Code (MAC) algorithms, which aren't
 implemented are:
 \begin{itemize}[noitemsep]
   \item Cipher-based Message Authentication Code (CMAC)
@@ -126,9 +170,16 @@ For the verification of the signature, the signature/Message Authentication Code
 The other algorithms (see above, for the generation of a signature) aren't
 needed for the \embtls application.
 
+These algorithms implemented (and not) for the three signature functions
+(creation of the context, update of data and calculation of the signature)
+described in the chapter \ref{gci}.
+
+\subsection*{Generation of key pair}
 
 For the generation of key pair (RSA, DSA or ECDSA) none has been implemented,
 because none is needed for the \embtls application.
+
+\subsection*{Cipher}
 
 For the cipher (symmetric and asymmetric) algorithms, these implemented are:
 \begin{itemize}[noitemsep]
@@ -149,18 +200,38 @@ The block mode for the symmetric algorithms implemented are:
 Only the CBC block mode is used by the \embtls application, the others are
 implemented, but not tested.
 
-Generation of a Random Number (included the seed) is implemented and works
+These algorithms are implemented for the three function of the cipher (creation
+of the cipher, encryption of a plaintext and decryption of a ciphertext),
+which are described in the chapter \ref{gci},.
 
-Diffie-Hellman (and Elliptic Curve of Diffie-Hellman (ECDH)) is implemented and
-works.
+\subsection*{Random Number Generator}
+The two functions needed for the Random Number Generator (seed and generation of
+a random number), described in the chapter \ref{gci}, are implemented and work.
 
-The context management and key management are implemented and work too.
+\subsection*{Diffie-Hellman}
+
+The three functions of Diffie-Hellman and the Elliptic Curve Diffie-Hellman
+algorithm (creation of a context, generation of the key pair and calculation of
+the secret key), described in the chapter \ref{gci}, are implemented and work.
+
+\subsection*{Context management}
+The function for the creation of the context is implemented for all the
+algorithms which need it.
+The function to delete a context is implemented and work too.
+These functions are described in the chapter \ref{gci}.
+
+\subsection*{Key management}
+The three functions for the key management (put a key, get a key and delete a
+key), described in the chapter \ref{gci}, are implemented and work.
+
 
 For the algorithms, which has been implemented but not tested, are implemented,
 because the implementation doesn't change a lot compared to this which was
 implemented and worked (Hash algorithm and Block mode for the symmetric cipher).
 
-Problems occurred for the implementation of the \tomcrypt provider for the
+\subsection*{Problems occured}
+
+The problems occurred for the implementation of the \tomcrypt provider for the
 Generic Cryptographic Interface:
 
 \begin{itemize}

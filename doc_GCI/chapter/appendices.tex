@@ -1,0 +1,627 @@
+\addcontentsline{toc}{chapter}{Appendix}
+
+\begin{appendices}
+\chapter{Other parameters}
+
+\section{Global types}
+
+%----------------------------------------------------------------------------------------
+%	Context ID
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name			& Type			& Definition \\
+\Gline
+GciCtxId\_t		& int 			& Context's ID \\
+\hline
+\end{tabular}
+\captionof{table}{Context's ID (st\_gciCtxId\_t) }
+\label{tab:app_ctx}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	Key ID
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name			& Type			& Definition \\
+\Gline
+GciKeyId\_t		& int 			& Key's ID \\
+\hline
+\end{tabular}
+\captionof{table}{Key's ID (st\_gciKeyId\_t) }
+\label{tab:app_key}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	Big Int
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type			& Definition \\
+\Gline
+len			& size\_t 		& Length of the big number (in bytes) \\
+\hline
+data		& uint8\_t*		& Big numbre (data) \\
+\hline
+\end{tabular}
+\captionof{table}{Parameters of a big number (st\_gciBigInt\_t) }
+\label{tab:app_bn}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	Buffer
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type			& Definition \\
+\Gline
+len			& size\_t 		& Length of the buffer (in bytes) \\
+\hline
+data		& uint8\_t*		& Buffer (data) \\
+\hline
+\end{tabular}
+\captionof{table}{Parameters of a buffer (st\_gciBuffer\_t) }
+\label{tab:app_buf}
+
+\end{center}
+
+
+\section{Managements}
+
+%----------------------------------------------------------------------------------------
+%	Result
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c|}
+ \hline
+Name					& Parameter \\
+\Gline
+No errors				& en\_gciResult\_Ok \\
+\hline
+Error(s)				& en\_gciResult\_Err \\
+\hline
+\end{tabular}
+\captionof{table}{Error management (en\_gciResult\_t) }
+\label{tab:app_res}
+
+\end{center}
+
+
+%----------------------------------------------------------------------------------------
+%	Info
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c|}
+ \hline
+Name							& Parameter \\
+\Gline
+Invalid Information				& en\_gciInfo\_Invalid \\
+\hline
+Name of the available curves	& en\_gciInfo\_CurveName \\
+\hline
+\end{tabular}
+\captionof{table}{Information management (en\_gciInfo\_t) }
+\label{tab:app_info}
+
+\end{center}
+
+
+
+\section{Block modes}
+
+%----------------------------------------------------------------------------------------
+%	Block mode
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c|}
+ \hline
+Name					& Parameter \\
+\Gline
+Invalid Block mode		& en\_gciBlockMode\_Invalid \\
+\hline
+CBC						& en\_gciBlockMode\_Cbc \\
+\hline
+ECB						& en\_gciBlockMode\_Ecb \\
+\hline
+CFB						& en\_gciBlockMode\_Cfb \\
+\hline
+OFB						& en\_gciBlockMode\_Ofb \\
+\hline
+GCM						& en\_gciBlockMode\_Gcm \\
+\hline
+No block mode			& en\_gciBlockMode\_None \\
+\hline
+\end{tabular}
+\captionof{table}{Block modes (en\_gciBlockMode\_t) }
+\label{tab:app_bm}
+
+\end{center}
+
+\section{Paddings}
+
+%----------------------------------------------------------------------------------------
+%	Padding
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c|}
+ \hline
+Name					& Parameter \\
+\Gline
+Invalid Padding			& en\_gciPadding\_Invalid \\
+\hline
+ISO 9797				& en\_gciPadding\_Iso9797 \\
+\hline
+PKCS1 V1.5				& en\_gciPadding\_Pkcs1\_V1\_5 \\
+\hline
+PKCS1 EMSA				& en\_gciPadding\_Pkcs1\_Emsa \\
+\hline
+PKCS5					& en\_gciPadding\_Pkcs5 \\
+\hline
+PKCS7					& en\_gciPadding\_Pkcs7 \\
+\hline
+No padding				& en\_gciPadding\_None \\
+\hline
+\end{tabular}
+\captionof{table}{Paddings (en\_gciPadding\_t) }
+\label{tab:app_pad}
+
+\end{center}
+
+\section{Domain parameters}
+
+%----------------------------------------------------------------------------------------
+%	DSA domain parameters
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type					& Definition \\
+\Gline
+p			& st\_gciBigInt\_t 		& Prime number \\
+\hline
+q			& st\_gciBigInt\_t		& Divisor \\
+\hline
+g			& st\_gciBigInt\_t		& Generator \\
+\hline
+\end{tabular}
+\captionof{table}{DSA domain parameters (st\_gciDsaDomainParam\_t) }
+\label{tab:app_dsa}
+
+
+\end{center}
+
+
+%----------------------------------------------------------------------------------------
+%	Diffie-Hellman domain parameters
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type					& Definition \\
+\Gline
+p			& st\_gciBigInt\_t 		& Prime number \\
+\hline
+g			& st\_gciBigInt\_t		& Generator \\
+\hline
+\end{tabular}
+\captionof{table}{Diffie-Hellman domain parameters (st\_gciDhDomainParam\_t) }
+\label{tab:app_dh}
+
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	Elliptic Curve domain parameters
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type					& Definition \\
+\Gline
+a			& st\_gciBigInt\_t 		& Coefficient a \\
+\hline
+b			& st\_gciBigInt\_t		& Coefficient b \\
+\hline
+g			& st\_gciEcPoint\_t 	& Generator \\
+\hline
+p			& st\_gciBigInt\_t		& Prime number group \\
+\hline
+N			& st\_gciBigInt\_t 		& Elliptic curve group \\
+\hline
+h			& st\_gciBigInt\_t		& Subgroup of ellitptic curve group  \\
+			&						& generated by g (generator) \\
+\hline
+\end{tabular}
+\captionof{table}{Coordinate of Elliptic Curves (st\_gciEcDomainParam\_t) }
+\label{tab:app_ec_dom}
+
+\end{center}
+
+\section{Elliptic curves}
+
+%----------------------------------------------------------------------------------------
+%	Elliptic Curve points
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type					& Definition \\
+\Gline
+x			& st\_gciBigInt\_t 		& x-coordinate \\
+\hline
+y			& st\_gciBigInt\_t		& y-coordinate \\
+\hline
+\end{tabular}
+\captionof{table}{Coordinate of Elliptic Curves (st\_gciEcPoint\_t) }
+\label{tab:app_ec_pt}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	Elliptic Curve names
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c|}
+ \hline
+Name					& Parameter \\
+\Gline
+Invalid Curve			& en\_gciNamedCurve\_Invalid \\
+\hline
+SECT163K1				& en\_gciNamedCurve\_Sect163K1 \\
+\hline
+SECT163R1				& en\_gciNamedCurve\_Sect163R1 \\
+\hline
+SECT163R2				& en\_gciNamedCurve\_Sect163R2 \\
+\hline
+SECT193R1				& en\_gciNamedCurve\_Sect193R1 \\
+\hline
+SECT193R2				& en\_gciNamedCurve\_Sect193R2 \\
+\hline
+SECT233K1				& en\_gciNamedCurve\_Sect233K1 \\
+\hline
+SECT233R1				& en\_gciNamedCurve\_Sect233R1 \\
+\hline
+SECT239K1				& en\_gciNamedCurve\_Sect239K1 \\
+\hline
+SECT283K1				& en\_gciNamedCurve\_Sect283K1 \\
+\hline
+SECT283R1				& en\_gciNamedCurve\_Sect283R1 \\
+\hline
+SECT409K1				& en\_gciNamedCurve\_Sect409K1 \\
+\hline
+SECT409R1				& en\_gciNamedCurve\_Sect409R1 \\
+\hline
+SECT571K1				& en\_gciNamedCurve\_Sect571K1 \\
+\hline
+SECT571R1				& en\_gciNamedCurve\_Sect571R1 \\
+\hline
+SECT160K1				& en\_gciNamedCurve\_Sect160K1 \\
+\hline
+SECT160R1				& en\_gciNamedCurve\_Sect160R1 \\
+\hline
+SECT160R2				& en\_gciNamedCurve\_Sect160R2 \\
+\hline
+SECT192K1				& en\_gciNamedCurve\_Sect192K1 \\
+\hline
+SECT192R1				& en\_gciNamedCurve\_Sect192R1 \\
+\hline
+SECT224K1				& en\_gciNamedCurve\_Sect224K1 \\
+\hline
+SECT224R1				& en\_gciNamedCurve\_Sect224R1 \\
+\hline
+SECT256K1				& en\_gciNamedCurve\_Sect256K1 \\
+\hline
+SECT256R1				& en\_gciNamedCurve\_Sect256R1 \\
+\hline
+SECT384R1				& en\_gciNamedCurve\_Sect384R1 \\
+\hline
+SECT512R1				& en\_gciNamedCurve\_Sect512R1 \\
+\hline
+BRAINPOOLP256R1			& en\_gciNamedCurve\_BrainpoolP256R1 \\
+\hline
+BRAINPOOLP384R1			& en\_gciNamedCurve\_BrainpoolP384R1 \\
+\hline
+BRAINPOOLP512R1			& en\_gciNamedCurve\_BrainpoolP512R1 \\
+\hline
+\end{tabular}
+\captionof{table}{Elliptic curves \cite{RFC4492} (en\_gciNamedCurve\_t) }
+\label{tab:app_ec}
+
+\end{center}
+
+\section{Configurations}
+
+
+%----------------------------------------------------------------------------------------
+%	Configuration RSA as signature scheme
+%----------------------------------------------------------------------------------------
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type					& Definition \\
+\Gline
+padding		& st\_gcigciPadding\_t 	& Padding \\
+\hline
+\end{tabular}
+\captionof{table}{Configuration of RSA Signature Scheme Algorithms
+(st\_gciSignRsaConfig\_t)) }
+\label{tab:app_rsassa}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	Configuration Cipher-based Message Authentication Code (MAC)
+%----------------------------------------------------------------------------------------
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+\hline
+Parameter 	& Type 					& Definition\\
+\Gline
+block		& en\_gciBlockMode\_t 	& Block mode \\
+\hline
+padding		& en\_gciPadding\_t		& Padding \\
+\hline
+iv 			& en\_gciBuffer\_t 		& Initial Vector\\
+\hline
+\end{tabular}
+\captionof{table}{Configuration of cipher-based MAC (st\_gciSignCmacConfig\_t))}
+\label{tab:app_cmac}
+
+
+\end{center}
+
+
+%----------------------------------------------------------------------------------------
+%	Configuration RSA as signature scheme
+%----------------------------------------------------------------------------------------
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+\hline
+Parameter 		& Type 		& Definition\\
+\Gline
+modulusLen		& size\_t 	& Length of the modulus\\
+\hline
+\end{tabular}
+\captionof{table}{Configuration of RSA key (st\_gciRsaKeyGenConfig\_t))}
+\label{tab:app_rsa_key_conf}
+
+
+\end{center}
+
+
+\section{Keys}
+
+%----------------------------------------------------------------------------------------
+%	RSA public key
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type					& Definition \\
+\Gline
+n			& st\_gciBigInt\_t 		& Prime number \\
+\hline
+e			& st\_gciBigInt\_t		& Public exponent \\
+\hline
+\end{tabular}
+\captionof{table}{RSA public key (st\_gciRsaPubKey\_t) }
+\label{tab:app_rsa_pub}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	RSA Chinese Remain Theorem (CRT) private key
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type					& Definition \\
+\Gline
+p			& st\_gciBigInt\_t 		& First prime number \\
+\hline
+q			& st\_gciBigInt\_t		& Second prime number \\
+\hline
+dP			& st\_gciBigInt\_t 		& dP = d mod (p-1) \\
+\hline
+dQ			& st\_gciBigInt\_t		& dQ = d mod (q-1) \\
+\hline
+qP			& st\_gciBigInt\_t 		& qP = $q^-1$ mod p \\
+\hline
+\end{tabular}
+\captionof{table}{RSA CRT private key (st\_gciRsaCrtPrivKey\_t) }
+\label{tab:app_rsa_crt_priv}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	RSA private key
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type						& Definition \\
+\Gline
+n			& st\_gciBigInt\_t 			& Prime number \\
+\hline
+d			& st\_gciBigInt\_t			& Private exponent \\
+\hline
+crt			& st\_gciRsaCrtPrivKey\_t*	& Private CRT \\
+\hline
+\end{tabular}
+\captionof{table}{RSA private key (st\_gciRsaPrivKey\_t) }
+\label{tab:app_rsa_priv}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	DSA key
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type							& Definition \\
+\Gline
+param		& st\_gciDsaDomainParam\_t* 	& DSA domain parameters \\
+\hline
+key			& st\_gciBigInt\_t				& Big numbers of the key \\
+\hline
+\end{tabular}
+\captionof{table}{DSA public/private key (st\_gciDsaKey\_t) }
+\label{tab:app_rsa_pub}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	Diffie-Hellman key (public or private)
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type						& Definition \\
+\Gline
+param		& st\_gciDhDomainParam\_t* 	& Diffie-Hellman domain parameters \\
+\hline
+key			& st\_gciBigInt\_t			& Big numbers of the key \\
+\hline
+\end{tabular}
+\captionof{table}{Diffie-Hellman public/private key (st\_gciDhKey\_t) }
+\label{tab:app_rsa_pub}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	Elliptic Curve Diffie-Hellman public key 
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type						& Definition \\
+\Gline
+curve		& st\_gciNamedCurve\_t* 	& Elliptic curves \\
+\hline
+coord		& st\_gciEcPoint\_t			& Coorindate (x,y) of the curve \\
+\hline
+\end{tabular}
+\captionof{table}{Elliptic curve Diffie-Hellman public key
+(st\_gciEcdhPubKey\_t) }
+\label{tab:app_ecdh_pub}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	Elliptic Curve Diffie-Hellman private key 
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type						& Definition \\
+\Gline
+curve		& st\_gciNamedCurve\_t* 	& Elliptic curves \\
+\hline
+key			& st\_gciBigInt\_t			& Big numbers of the key \\
+\hline
+\end{tabular}
+\captionof{table}{Elliptic Curve Diffie-Hellman private key
+(st\_gciEcdhPrivKey\_t) }
+\label{tab:app_ecdh_priv}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	Elliptic Curve DSA public key 
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type						& Definition \\
+\Gline
+curve		& st\_gciNamedCurve\_t* 	& Elliptic curves \\
+\hline
+coord		& st\_gciEcPoint\_t			& Coorindate (x,y) of the curve \\
+\hline
+\end{tabular}
+\captionof{table}{Elliptic curve DSA public key
+(st\_gciEcsaPubKey\_t) }
+\label{tab:app_ecdsa_pub}
+
+\end{center}
+
+%----------------------------------------------------------------------------------------
+%	Elliptic Curve DSA private key 
+%----------------------------------------------------------------------------------------
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+ \hline
+Name		& Type						& Definition \\
+\Gline
+curve		& st\_gciNamedCurve\_t* 	& Elliptic curves \\
+\hline
+key			& st\_gciBigInt\_t			& Big numbers of the key \\
+\hline
+\end{tabular}
+\captionof{table}{Elliptic Curve DSA private key
+(st\_gciEcdhPrivKey\_t) }
+\label{tab:app_ecdsa_priv}
+
+\end{center}
+
+
+
+
+\end{appendices}
+

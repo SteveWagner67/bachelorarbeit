@@ -1,10 +1,339 @@
 \chapter{Cipher algorithms}
 \label{cipher}
 
-\section{Configuration of a symmetric cipher}
+\section{Configuration of cipher algorithms}
 
-\section{Configuration of an asymmetric cipher}
+\begin{center}
 
-\section{Encrypt a plaintext}
+\begin{tabular}{| c | c|}
+ \hline
+Algorithm				& Parameter \\
+\Gline
+RC4						& en\_gciCipherAlgo\_Rc4 \\
+\hline
+DES						& en\_gciCipherAlgo\_Des \\
+\hline
+3DES					& en\_gciCipherAlgo\_3des \\
+\hline
+AES						& en\_gciCipherAlgo\_Aes \\
+\hline
+RSA						& en\_gciCipherAlgo\_Rsa \\
+\hline
+\end{tabular}
+\captionof{table}{Cipher algorithms (en\_gciCipherAlgo\_t) }
+\label{tab:cipher_algo}
 
-\section{Decrypt a ciphertext}
+\end{center}
+
+
+
+\begin{center}
+
+\begin{tabular}{| c | c | c |}
+\hline
+Parameter		& Type \\				
+\Gline
+algo			& en\_gciCipherAlgo\_t \\
+\hline
+blockMode		& en\_gciBlockMode\_t \\
+(If DES, 3DES or AES is used as algorithm)	& \\
+\hline
+padding			& en\_gciPadding\_t \\	
+(If RSA is used as algorithm)& \\		
+\hline
+iv				& st\_gciBuffer\_t \\
+(If DES, 3DES or AES is used as algorithm)	& \\
+\hline	
+
+
+\end{tabular}
+\captionof{table}{Configuration of cipher algorithms
+(st\_gciCipherConfig\_t))}
+\label{tab:cipher_conf}
+
+\end{center}
+
+\section{Prototypes}
+
+\subsection{Creation of a context}
+
+\begin{lstlisting}
+en_gciResult_t gciCipherNewCtx( const st_gciCipherConfig_t* p_ciphConfig,
+GciKeyId_t keyID, GciCtxId_t* p_ctxID )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 						& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& st\_gciCipherConfig\_t*	& p\_ciphConfig			& Pointer to the
+ configuration of the cipher
+ \\
+ \hline
+ Input	   	& GciKeyId\_t			 	& keyID					& ID of the key uses to encrypt/decrypt
+ \\
+ \hline
+Output		& GciCtxId\_t* 				& p\_ctxID				& Pointer to the
+context's ID \\
+\hline
+\end{tabular}
+\captionof{table}{Parameters for the creation of a cipher context}
+\label{tab:ciph_ctx}
+
+\end{center}
+
+For a symmetric cipher, the key, represented here by the ID, should be the same
+for the two parts of the communication for the encryption and the decryption of data.
+
+For an asymmetric cipher, the key, reprensented here by the ID, must be the
+public key of the key pair for the encryption and the private key for the
+decryption of data.
+
+\subsubsection*{Symmetric stream cipher}
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 		& Configuration				& Prohibition(s) \\
+ \Gline
+ algo 	   		& en\_gciSignAlgo\_Rc4 		& - \\
+\hline
+ blockMode		& en\_gciBlockMode\_None	& - \\					
+ \hline
+ padding		& en\_gciPadding\_None 		& - \\
+ \hline
+ iv				& NULL						& - \\
+ \hline
+\end{tabular}
+\captionof{table}{Configuration of symmetric stream ciphers
+(st\_gciCipherConfig\_t)}
+\label{tab:ciph_stream}
+
+\end{center}
+
+\subsubsection*{Symmetric block cipher}
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 		& Configuration				& Prohibition(s) \\
+ \Gline
+ algo 	   		& en\_gciSignAlgo\_Des 		& en\_gciCipherAlgo\_Invalid \\
+ 				& en\_gciSignAlgo\_3Des		& en\_gciCipherAlgo\_None \\
+ 				& en\_gciSignAlgo\_Aes		& en\_gciCipherAlgo\_Rc4 \\
+ 				&							& en\_gciCipherAlgo\_Rsa \\
+\hline
+ blockMode		& en\_gciBlockMode\_t 		& en\_gciBlockMode\_Invalid \\
+ 				&							& en\_gciBlockMode\_None \\					
+ \hline
+ padding		& en\_gciPadding\_None 		& - \\
+ \hline
+ iv				& st\_gciBuffer\_t			& less or equal than 0 \\
+ \hline
+\end{tabular}
+\captionof{table}{Configuration of symmetric block ciphers
+(st\_gciCipherConfig\_t)}
+\label{tab:ciph_block}
+
+\end{center}
+
+\subsubsection*{Asymmetric cipher}
+
+\begin{center}
+
+\begin{tabular}{| c | *{2}{c|}}
+ \hline
+ Parameter 		& Configuration				& Prohibition(s) \\
+ \Gline
+ algo 	   		& en\_gciSignAlgo\_Rsa 		& - \\
+\hline
+ blockMode		& en\_gciBlockMode\_None	& - \\					
+ \hline
+ padding		& en\_gciPadding\_t			& en\_gciPadding\_Invalid \\
+ 				&							& en\_gciPadding\_None \\
+ \hline
+ iv				& NULL						& - \\
+ \hline
+\end{tabular}
+\captionof{table}{Configuration of asymmetric ciphers
+(st\_gciCipherConfig\_t)}
+\label{tab:ciph_asym}
+
+\end{center}
+
+\subsection{Encryption a plaintext}
+
+\begin{lstlisting}
+en_gciResult_t gciCipherEncrypt( GciCtxId_t ctxId, const uint8_t* p_plaintxt,
+size_t pltxtLen, uint8_t* p_ciphtxt, size_t* p_cptxtLen )
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 				& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& GciCtxId\_t		& ctxID					& Context's ID \\
+ \hline
+ Input	   	& uint8\_t*			& p\_plaintext			& Pointer to the plaintext to encrypt \\
+ \hline
+ Input		& size\_t			& pltxtLen				& Length of the plaintext to encrypt \\
+ \hline
+ Output		& uint8\_t*			& p\_ciphtxt			& Pointer to the ciphertext \\
+ \hline
+ Output		& size\_t*			& p\_cptxtLen			& Pointer to the length of the ciphertext
+ \\
+ \hline
+\end{tabular}
+\captionof{table}{Parameters for the encryption of a plaintext}
+\label{tab:ciph_enc}
+
+\end{center}
+
+\subsection{Decryption a ciphertext}
+
+\begin{lstlisting}
+en_gciResult_t gciCipherDecrypt( GciCtxId_t ctxId, const uint8_t* p_ciphtxt,
+size_t cptxtLen, uint8_t* p_plaintxt, size_t* p_pltxtLen );
+\end{lstlisting}
+
+\begin{center}
+
+\begin{tabular}{| c | *{3}{c|}}
+ \hline
+ Direction 	& Type 				& Parameter 			& Definition \\
+ \Gline
+ Input 	   	& GciCtxId\_t		& ctxID					& Context's ID \\
+ \hline
+ Input	   	& uint8\_t*			& p\_ciphtxt			& Pointer to the ciphertext to decrypt
+ \\
+ \hline
+ Input		& size\_t			& cptxtLen				& Length of the ciphertext to decrypt
+ \\
+ \hline
+ Output		& uint8\_t*			&  p\_plaintext			& Pointer to the plaintext \\
+ \hline
+ Output		& size\_t*			& p\_pltxtLen			& Pointer to the length of the plaintext
+ \\
+ \hline
+\end{tabular}
+\captionof{table}{Parameters for the decryption of a ciphertext}
+\label{tab:ciph_dec}
+
+\end{center}
+
+
+\section{Step to encrypt and decrypt data}
+
+For this example the keys have already been added previously to the interface 
+and an ID returned.
+
+\begin{lstlisting}
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "crypto_iface.h"
+int main(int argc , char *argv[])
+{
+
+    /* Error management */
+    en_gciResult_t err;
+
+    int i;
+
+    uint8_t a_pltxt[20] = {"Data to encrypt"};
+    size_t pltxtLen = strlen(a_pltxt);
+
+    uint8_t a_ciphtxt[50];
+    memset(a_ciphtxt, 0, 50);
+    size_t ciphtxtLen = 0;
+
+    /* Configuration of a RSA cipher uses for encryption */
+    st_gciCipherConfig_t rsaConfEnc = {.algo = en_gciCipherAlgo_Rsa,
+        .blockMode = en_gciBlockMode_None,
+        .padding = en_gciPadding_Pkcs1_Emsa,
+        .iv = NULL
+    };
+
+    /* Context's ID */
+    GciCtxId_t rsaEncCtxID = -1;
+    GciCtxId_t rsaDecCtxID = -1;
+
+    /* Creation of the cipher context */
+    err = gciCipherNewCtx(&rsaConfEnc, rsaPubKeyID, &rsaEncCtxID);
+
+    /* Error coming from the creation of a RSA cipher context */
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciCipherNewCtx: RSA");
+    }
+
+    /* Encrytion of the plaintext */
+    err = gciCipherEncrypt(rsaEncCtxID, a_pltxt, pltxtLen, a_ciphtxt, &ciphtxtLen);
+
+    /* Error coming from the encryption with a RSA cipher context */
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciCipherEncrypt: RSA");
+    }
+
+    else
+    {
+
+        printf("Ciphertext:");
+
+        for(i=0; i<ciphtxtLen; i++)
+        {
+            printf("%d", a_ciphtxt[i]);
+        }
+    }
+
+
+    /* Configuration of a RSA cipher uses for decryption */
+    st_gciCipherConfig_t rsaConfDec = {.algo = en_gciCipherAlgo_Rsa,
+        .blockMode = en_gciBlockMode_None,
+        .padding = en_gciPadding_Pkcs1_Emsa,
+        .iv = NULL
+    };
+
+    memset(a_pltxt, 0, 50);
+    pltxtLen = 0;
+
+
+    /* Creation of the cipher context */
+    err = gciCipherNewCtx(&rsaConfDec, rsaPrivKeyID, &rsaDecCtxID);
+
+    /* Error coming from the creation of a RSA cipher context */
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciCipherNewCtx: RSA");
+    }
+
+    /* Decryption of the ciphertext */
+    err = gciCipherDecrypt(rsaDecCtxID, a_ciphtxt, ciphtxtLen, a_pltxt, &pltxtLen);
+
+    /* Error coming from the decryption with a RSA cipher context */
+    if(err != en_gciResult_Ok)
+    {
+        printf("GCI Error in gciCipherDecrypt: RSA");
+    }
+
+    else
+    {
+
+        printf("Plaintext:");
+
+        for(i=0; i<pltxtLen; i++)
+        {
+            printf("%d", a_pltxt[i]);
+        }
+    }
+
+}
+\end{lstlisting}

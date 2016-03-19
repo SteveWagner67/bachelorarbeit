@@ -1,16 +1,9 @@
-\chapter{Conclusion}
-Through this project I get a lot of knowledge about cryptography. It allows me
-to learn all the main cryptography algorithms use in cryptography, the
-functioning of them and why these algorithms are used today.
-
-I learned a lot about the TLS protocol too. It allows me to understand all the
-step needed to get a secured communication, and that a lot of verification has
-to be done to be sure that the communication is secure.
+﻿\chapter{Conclusion}
 
 
 \section{Achieved work}
 
-The project is, unfortunately, completely achieved, but globaly the most
+The project is, unfortunately, not completely achieved, but globally the most
 important parts are done.
 
 The project was split into four parts.
@@ -27,22 +20,41 @@ The achieved work in this project is the design of the new Generic
 Cryptographic Interface (GCI)), and globally the implementation of the interface
 in the application and the implementation of the provider in the interface.
 
-This is not completely done, because all the cipher suites shown in the
-chapter \ref{res} doesn't work in all case.
-There is two parts in the project, when the application, \embtls, work as Client
-and as Server.
-
-The figure \ref{fig:res} shown the result for \embtls as Client. When \embtls
-work as Server, all the cipher suites with the Diffie-Hellman and the Elliptic
-Curve Diffie-Hellman (ECDH) don't work. The problem should come in the Server
-Key Exchange part, because this is the only part which changed compared to the
-other cipher suites.
+These implementations were done in two parts. The first part when the \embtls
+application works as Client. The Server was done with project OpenSSL
+\cite{doc:openssl}.
+Figure \ref{fig:res} shows the cipher suites when the application \embtls works as
+Client.
+The second part of the implementation was when the \embtls application works as
+Server. The Client was done with the project cURL \cite{wiki:curl}. The cipher
+suites which used Diffie-Hellman and Elliptic Curve Diffie-Hellman as key exchange don't work in
+this part. The problem comes when we receive the Client Key Exchange. The secret
+key, we have to compute, is not the same as this coming from the Client. That
+should come from the decryption of the Client Key Exchange with the private key, which
+the public key is sent in the Certificates. The problem could come when we send
+the Server Key Exchange, maybe there is a shift with the sent data and the
+Client receives the wrong public key\ldots
 
 \section{Future work}
-The future work which could be done with this project would be to finish the
+
+The future works which could be done with this project would be to finish the
 implementation of the \embtls as Server (the Diffie-Hellman and Elliptic Curve
-Diffie-Hellman, which don't work), the implementation of the ECDSA algorithm as
-key exchange, which was done in another project, the test of other cipher suites
-to increase the use of this new Generic Cryptographic Interface (GCI), and the
-most important would be to write the documentation of the new Generic Cryptographic Interface,
-for other future projects which will need this interface as support.
+Diffie-Hellman protocols for the key exchange, which don't work), the
+implementation of the ECDSA algorithm as key exchange, which was done in another
+project, the test of other cipher suites to increase the use of this new Generic
+Cryptographic Interface (GCI), the test of the interface in other projects to
+use all the function provides by the interface and be sure that it doesn't miss
+something and the most important would be to write the documentation of the new
+Generic Cryptographic Interface, for other future projects which will need this
+interface as support.
+
+\section{What I learned}
+Through this thesis I learned the Cryptography, a domain I didn't know until
+this thesis, or maybe only the use of the hash for the checksum. I learned the
+existing main cryptography algorithms and the use of them.
+
+I learned about the TLS protocol too. It allows me to understand all the step
+needed to get a secured communication and where is the TLS protocol used today.
+
+I learned to use the software Wireshark, which was very useful for the
+implementation part, chapter \ref{imp}.
